@@ -1,2 +1,2 @@
 # gito
-GITO, a lightweight and safe container for bioinformatics
+gito, a lightweight and safe container for bioinformatics
