@@ -7,18 +7,18 @@ This pipeline is based on the work of Hernández-Fernández (2017), which is the
 
 ## Preparing execution environment
 ```sh
-mkdir -p ~/pipeline/eretmochelys_imbricata
-cd ~/pipeline/eretmochelys_imbricata
-mkdir bin/ work/
+$ mkdir -p ~/pipeline/eretmochelys_imbricata
+$ cd ~/pipeline/eretmochelys_imbricata
+$ mkdir bin/ work/
 ```
 
 ## Download 
 ```sh
-wget https://raw.githubusercontent.com/gitobioinformatics/gito/master/examples/eretmochelys_imbricata/run_pipeline.sh -O bin/
-chmod +x bin/run_pipeline.sh
+$ wget https://raw.githubusercontent.com/gitobioinformatics/gito/master/examples/eretmochelys_imbricata/run_pipeline.sh -O bin/
+$ chmod +x bin/run_pipeline.sh
 ```
 
 ## Run the pipeline
 ```sh
-./bin/run_pipeline.sh -w work/
+$ ./bin/run_pipeline.sh -w work/
 ```
