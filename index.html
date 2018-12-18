@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Gito</title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="" name="keywords">
+  <meta content="" name="description">
+
+  <!-- Favicons -->
+  <link href="img/favicon.png" rel="icon">
+  <link href="img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic|Raleway:400,300,700" rel="stylesheet">
+
+  <!-- Bootstrap CSS File -->
+  <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Libraries CSS Files -->
+  <link href="lib/icomoon/icomoon.css" rel="stylesheet">
+  <link href="lib/animate/animate.css" rel="stylesheet">
+
+  <!-- Main Stylesheet File -->
+  <link href="css/style.css" rel="stylesheet">
+
+  <!-- =======================================================
+    Template Name: Dot
+    Template URL: https://templatemag.com/dot-bootstrap-agency-template/
+    Author: TemplateMag.com
+    License: https://templatemag.com/license/
+  ======================================================= -->
+</head>
+
+<body data-spy="scroll" data-offset="58" data-target="#navbar-main">
+
+ <!--  <div id="navbar-main">
+    < Fixed navbar -->
+    <!-- <div class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon icon-radio-checked" style="font-size:30px; color:#1abc9c;"></span>
+          </button>
+          <a class="navbar-brand hidden-xs hidden-sm smoothscroll" href="#home"><span class="icon icon-radio-checked" style="font-size:18px; color:#1abc9c;"></span></a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="#home" class="smoothscroll">Home</a></li>
+            <li> <a href="#about" class="smoothscroll"> About</a></li>
+            <li> <a href="#services" class="smoothscroll"> Services</a></li>
+            <li> <a href="#team" class="smoothscroll"> Team</a></li>
+            <li> <a href="#portfolio" class="smoothscroll"> Portfolio</a></li>
+            <li> <a href="#blog" class="smoothscroll"> Blog</a></li>
+            <li> <a href="#pricing" class="smoothscroll"> Pricing Tables</a></li>
+            <li> <a href="#contact" class="smoothscroll"> Contact</a></li>
+        </div>
+        </.nav-collapse -->
+    <!--   </div>
+    </div>
+  </div> --> 
+
+  <!-- ==== HEADERWRAP ==== -->
+  <div id="home"></div>
+  <div id="headerwrap" name="home">
+    <header class="clearfix">
+      <img src="img/gito.png" alt="Gito" width="250" height="300"> 
+      <p>A lightweight and safe container for bioinformatics</p>
+      
+    </header>
+  </div>
+  <!-- /headerwrap -->
+
+
+
+  <!-- ==== ABOUT ==== -->
+  <div class="container" id="about" name="about">
+    <div class="row white">
+      <br>
+      <h1 class="centered">Full Description:</h1>
+      <hr>
+
+      <div class="col-lg-6">
+        <p>GITO, a lightweight and safe container docker image based on Alpine containing bioinformatics tools ready to be used. The base image is only 4.41 MB in size and contains only the OS libraries and language de-pendencies required to run an application, but robust enough to run bioinformatics pipeline with security.
+
+GITO is an open source project Docker and provides an easy and modular method for building, distributing, and replicating pipelines, which has a base image (GITO-base) that forms the single foundation layer on which each container application is built.
+
+</p>
+      </div>
+      <!-- col-lg-6 -->
+
+      <div class="col-lg-6">
+        <p>GITO adopts "start with minimum and add dependencies as needed" approach, which have separate containers for each bioinformatics tool with the minimum to run. GITO use musl as the standard C library for Linux-based systems, called <a href="https://www.musl-libc.org">musl-libc</a>. Musl-libc is free, lightweight and smaller in size compared to the Glibc library. The source code for bioinformatics tools, written in C, C ++ and Java, has been compiled for native Alpine executables.
+      <!-- col-lg-6 -->
+    </div>
+    <!-- row -->
+  </div>
+  <!-- container -->
+
+  <!-- ==== SERVICES ==== -->
+  <div class="container" id="services" name="services">
+    <br>
+    <div class="row white">
+      <h1 class="centered">Guide to downloading and running this Docker image</h1>
+      <hr>
+      <br>
+      <br>
+      <div class="col-lg-4">
+        <!-- START SERVICE 1 -->
+        <div class="service-active">
+          <span class="service-trigger glyphicon glyphicon-download-alt"><p>Step 1: Install Docker</p></span>
+          <div class="service-content">
+            <p>To download and run this Docker image, you first need to set up Docker on your machine. The easiest way to start with Docker is to install the <a href="https://www.docker.com/products/docker-desktop">Docker Toolbox </a>by simply downloading and clicking the installer which is available for both Mac OSX and Windows. For Linux users, follow the instructions <a href="https://docs.docker.com/get-started/">here.</a></p>
+          </div>
+          <!-- service-content -->
+        </div>
+        <!-- service-active -->
+        <!-- END SERVICE 1 -->
+      </div>
+      <!-- col-lg-4 -->
+
+      <div class="col-lg-4">
+        <!-- START SERVICE 2 -->
+        <div class="service-active">
+          <span class="service-trigger glyphicon glyphicon-download-alt"><p>Step 2: Download and run the Docker image</p></span>
+          <div class="service-content">
+            <p><b>Option 1: Through a Command Line Interface (CLI)</b><br>
+            The image can be downloaded and executed through the CLI of Docker's Docker Quickstart Terminal in the<a href="https://www.docker.com/products/docker-desktop"> Docker Toolbox</a> with the following commands:<br>
+
+            1.  Pull(download) the Docker images:<br>
+            $ docker pull gitobioinformatics/fastqc<br>
+            $ docker pull gitobioinformatics/trimmomatic<br>
+            $ docker pull gitobioinformatics/trinity<br>
+            $ docker pull gitobioinformatics/bowtie2<br>
+
+            2.  Change the working directory to a project, and run the following commands:<br>
+            # Run FastQC<br>
+            $ docker run -v $PWD:$PWD --rm gitobioinformatics/fastqc<br>
+             
+            # Run Trimmomatic<br>
+            $ docker run -v $PWD:$PWD --rm gitobioinformatics/trimmomatic<br>
+             
+            # Run Trinity<br>
+            $ docker run -v $PWD:$PWD --rm gitobioinformatics/trinity<br>
+             
+            # Run Bowtie2<br>
+            docker run -v $PWD:$PWD --rm gitobioinformatics/bowtie2
+
+            </p>
+          </div>
+          <!-- service-content -->
+        </div>
+        <!-- service-active -->
+        <!-- END SERVICE 2 -->
+      </div>
+      <!-- col-lg-4 -->
+
+      <div class="col-lg-4">
+        <!-- START SERVICE 3 -->
+        <div class="service-active">
+          <span class="service-trigger glyphicon glyphicon-cloud"><p>Deploy this Docker image onto your cloud</p></span>
+          <div class="service-content">
+            <p>You can download and deploy this Docker image with your cloud provider such as DigitalOcean, Amazon Web Services, HP Enterprise, IBM, Microsoft Azure Cloud or others.</p>
+          </div>
+          <!-- service-content -->
+        </div>
+        <!-- service-active -->
+        <!-- END SERVICE 3 -->
+      </div>
+      <!-- col-lg-4 -->
+    </div>
+    <!-- row -->
+    <br>
+    <br>
+    <div class="row">
+      <h2 class="centered">Reproducing a pipeline example</h2>
+      <hr>
+      <br>
+      <div class="col-lg-offset-2 col-lg-8">
+        <p>GITO was used to reproduce the pipeline present in the work of Hernández-Fernández (2017), which is the first de novo transcriptome assembly of Eretmochelys imbricate published (https://doi.org/10.1016/j.dib.2017.10.015), instructions used can be accessed <a href="https://github.com/gitobioinformatics/gito/tree/master/examples/eretmochelys_imbricata">here</a>.
+        </p>
+    
+      </div>
+      <!-- col-lg -->
+    </div>
+    <!-- row -->
+
+    <div class="row">
+      <h2 class="centered">License</h2>
+      <hr>
+      <br>
+      <div class="col-lg-offset-2 col-lg-8">
+        <p>MIT License. See License.txt (#Texto) for more information<br>
+      MIT License<br>
+
+      Copyright (c) 2018 Marcos Paulo Alves de Sousa, Franklin Gonçalves Sobrinho, Lucas Peres Oliveira, Kayke Correa Conceição Lins Pereira.<br>
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:<br>
+
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.<br>
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE. 
+      </p>
+      </div>
+      <!-- col -->
+    </div>
+    <!-- row -->
+  </div>
+  <!-- container -->
+
+
+  <!-- ==== SECTION DIVIDER2 -->
+  <section class="section-divider textdivider divider2">
+    <div class="container">
+      <h1>Contributions</h1>
+      <hr>
+      <p>GITO is open-source (see License), and we welcome contributions from anyone who is interested in contributing. To contribute code, please make a pull request on github_. The issue tracker for GITO is also available on github.</p>
+    </div>
+    <!-- container -->
+  </section>
+  <!-- section -->
+
+   <div class="row">
+      <h2 class="centered">Meaning and inspiration</h2>
+      <hr>
+      <br>
+      <div class="col-lg-offset-2 col-lg-8">
+        <p>The word "gito" is used by populations of the North of Brazil when people refer to something "very small, smaller than normal".
+The logo of the project was inspired by the Boto Tucuxi (Sotalia fluviatilis), which is one of the smallest dolphins in the Delphinidae family and the only one of this family that lives in rivers. It is a very agile dolphin, although it is an endangered species, it is still possible to find it in the rivers of the Amazon jumping in the air.
+
+<a href="https://animaldiversity.org/accounts/Sotalia_fluviatilis/#CADA0E42-68B6-4763-B5F8-5151464781FC">MORE INFORMATION</a>.
+
+
+        </p>
+    
+      </div>
+      <!-- col-lg -->
+    </div>
+
+      <div class="row">
+      <h2 class="centered">Acknowledgements</h2>
+      <hr>
+      <br>
+      <div class="col-lg-offset-2 col-lg-8">
+        <p>We thank the following institutions, which contributed to ensuring the success of our work:<br>
+        • Ministério da Ciência, Tecnologia, Inovação e Comunicação (MCTIC)<br>
+        • Museu Paraense Emílio Goeldi (MPEG)<br>
+        • Centro Universitário do Estado do Pará (CESUPA)
+
+
+        </p>
+    
+      </div>
+      <!-- col-lg -->
+    </div>
+
+
+  <div class="row">
+      <h2 class="centered">Funding</h2>
+      <hr>
+      <br>
+      <div class="col-lg-offset-2 col-lg-8">
+        <p>This work has been supported by Conselho Nacional de Desenvolvimento Científico e Tecnológico - CNPq (grants 149985/2018-5; 129954/2018-7)<br><br>
+
+      <b>Authors</b><br>
+      Marcos Paulo Alves de Sousa<br>
+      Franklin Gonçalves Sobrinho<br>
+      Lucas Peres Oliveira<br>
+      Kayke Correa Conceição Lins Pereira
+
+
+
+        </p>
+    
+      </div>
+      <!-- col-lg -->
+    </div>
+
+      <div class="row">
+      <h2 class="centered">Contact</h2>
+      <hr>
+      <br>
+      <div class="col-lg-offset-2 col-lg-8">
+        <p>Dr. Marcos Paulo Alves de Sousa (Project leader)<br>
+
+<i><b>Email:</b> msousa@museu-goeldi.br<br>
+Laboratório de Biologia Molecular<br>
+Museu Paraense Emílio Goeldi<br>
+Av. Perimetral 1901. CEP 66077- 530. Belém, Pará, Brazil.</i>
+
+
+
+        </p>
+    
+      </div>
+      <!-- col-lg -->
+    </div>
+  
+
+ 
+
+  <div id="copyrights">
+    <div class="container">
+      <p>
+        &copy; Copyrights <strong>GITO</strong>. All Rights Reserved
+      </p>
+      <div class="credits">
+        <!--
+          You are NOT allowed to delete the credit link to TemplateMag with free version.
+          You can delete the credit link only if you bought the pro version.
+          Buy the pro version with working PHP/AJAX contact form: https://templatemag.com/dot-bootstrap-agency-template/
+          Licensing information: https://templatemag.com/license/
+        -->
+      
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Libraries -->
+  <script src="lib/jquery/jquery.min.js"></script>
+  <script src="lib/bootstrap/js/bootstrap.min.js"></script>
+  <script src="lib/php-mail-form/validate.js"></script>
+  <script src="lib/easing/easing.min.js"></script>
+
+  <!-- Template Main Javascript File -->
+  <script src="js/main.js"></script>
+
+</body>
+</html>
