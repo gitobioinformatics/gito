@@ -39,17 +39,17 @@ Option 1: Through a Command Line Interface (CLI)
 
    2.  Change the working directory to a project, and run the following commands:
    
-        # Run FastQC
+        #Run FastQC
         $ docker run -v $PWD:$PWD --rm gitobioinformatics/fastqc
              
-        # Run Trimmomatic
+        #Run Trimmomatic
         $ docker run -v $PWD:$PWD --rm gitobioinformatics/trimmomatic
              
-        • # Run Trinity
-        • $ docker run -v $PWD:$PWD --rm gitobioinformatics/trinity
+        #Run Trinity
+        $ docker run -v $PWD:$PWD --rm gitobioinformatics/trinity
              
-        • # Run Bowtie2
-         docker run -v $PWD:$PWD --rm gitobioinformatics/bowtie2
+        #Run Bowtie2
+        $ docker run -v $PWD:$PWD --rm gitobioinformatics/bowtie2
          
 #### Deploy this Docker image onto your cloud
 You can download and deploy this Docker image with your cloud provider such as DigitalOcean, Amazon Web Services, HP Enterprise, IBM, Microsoft Azure Cloud or others.
