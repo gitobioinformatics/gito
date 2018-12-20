@@ -3,7 +3,7 @@
 
 # Gito - A lightweight and safe container for bioinformatics
 
-###Full Description:
+##Full Description:
 
 GITO, a lightweight and safe container docker image based on Alpine containing bioinformatics tools ready to be used. The base image is only 4.41 MB in size and contains only the OS libraries and language de-pendencies required to run an application, but robust enough to run bioinformatics pipeline with security.
 
@@ -16,14 +16,14 @@ the Glibc library. The source code for bioinformatics tools, written in C, C ++ 
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-###Guide to downloading and running this Docker image
-#####Step 1: Install Docker
+##Guide to downloading and running this Docker image
+##Step 1: Install Docker
 
 To download and run this Docker image, you first need to set up Docker on your machine. The easiest way to start with Docker is to install the [Docker Toolbox](https://www.docker.com/products/docker-desktop) by simply 
  downloading and clicking the installer which is available for both Mac OSX and Windows. For Linux users, follow the 
  instructions [here](https://docs.docker.com/get-started/).
  
-#####Step 2: Download and run the Docker image
+##Step 2: Download and run the Docker image
 
 Option 1: Through a Command Line Interface (CLI)
             The image can be downloaded and executed through the CLI of Docker's Docker Quickstart Terminal in the [Docker Toolbox](https://www.docker.com/products/docker-desktop) with the following commands:
@@ -52,7 +52,7 @@ Option 1: Through a Command Line Interface (CLI)
          $ # Run Bowtie2
          docker run -v $PWD:$PWD --rm gitobioinformatics/bowtie2
          
-####Deploy this Docker image onto your cloud
+##Deploy this Docker image onto your cloud
 You can download and deploy this Docker image with your cloud provider such as DigitalOcean, Amazon Web Services, HP Enterprise, IBM, Microsoft Azure Cloud or others.
 
 
@@ -90,7 +90,7 @@ The logo of the project was inspired by the Boto Tucuxi (Sotalia fluviatilis), w
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ###Acknowledgements
 We thank the following institutions, which contributed to ensuring the success of our work:<br>
-   • Ministério da Ciência, Tecnologia, Inovação e Comunicação (MCTIC)
+   • Ministério da Ciência, Tecnologia, Inovação e Comunicação (MCTIC)
     
    • Museu Paraense Emílio Goeldi (MPEG)
     
@@ -114,7 +114,7 @@ This work has been supported by Conselho Nacional de Desenvolvimento Científico
  <i><b>Email:</b> msousa@museu-goeldi.br<br>
  Laboratório de Biologia Molecular<br>
  Museu Paraense Emílio Goeldi<br>
- Av. Perimetral 1901. CEP 66077- 530. Belém, Pará, Brazil.</i>
+ Av. Perimetral 1901. CEP 66077- 530. Belém, Pará, Brazil.</i>
  
 
 For more information about Gito, visit the [project page](https://github.com/gitobioinformatics/gito.git).
