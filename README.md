@@ -1,7 +1,7 @@
 
 ![Gito](https://raw.githubusercontent.com/gitobioinformatics/gito/master/gito.png)
 
-# Gito - A lightweight and safe container for bioinformatics
+# GITO - A lightweight and safe container for bioinformatics
 
 ### Full Description:
 
