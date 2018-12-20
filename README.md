@@ -39,6 +39,12 @@ Option 1: Through a Command Line Interface (CLI)
 
    2.  Change the working directory to a project, and run the following commands:
    
+        
+        #Run FastQC
+       
+       • $ docker pull gitobioinformatics/trinity
+       
+       • $ docker pull gitobioinformatics/bowtie2
         #Run FastQC
         $ docker run -v $PWD:$PWD --rm gitobioinformatics/fastqc
              
