@@ -29,7 +29,7 @@ Option 1: Through a Command Line Interface (CLI)
 
    1.  Pull(download) the Docker images:
    
-       • $ docker pull gitobioinformatics/fastqc
+        $ docker pull gitobioinformatics/fastqc
        
        • $ docker pull gitobioinformatics/trimmomatic
        
