@@ -16,42 +16,42 @@ the Glibc library. The source code for bioinformatics tools, written in C, C ++ 
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ### Guide to downloading and running this Docker image
-## Step 1: Install Docker
+#### Step 1: Install Docker
 
 To download and run this Docker image, you first need to set up Docker on your machine. The easiest way to start with Docker is to install the [Docker Toolbox](https://www.docker.com/products/docker-desktop) by simply 
  downloading and clicking the installer which is available for both Mac OSX and Windows. For Linux users, follow the 
  instructions [here](https://docs.docker.com/get-started/).
  
-## Step 2: Download and run the Docker image
+#### Step 2: Download and run the Docker image
 
 Option 1: Through a Command Line Interface (CLI)
             The image can be downloaded and executed through the CLI of Docker's Docker Quickstart Terminal in the [Docker Toolbox](https://www.docker.com/products/docker-desktop) with the following commands:
 
    1.  Pull(download) the Docker images:
    
-       $ docker pull gitobioinformatics/fastqc
+       • $ docker pull gitobioinformatics/fastqc
        
-       $ docker pull gitobioinformatics/trimmomatic
+       • $ docker pull gitobioinformatics/trimmomatic
        
-       $ docker pull gitobioinformatics/trinity
+       • $ docker pull gitobioinformatics/trinity
        
-       $ docker pull gitobioinformatics/bowtie2
+       • $ docker pull gitobioinformatics/bowtie2
 
    2.  Change the working directory to a project, and run the following commands:
    
-        $ # Run FastQC
-        $ docker run -v $PWD:$PWD --rm gitobioinformatics/fastqc
+        • # Run FastQC
+        • $ docker run -v $PWD:$PWD --rm gitobioinformatics/fastqc
              
-        $ # Run Trimmomatic
-        $ docker run -v $PWD:$PWD --rm gitobioinformatics/trimmomatic
+        • # Run Trimmomatic
+        • $ docker run -v $PWD:$PWD --rm gitobioinformatics/trimmomatic
              
-        $ # Run Trinity
-        $ docker run -v $PWD:$PWD --rm gitobioinformatics/trinity
+        • # Run Trinity
+        • $ docker run -v $PWD:$PWD --rm gitobioinformatics/trinity
              
-         $ # Run Bowtie2
+        • # Run Bowtie2
          docker run -v $PWD:$PWD --rm gitobioinformatics/bowtie2
          
-## Deploy this Docker image onto your cloud
+#### Deploy this Docker image onto your cloud
 You can download and deploy this Docker image with your cloud provider such as DigitalOcean, Amazon Web Services, HP Enterprise, IBM, Microsoft Azure Cloud or others.
 
 
