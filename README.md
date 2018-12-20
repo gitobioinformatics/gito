@@ -41,7 +41,7 @@ Option 1: Through a Command Line Interface (CLI)
    
         
         #Run FastQC       
-       • $ docker pull gitobioinformatics/trinity
+        $ docker run -v $PWD:$PWD --rm gitobioinformatics/fastqc
        
        • $ docker pull gitobioinformatics/bowtie2
         #Run FastQC
