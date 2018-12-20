@@ -104,6 +104,3 @@ This work has been supported by Conselho Nacional de Desenvolvimento Científico
  Laboratório de Biologia Molecular<br>
  Museu Paraense Emílio Goeldi<br>
  Av. Perimetral 1901. CEP 66077- 530. Belém, Pará, Brazil.</i>
- 
-
-For more information about Gito, visit the [project page](https://github.com/gitobioinformatics/gito.git).
