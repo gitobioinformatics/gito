@@ -48,9 +48,11 @@ Option 1: Through a Command Line Interface (CLI)
         $ docker run -v $PWD:$PWD --rm gitobioinformatics/trimmomatic
              
         #Run Trinity
+        
         $ docker run -v $PWD:$PWD --rm gitobioinformatics/trinity
              
         #Run Bowtie2
+        
         $ docker run -v $PWD:$PWD --rm gitobioinformatics/bowtie2
          
 #### Deploy this Docker image onto your cloud
