@@ -1,0 +1,11 @@
+--- a/external/install/src/rapmap/RapMapFileSystem.cpp	2018-08-08 18:34:15.000000000 -0300
++++ b/external/install/src/rapmap/RapMapFileSystem.cpp	2018-09-22 09:37:41.683770839 -0300
+@@ -51,7 +51,7 @@
+         }
+ 
+         void MakeDir(const char* path) {
+-            mkdir(path, ACCESSPERMS);
++            mkdir(path, S_IRWXU | S_IRWXG | S_IRWXO);
+         }
+ 
+     }

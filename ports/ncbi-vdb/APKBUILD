@@ -1,0 +1,40 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=ncbi-vdb
+pkgver=2.9.3
+pkgrel=0
+pkgdesc="The SRA Toolkit and SDK from NCBI is a collection of tools and libraries for using data in the INSDC Sequence Read Archives"
+url="https://github.com/ncbi/ncbi-vdb/"
+arch="x86_64"
+license="Public Domain"
+makedepends="perl bash ngs-dev libxml2-dev"
+subpackages="$pkgname-dev $pkgname-doc"
+source="https://github.com/ncbi/ncbi-vdb/archive/${pkgver}.tar.gz#/${pkgname}-${pkgver}.tar.gz"
+
+builddir="$srcdir"/$pkgname-$pkgver
+
+prepare() {
+	cd "$builddir"
+}
+
+build() {
+	cd "$builddir"
+	./configure \
+        --prefix=/usr \
+        --build-prefix="$builddir"/build \
+        --with-ngs-sdk-prefix=/usr
+	make
+}
+
+package() {
+	cd "$builddir"
+	make DESTDIR="$pkgdir" install
+}
+
+check() {
+	cd "$builddir"
+}
+
+sha512sums="d271ce38649abcb0976db4d8d6a2264ab1e78fe347f0be3e43a67358643ae96168c1b178ac50934583a33e5ea983001e35aa4c209fe1d6ce741def18d97e333d  ncbi-vdb-2.9.3.tar.gz"
+

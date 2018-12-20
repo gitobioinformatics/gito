@@ -1,0 +1,58 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=salmon
+pkgver=0.11.3
+pkgrel=0
+pkgdesc="Highly-accurate & wicked fast transcript-level quantification from RNA-seq reads using lightweight alignments"
+url="https://combine-lab.github.io/salmon"
+arch="x86_64"
+license="GPL-3.0"
+depends="boost tbb jemalloc"
+makedepends="bash cmake bzip2-dev xz-dev jemalloc-dev tbb-dev libgff-dev boost-dev zlib-dev"
+install=""
+subpackages=""
+source="
+    https://github.com/COMBINE-lab/salmon/archive/v$pkgver.tar.gz#/$pkgname-$pkgver.tar.gz
+    fix-shared-libs.patch
+    fix-libdivsufsort-install.patch
+	fix-rapmap-uint64.patch
+	fix-rapmap-mkdir.patch
+    "
+
+builddir="$srcdir/$pkgname-$pkgver"
+
+prepare() {
+    cd "$builddir"
+
+    ./scripts/fetchRapMap.sh
+    default_prepare
+}
+
+build() {
+    cd "$builddir"
+
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DFETCHED_RAPMAP=TRUE \
+		 .
+    make
+}
+
+package() {
+    cd "$builddir"
+
+	make DESTDIR="$pkgdir" install
+}
+
+check() {
+    :
+}
+
+
+sha512sums="adc7ee27e8096142f48f57d2d88d18bef81abfc509683737a22ecc0a5bfe8323faf4a63256972b2e6a03774399c13f3b7d9dfd50d4362c9bf195e231537a5100  salmon-0.11.3.tar.gz
+2b8e930a7263ce5a31bb6683628c7f852946815ff748e8490616aaf7b40bd6f0693eae2b6c959d5c131a0920ca1d686331d55abcaa389926717962eba02877dc  fix-shared-libs.patch
+f5e046698a0b45b2d7c0928d36c5ddf737f273797916169a1fbed502d330b210a2fc9670f7372c4f680a00b720dc448bfd66e3e250dfc9cba0ab3b191e10e802  fix-libdivsufsort-install.patch
+ceb33cd46134b94ac444f56c96eeb39d34b2d430d9486a988fe624b07a65eda7be7ceb9ef996eebb0edba4fbac43f00c3b6e444dcf0622dbf65b42a37071477a  fix-rapmap-uint64.patch
+00fea6b6462a7ed5702997b499ef97e713184f7e95f20415f0a63a4a172ddacb24e0ce07422cddfa558066407694e3d2e29de28a446964fe075fc6eb835f3d23  fix-rapmap-mkdir.patch"
+

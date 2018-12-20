@@ -1,0 +1,20 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index f6b7ef6..6e1dec2 100755
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -276,13 +276,9 @@ if ( DEFINED CUSTOM_BOOST_PATH )
+ endif ( DEFINED CUSTOM_BOOST_PATH )
+ 
+ ##
+-# We want static, multithreaded boost libraries
++# Always use shared libs
+ ##
+-if(CONDA_BUILD)
+-  set (Boost_USE_STATIC_LIBS OFF)
+-else ()
+-  set (Boost_USE_STATIC_LIBS ON)
+-endif(CONDA_BUILD)
++set (Boost_USE_STATIC_LIBS OFF)
+ 
+ set (Boost_USE_MULTITHREADED ON)
+ #set (Boost_USE_STATIC_RUNTIME OFF)

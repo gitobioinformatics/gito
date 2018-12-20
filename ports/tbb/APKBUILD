@@ -1,0 +1,53 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=tbb
+pkgver=2019.0
+_pkgver=2019
+pkgrel=0
+pkgdesc="Intel TBB, a widely used C++ template library for task parallelism"
+url="https://threadingbuildingblocks.org"
+arch="x86_64"
+license="Apache-2.0"
+depends=""
+makedepends=""
+subpackages="$pkgname-dev"
+source="
+    https://github.com/01org/tbb/archive/$_pkgver.tar.gz#/$pkgname-$_pkgver.tar.gz
+    fix-mallinfo.patch
+    "
+
+builddir="$srcdir/$pkgname-$_pkgver"
+_buildprefix="$builddir/build/tbb"
+
+prepare() {
+    default_prepare
+	cd "$builddir"
+}
+
+build() {
+	cd "$builddir"
+
+	make \
+		compiler=${CC:-gcc} \
+	        tbb_build_prefix=tbb \
+		tbb \
+	        tbbmalloc
+}
+
+package() {
+    cd "$builddir"
+
+    mkdir -p "$pkgdir"/usr/lib
+
+    find "$_buildprefix"_release -name '*.so*' -exec mv {} "$pkgdir"/usr/lib \;
+    mv include "$pkgdir"/usr
+}
+
+check() {
+    :
+}
+
+sha512sums="f89d6849858367c065bd29db0b829ee08f54b382e52f9ba96d6cb589763ed4f9b8960924d145fa7e1b8167ecddf23e0c341190aa280b9609b3e154ca69da57ee  tbb-2019.tar.gz
+5aa21cbd91f7b4cb3a0b282c43e44c85284e23d114e1867b30246149ced6b39e57c6e489f330af0b1cd0f6878b75ba2fb3f0b3f2ff9406b2ca9702d9070039f6  fix-mallinfo.patch"
+

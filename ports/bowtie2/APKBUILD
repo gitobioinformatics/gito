@@ -1,0 +1,47 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=bowtie2
+pkgver=2.3.4.3
+pkgrel=0
+pkgdesc="Bowtie, an ultrafast, memory-efficient short read aligner for short DNA sequences (reads) from next-gen sequencers"
+url="http://bowtie-bio.sourceforge.net/bowtie2/index.shtml"
+arch="x86_64"
+license="GPL-3.0-or-later"
+depends="perl python tbb"
+makedepends="cmake zlib-dev tbb-dev"
+install=""
+subpackages=""
+source="https://github.com/BenLangmead/bowtie2/archive/v$pkgver.tar.gz#/$pkgname-$pkgver.tar.gz"
+
+builddir="$srcdir"/$pkgname-$pkgver
+
+prepare() {
+    default_prepare
+	cd "$builddir"
+}
+
+build() {
+	cd "$builddir"
+
+	cmake \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_BUILD_TYPE=RELEASE \
+        .
+	make 
+}
+
+package() {
+	cd "$builddir"
+
+    mkdir -p "$pkgdir"/usr/bin
+    find "$builddir" -type f -name 'bowtie2*' -maxdepth 1 \
+        -exec cp {} "$pkgdir"/usr/bin \;
+}
+
+check() {
+	cd "$builddir"
+}
+
+sha512sums="6cb17cfa11d7691173cedf97b25b965de099bb9f5ce39fe0919f6b44c5bd34b90ffee865fd9a8ee954105a4aa5f24e2930c8dc071fe4b695d31df838ed3041a9  bowtie2-2.3.4.3.tar.gz"
+

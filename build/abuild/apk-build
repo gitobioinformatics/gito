@@ -1,0 +1,33 @@
+#!/bin/sh
+
+_aports_dir=${APORTS_DIR:-$HOME/aports}
+
+_build_pkg() {
+    if [ -z "$1" ]; then
+        echo "Package name is empty!"
+        return 1
+    fi
+
+    _pkgdir=$_aports_dir/$prefix/$1
+
+    if [ ! -d "$_pkgdir" ]; then
+        echo "Package '$1' doesn't exists in '$_aports_dir' directory!"
+        return 1
+    fi
+
+    cd $_pkgdir
+    abuild -r
+}
+
+while getopts "P:" opt; do
+    case $opt in
+        'P') prefix=$OPTARG;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+for pkg in $@; do
+    _build_pkg $pkg
+done
+

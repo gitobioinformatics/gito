@@ -1,0 +1,62 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=trinity
+pkgver=2.8.4
+pkgrel=0
+pkgdesc="Trinity RNA-Seq de novo transcriptome assembly"
+url="https://github.com/trinityrnaseq/trinityrnaseq/wiki"
+arch="x86_64"
+license="BSD-3-Clause"
+depends="bash coreutils perl python2 py2-numpy openjdk8-jre bowtie2 jellyfish salmon samtools"
+makedepends="cmake zlib-dev libgff-dev cereal-dev"
+install=""
+subpackages="$pkgname-dbg"
+source="
+	https://github.com/trinityrnaseq/trinityrnaseq/archive/Trinity-v$pkgver.tar.gz#/$pkgname-$pkgver.tar.gz
+	000-installer-dest-patch.patch
+	001-makefile-destdir.patch
+	"
+
+builddir="$srcdir"/trinityrnaseq-Trinity-v$pkgver
+
+prepare() {
+	default_prepare
+	cd "$builddir"
+}
+
+build() {
+	cd "$builddir"
+
+    make
+    make plugins
+}
+
+_install_trinity() {
+    _prefix="${1:-/usr/local}"
+    _pkgdir="$pkgdir"/"$_prefix"
+    _libdir=/lib/trinity
+    _install_dir="$_pkgdir"/"$_libdir"
+
+    mkdir -p $( dirname "$_install_dir" )
+    mv "$builddir" "$_install_dir"
+
+    mkdir "$_pkgdir"/bin
+    ln -s "$_prefix"/"$_libdir"/Trinity "$_pkgdir"/bin/Trinity
+    ln -s "$_prefix"/"$_libdir"/Trinity "$_pkgdir"/bin/trinity
+}
+
+package() {
+	cd "$builddir"
+
+    _install_trinity /usr
+}
+
+check() {
+	cd "$builddir"
+}
+
+sha512sums="952c7d91dfe6770ab18bda11897f6c19ea0511c3d3875ee0e3024411988f7a5c36698261e890c76d0075579f616b3d3a1d4225234141a9bb828ef5e13eeb1236  trinity-2.8.4.tar.gz
+845c159eea6208139694b2d690df7fa52dfbb255240af2e1f6834249299f7db9beebb4d79777371f1e37561fcccd48862a4c860c98ec454410007ec455b065ca  000-installer-dest-patch.patch
+b86fe19d578d59411c0e300e9b8c26ce779e61d48ee7c24a2d9973906ff7494638a3020816dccc0677c65f99afcbbb6bfa24b799a9d4fb84bbe89663b4e3b118  001-makefile-destdir.patch"
+

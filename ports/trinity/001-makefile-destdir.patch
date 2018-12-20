@@ -1,0 +1,14 @@
+diff --git a/Makefile b/Makefile
+index f2d3dbc..1342e47 100644
+--- a/Makefile
++++ b/Makefile
+@@ -22,7 +22,8 @@ all: inchworm_target chrysalis_target trinity_essentials
+ 
+ 
+ install:
+-	util/support_scripts/trinity_installer.py
++	mkdir -p $(DESTDIR)
++	util/support_scripts/trinity_installer.py $(DESTDIR)
+ 
+ inchworm_target:
+ 	@echo Using $(TRINITY_COMPILER) compiler for Inchworm and Chrysalis

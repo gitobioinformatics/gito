@@ -1,0 +1,49 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=fastqc
+pkgver=0.11.7
+pkgrel=0
+pkgdesc="A quality control analysis tool for high throughput sequencing data"
+url="http://www.bioinformatics.babraham.ac.uk/projects/fastqc"
+arch="noarch"
+license="GPL-2.0"
+depends="perl openjdk8-jre fontconfig ttf-dejavu"
+makedepends="openjdk8 apache-ant"
+install=""
+subpackages=""
+source="https://github.com/s-andrews/FastQC/archive/v0.11.7.tar.gz#/$pkgname-$pkgver.tar.gz"
+
+builddir="$srcdir/FastQC-$pkgver"
+
+build() {
+    cd "$builddir"
+
+	ant build
+}
+
+_install_fastqc() {
+    _prefix="${1:-/usr/local}"
+    _install_dir="$_prefix"/lib/fastqc
+
+	mkdir -p "$pkgdir"/"$_install_dir"
+
+    mv "$builddir"/bin/* "$pkgdir"/"$_install_dir"
+
+    mkdir -p "$pkgdir"/"$_prefix"/bin
+    ln -s "$_install_dir"/fastqc "$pkgdir"/"$_prefix"/bin/fastqc
+    chmod +x "$pkgdir"/"$_install_dir"/fastqc
+}
+
+package() {
+    cd "$builddir"
+
+    _install_fastqc /usr
+}
+
+check() {
+    cd "$builddir"
+}
+
+sha512sums="65b5a729562eb135abfe0d7af7c2f74095143dd4852c9841498f0c4ef1481811213c6af8b823b7082d3e5ecdaa98a996a1960bef027638c9a0bf0b561e5f6062  fastqc-0.11.7.tar.gz"
+

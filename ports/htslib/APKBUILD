@@ -1,0 +1,42 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=htslib
+pkgver=1.9
+pkgrel=0
+pkgdesc="C library for high-throughput sequencing data formats"
+url="https://samtools.github.io"
+arch="x86_64"
+license="MIT"
+depends=""
+makedepends="autoconf automake bash perl zlib-dev bzip2-dev xz-dev curl-dev libressl-dev"
+install=""
+subpackages="$pkgname-dev $pkgname-doc"
+source="https://github.com/samtools/htslib/archive/$pkgver.tar.gz#/$pkgname-$pkgver.tar.gz"
+
+builddir="$srcdir"/$pkgname-$pkgver
+
+prepare() {
+	cd "$builddir"
+}
+
+build() {
+	cd "$builddir"
+
+    autoreconf
+
+	./configure --prefix=/usr
+	make
+}
+
+package() {
+	cd "$builddir"
+	make DESTDIR="$pkgdir" install
+}
+
+check() {
+    :
+}
+
+sha512sums="d44f6e47c4afb83adf78931fdd4dee38c2ffbf20c562f5c591369d875335dee669c3b9d93b7993e988f396fce34e23de0443f8cd41bdef0f21a8585ef95a9f29  htslib-1.9.tar.gz"
+

@@ -1,0 +1,42 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=samtools
+pkgver=1.9
+pkgrel=0
+pkgdesc="Tools (written in C using htslib) for manipulating next-generation sequencing data."
+url="https://samtools.github.io"
+arch="x86_64"
+license="MIT"
+depends=""
+makedepends="autoconf automake htslib-dev ncurses-dev zlib-dev"
+install=""
+subpackages="$pkgname-doc"
+source="https://github.com/samtools/samtools/archive/$pkgver.tar.gz#/$pkgname-$pkgver.tar.gz"
+
+builddir="$srcdir"/$pkgname-$pkgver
+
+prepare() {
+	cd "$builddir"
+}
+
+build() {
+	cd "$builddir"
+
+    autoreconf
+
+	./configure --prefix=/usr
+	make
+}
+
+package() {
+	cd "$builddir"
+	make DESTDIR="$pkgdir" install
+}
+
+check() {
+    :
+}
+
+sha512sums="4c50a365987fd5fa4ddaaa5056587e6b7ccaaacb67dc37880fe242f015a5e1acb94eb8b631184f91a5f4434b84bbf9805acbaee75be1dd9edb76b594fcff0c91  samtools-1.9.tar.gz"
+

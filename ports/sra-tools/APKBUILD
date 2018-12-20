@@ -1,0 +1,35 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=sra-tools
+pkgver=2.9.3
+pkgrel=0
+pkgdesc="The SRA Toolkit and SDK from NCBI is a collection of tools and libraries for using data in the INSDC Sequence Read Archives"
+url="https://github.com/ncbi/sra-tools"
+arch="x86_64"
+license="Public Domain"
+makedepends="ngs-sdk-dev ncbi-vdb-dev libxml2-dev"
+subpackages="$pkgname-dev $pkgname-doc"
+source="https://github.com/ncbi/sra-tools/archive/${pkgver}.tar.gz#/sra-tools-${pkgver}.tar.gz"
+
+builddir="$srcdir"/$pkgname-$pkgver
+
+prepare() {
+	cd "$builddir"
+}
+
+build() {
+	cd "$builddir"
+	./configure --prefix=/usr
+	make
+}
+
+package() {
+	cd "$builddir"
+	make DESTDIR="$pkgdir" install
+}
+
+check() {
+	cd "$builddir"
+}
+

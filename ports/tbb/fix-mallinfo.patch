@@ -1,0 +1,25 @@
+diff --git a/src/tbbmalloc/proxy.cpp b/src/tbbmalloc/proxy.cpp
+index 423b839..396f3fd 100644
+--- a/src/tbbmalloc/proxy.cpp
++++ b/src/tbbmalloc/proxy.cpp
+@@ -97,6 +97,20 @@ static inline void initPageSize()
+ #include <dlfcn.h>
+ #include <malloc.h>    // mallinfo
+ 
++struct mallinfo
++{
++  int arena;    /* non-mmapped space allocated from system */
++  int ordblks;  /* number of free chunks */
++  int smblks;   /* number of fastbin blocks */
++  int hblks;    /* number of mmapped regions */
++  int hblkhd;   /* space in mmapped regions */
++  int usmblks;  /* always 0, preserved for backwards compatibility */
++  int fsmblks;  /* space available in freed fastbin blocks */
++  int uordblks; /* total allocated space */
++  int fordblks; /* total free space */
++  int keepcost; /* top-most, releasable (via malloc_trim) space */
++};
++
+ /* __TBB_malloc_proxy used as a weak symbol by libtbbmalloc for:
+    1) detection that the proxy library is loaded
+    2) check that dlsym("malloc") found something different from our replacement malloc

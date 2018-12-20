@@ -1,0 +1,54 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=trimmomatic
+pkgver=0.38
+pkgrel=0
+pkgdesc="Trimmomatic: A flexible trimmer for Illumina Sequence Data"
+url="http://www.usadellab.org/cms/?page=trimmomatic"
+arch="noarch"
+license="GPL-3.0-or-later"
+depends="openjdk8-jre"
+makedepends="openjdk8 apache-ant"
+install=""
+source="http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/Trimmomatic-Src-$pkgver.zip"
+builddir="$srcdir"/$pkgname-$pkgver
+
+prepare() {
+	cd "$builddir"
+}
+
+build() {
+	cd "$builddir"
+
+	ant dist
+}
+
+
+package() {
+	cd "$builddir"
+
+	install -Dm755 "$builddir"/dist/jar/trimmomatic-"$pkgver".jar \
+		"$pkgdir"/usr/share/$pkgname/trimmomatic.jar
+	
+	cp -r "$builddir"/adapters "$pkgdir"/usr/share/$pkgname/adapters
+	
+	install -Dm644 "$builddir"/distSrc/LICENSE \
+		"$pkgdir"/usr/share/licenses/$pkgname/COPYING
+	
+	mkdir -p "$pkgdir"/usr/bin
+
+	cat > "$pkgdir"/usr/bin/trimmomatic <<-EOF
+	#!/bin/sh
+
+	java -jar /usr/share/$pkgname/trimmomatic.jar \$@
+	EOF
+
+	chmod 755 "$pkgdir"/usr/bin/trimmomatic
+}
+
+check() {
+	cd "$builddir"
+}
+
+sha512sums="79e25bd83d2cdb145fbefe3a23cfcf6de758c2ec0565bd03a7af2deb2f62deb24ac7f8a169507ba1e219bb36b70e814c081232e62a31c8200ceecbb2bdcd9d8a  Trimmomatic-Src-0.38.zip"

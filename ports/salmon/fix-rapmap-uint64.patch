@@ -1,0 +1,23 @@
+--- a/external/install/include/rapmap/BooPHF.hpp	2018-08-08 18:34:15.000000000 -0300
++++ b/external/install/include/rapmap/BooPHF.hpp	2018-09-22 09:32:14.060555958 -0300
+@@ -23,9 +23,9 @@
+ namespace boomphf {
+ 
+ 	
+-	inline u_int64_t printPt( pthread_t pt) {
++	inline uint64_t printPt( pthread_t pt) {
+ 	  unsigned char *ptc = (unsigned char*)(void*)(&pt);
+-		u_int64_t res =0;
++		uint64_t res =0;
+ 	  for (size_t i=0; i<sizeof(pt); i++) {
+ 		  res+= (unsigned)(ptc[i]);
+ 	  }
+@@ -39,7 +39,7 @@
+ ////////////////////////////////////////////////////////////////
+ 
+ 	
+-	// iterator from disk file of u_int64_t with buffered read,   todo template
++	// iterator from disk file of uint64_t with buffered read,   todo template
+ 	template <typename basetype>
+ 	class bfile_iterator : public std::iterator<std::forward_iterator_tag, basetype>{
+ 	public:

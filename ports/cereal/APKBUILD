@@ -1,0 +1,43 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=cereal
+pkgver=1.2.2
+pkgrel=0
+pkgdesc="A header-only C++11 serialization library"
+url="https://uscilab.github.io/cereal/"
+arch="noarch"
+license="BSD"
+depends=""
+makedepends="cmake boost-dev"
+install=""
+subpackages="$pkgname-dev"
+source="https://github.com/USCiLab/cereal/archive/v$pkgver.tar.gz#/$pkgname-$pkgver.tar.gz"
+builddir="$srcdir/$pkgname-$pkgver"
+
+build() {
+        cd "$builddir"
+
+	mkdir -p build
+	cd build
+
+	cmake .. \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DSKIP_PORTABILITY_TEST=ON \
+		-DWITH_WERROR=OFF
+	make
+}
+
+check() {
+        cd "$builddir"
+}
+
+package() {
+        cd "$builddir"
+
+	cd build
+	make DESTDIR="$pkgdir" install
+}
+
+sha512sums="9567b2e19add9446b24f8afd122eea09ba6ecd1a090335cf0ab31fdc8f64c6c97daa3d9eaf0801c36a770737488e0eebf81d96d7b7a65deed30da6130f2d47eb  cereal-1.2.2.tar.gz"
+
