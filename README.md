@@ -31,11 +31,11 @@ Option 1: Through a Command Line Interface (CLI)
    
         $ docker pull gitobioinformatics/fastqc
        
-       • $ docker pull gitobioinformatics/trimmomatic
+        $ docker pull gitobioinformatics/trimmomatic
        
-       • $ docker pull gitobioinformatics/trinity
+        $ docker pull gitobioinformatics/trinity
        
-       • $ docker pull gitobioinformatics/bowtie2
+        $ docker pull gitobioinformatics/bowtie2
 
    2.  Change the working directory to a project, and run the following commands:
    
