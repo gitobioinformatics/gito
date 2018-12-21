@@ -3,7 +3,7 @@
 set -e
 
 if [ -z $USERID ]; then
-    echo "Environment variable 'USERID' not set, add '-e USERID=\$\(id -u\)\' to run options."
+    echo "Environment variable 'USERID' not set, add '-e USERID=\$(id -u)' to run options."
     return 1
 fi
 
