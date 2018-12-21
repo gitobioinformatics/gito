@@ -5,7 +5,7 @@
 
 ### Full Description:
 
-GITO, a lightweight and safe container docker image based on Alpine containing bioinformatics tools ready to be used. The base image is only 4.41 MB in size and contains only the OS libraries and language de-pendencies required to run an application, but robust enough to run bioinformatics pipeline with security.
+GITO, a lightweight and safe container docker image based on Alpine (https://alpinelinux.org) containing bioinformatics tools ready to be used. The base image is only 4.41 MB in size and contains only the OS libraries and language de-pendencies required to run an application, but robust enough to run bioinformatics pipeline with security.
 
 GITO is an open source project Docker and provides an easy and modular method for building, distributing, and replicating pipelines, which has a base image (GITO-base) that forms the single foundation layer on which each container application is built.
 GITO adopts "start with minimum and add dependencies as needed" approach, which have separate containers for each bioinformatics tool with the minimum to run. GITO use musl as the standard C library for Linux-based systems, 
