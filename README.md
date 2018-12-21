@@ -74,7 +74,7 @@ MIT License. See [License.txt](https://raw.githubusercontent.com/gitobioinformat
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ### Contributions
-GITO is open-source (see License), and we welcome contributions from anyone who is interested in contributing. To contribute code, please make a pull request on github_. The issue tracker for GITO is also available on github.
+GITO is open-source (see License), and we welcome contributions from anyone who is interested in contributing. To contribute code, please make a pull request on github. The issue tracker for GITO is also available on github.
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ### Meaning and inspiration
