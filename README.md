@@ -77,7 +77,7 @@ MIT License. See [License.txt](https://raw.githubusercontent.com/gitobioinformat
 GITO is open-source (see License), and we welcome contributions from anyone who is interested in contributing. To contribute code, please make a pull request on github. The issue tracker for GITO is also available on github.
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-### Meaning and inspiration
+### Inspirations
 The word "gito" is used by populations of the North of Brazil when people refer to something "very small, smaller than normal".
 The logo of the project was inspired by the Boto Tucuxi (Sotalia fluviatilis), which is one of the smallest dolphins in the Delphinidae family and the only one of this family that lives in rivers. It is a very agile dolphin, although it is an endangered species, it is still possible to find it in the rivers of the Amazon jumping in the air.
 
