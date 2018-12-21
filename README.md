@@ -40,19 +40,19 @@ Option 1: Through a Command Line Interface (CLI)
 
    2.  Change the working directory to a project, and run the following commands:
    
-       >> Run FastQC
+       > Run FastQC
        
        $ docker run -v $PWD:$PWD --rm gitobioinformatics/fastqc
 
-       >> Run Trimmomatic
+       > Run Trimmomatic
        
        $ docker run -v $PWD:$PWD --rm gitobioinformatics/trimmomatic
 
-       >> Run Trinity
+       > Run Trinity
        
        $ docker run -v $PWD:$PWD --rm gitobioinformatics/trinity
 
-       >> Run Bowtie2
+       > Run Bowtie2
        
        docker run -v $PWD:$PWD --rm gitobioinformatics/bowtie2
 
