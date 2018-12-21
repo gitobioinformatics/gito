@@ -79,7 +79,7 @@ apk_has() {
 }
 
 apk_version() {
-	grep 'pkgver=.*' ports/"$1"/APKBUILD | cut -d= -f2
+	grep '^pkgver=.*' ports/"$1"/APKBUILD | cut -d= -f2
 }
 
 apk_build_usage() {
