@@ -1,0 +1,57 @@
+diff --git a/libs/kfs/tar.c b/libs/kfs/tar.c
+index 4bfa92d8..bb41a5c4 100644
+--- a/libs/kfs/tar.c
++++ b/libs/kfs/tar.c
+@@ -45,7 +45,7 @@
+ #include <stdio.h> /* temporary for development */
+ 
+ #include <limits.h>
+-/* #include <sys/types.h> */
++#include <sys/types.h> 
+ 
+ #ifdef _DEBUGGING
+ #define TAR_FUNC_ENTRY() DBGMSG (DBG_KFS, DBG_FLAG(DBG_KFS_TARENTRY), ("Enter: %s\n", __func__))
+diff --git a/libs/tui/linux/systui.c b/libs/tui/linux/systui.c
+index 81b5b96d..cf280de8 100644
+--- a/libs/tui/linux/systui.c
++++ b/libs/tui/linux/systui.c
+@@ -54,6 +54,8 @@
+ #include <errno.h>
+ #include <assert.h>
+ 
++#include <sys/select.h>
++
+ typedef uint32_t es_states;
+ enum
+ {
+@@ -185,8 +187,7 @@ void CC tui_send_strip( int x, int y, int count, tui_ac * curr, tui_ac * v,
+ 
+ typedef struct KTUI_pf
+ {
+-/*    struct termios stored_settings; */
+-    struct termio stored_settings;
++    struct termios stored_settings;
+     struct sigaction sa_saved;
+     es_states es;
+     unsigned int mouse_event, mouse_x;
+@@ -217,9 +218,9 @@ static void sigwinchHandler( int sig )
+ }
+ 
+ 
+-static void set_kb_raw_mode( struct termio * stored_settings )
++static void set_kb_raw_mode( struct termios * stored_settings )
+ {
+-    struct termio new_settings;
++    struct termios new_settings;
+     ioctl( STDIN_FILENO, TCGETA, stored_settings );
+     memmove ( &new_settings, stored_settings, sizeof new_settings );
+     new_settings.c_lflag &= ( ~ICANON );    /* exit canonical mode, enter raw mode */
+@@ -232,7 +233,7 @@ static void set_kb_raw_mode( struct termio * stored_settings )
+ }
+ 
+ 
+-static void restore_kb_mode( const struct termio * stored_settings )
++static void restore_kb_mode( const struct termios * stored_settings )
+ {
+     /* applies the terminal settings supplied as the argument */
+     ioctl( STDIN_FILENO, TCSETA, stored_settings );

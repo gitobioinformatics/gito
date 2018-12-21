@@ -9,12 +9,17 @@ url="https://github.com/ncbi/ncbi-vdb/"
 arch="x86_64"
 license="Public Domain"
 makedepends="perl bash ngs-dev libxml2-dev"
-subpackages="$pkgname-dev $pkgname-doc"
-source="https://github.com/ncbi/ncbi-vdb/archive/${pkgver}.tar.gz#/${pkgname}-${pkgver}.tar.gz"
+subpackages="$pkgname-dev"
+source="
+    https://github.com/ncbi/ncbi-vdb/archive/${pkgver}.tar.gz#/${pkgname}-${pkgver}.tar.gz
+    musl-compat.patch
+    fix-makefile.patch
+    "
 
 builddir="$srcdir"/$pkgname-$pkgver
 
 prepare() {
+    default_prepare
 	cd "$builddir"
 }
 
@@ -29,12 +34,18 @@ build() {
 
 package() {
 	cd "$builddir"
-	make DESTDIR="$pkgdir" install
+	make \
+        ROOT="$pkgdir" \
+        INST_BINDIR="$pkgdir"/usr/bin \
+        INST_LIBDIR="$pkgdir"/usr/lib \
+        INST_INCDIR="$pkgdir"/usr/include \
+        install
 }
 
 check() {
 	cd "$builddir"
 }
 
-sha512sums="d271ce38649abcb0976db4d8d6a2264ab1e78fe347f0be3e43a67358643ae96168c1b178ac50934583a33e5ea983001e35aa4c209fe1d6ce741def18d97e333d  ncbi-vdb-2.9.3.tar.gz"
-
+sha512sums="d271ce38649abcb0976db4d8d6a2264ab1e78fe347f0be3e43a67358643ae96168c1b178ac50934583a33e5ea983001e35aa4c209fe1d6ce741def18d97e333d  ncbi-vdb-2.9.3.tar.gz
+90cd0989de6bc32d10c6d9c7b588e1f6292f4f8f8a2aed635fe586238af523b5da8093fdcc522de1ae6b31c57df20f191c8095c4fc78c2fa143f1198648bda32  musl-compat.patch
+6e5af9f739049b44e2b0a7a1d4c7f2e00c52a2bfedef35c3e70c97689ab59babc4db67efba28d4bef9caf9bdcf3d13871aa10a82d0875190d10fdfd3202b6efa  fix-makefile.patch"

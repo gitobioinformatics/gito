@@ -1,0 +1,62 @@
+diff --git a/build/Makefile.install b/build/Makefile.install
+index 3f8ce07d..cfe67fca 100644
+--- a/build/Makefile.install
++++ b/build/Makefile.install
+@@ -46,8 +46,6 @@ endif
+ 
+ ifeq (true, $(LINUX_ROOT))
+     KONFIG_DIR = $(ROOT)/etc/ncbi
+-    INCLUDE_SYMLINK = $(ROOT)/usr/include/ncbi-vdb
+-    PROFILE_FILE = $(ROOT)/etc/profile.d/ncbi-vdb
+ else
+     KONFIG_DIR = $(LIB_TARGET)/ncbi
+ endif
+@@ -75,8 +73,8 @@ copylibs: checkversion $(LIB_TARGET)
+ 
+ copyincludes: checkversion
+ 	@echo "Installing includes to $(INST_INCDIR)"
+-	@mkdir -p $(INST_INCDIR)/ncbi-vdb
+-	@cp $(TOP)/interfaces/ngs/ncbi/NGS.hpp $(INST_INCDIR)/ncbi-vdb
++	@mkdir -p $(INST_INCDIR)
++	@cp -r $(TOP)/interfaces $(INST_INCDIR)/ncbi-vdb
+ 
+ copykfg: checkversion
+ 	@ echo "Installing configuration files to $(KONFIG_DIR)"
+@@ -87,37 +85,6 @@ copykfg: checkversion
+         then mv -v $(KONFIG_DIR)/ncbi-vdb.kfg  $(KONFIG_DIR)/ncbi-vdb.kfg.orig  ; fi
+ 
+ install: copylibs copyincludes copykfg
+-ifeq (true, $(LINUX_ROOT))
+-	@ # install symlink to includes
+-	@ echo "Updating $(INCLUDE_SYMLINK)"
+-	@ rm -f $(INCLUDE_SYMLINK)
+-	@ ln -s $(INST_INCDIR)/ncbi-vdb $(INCLUDE_SYMLINK)
+-	@ echo "Updating $(PROFILE_FILE).[c]sh"
+-	@ printf \
+-"#version $(VERSION)\n"\
+-"if ! echo \$$LD_LIBRARY_PATH | /bin/grep -q $(LIB_TARGET)\n"\
+-"then export LD_LIBRARY_PATH=$(LIB_TARGET):\$$LD_LIBRARY_PATH\n"\
+-"fi\n" \
+-"export NCBI_VDB_LIBDIR=$(LIB_TARGET)\n" \
+-        >$(PROFILE_FILE).sh && chmod 644 $(PROFILE_FILE).sh || true;
+-	@ printf \
+-"#version $(VERSION)\n"\
+-"echo \$$LD_LIBRARY_PATH | /bin/grep -q $(LIB_TARGET)\n"\
+-"if ( \$$status ) setenv LD_LIBRARY_PATH $(LIB_TARGET):\$$LD_LIBRARY_PATH\n"\
+-"setenv NCBI_VDB_LIBDIR $(LIB_TARGET)\n" \
+-        >$(PROFILE_FILE).csh && chmod 644 $(PROFILE_FILE).csh || true;
+-	@ #TODO: check version of the files above
+-	@ #
+-	@ echo "Use \$$NCBI_VDB_LIBDIR in your link commands, e.g.:"
+-	@ echo "      ld -L\$$NCBI_VDB_LIBDIR -lncbi-vdb ..."
+-	@ #
+-	@ echo "Please add $(LIB_TARGET) to your LD_LIBRARY_PATH, e.g.:"
+-	@ echo "      export LD_LIBRARY_PATH=$(LIB_TARGET):\$$LD_LIBRARY_PATH"
+-	@ #
+-	@ echo "Use $(LIB_TARGET) in your link commands, e.g.:"
+-	@ echo "      export NCBI_VDB_LIBDIR=$(LIB_TARGET)"
+-	@ echo "      ld -L\$$NCBI_VDB_LIBDIR -lncbi-vdb ..."
+-endif
+ 
+ #-------------------------------------------------------------------------------
+ # uninstall
