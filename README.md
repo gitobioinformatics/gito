@@ -43,15 +43,14 @@ Option 1: Through a Command Line Interface (CLI)
         #Run FastQC       
         $ docker run -v $PWD:$PWD --rm gitobioinformatics/fastqc
        
+        #Run Trimmomatic
+        $ docker run -v $PWD:$PWD --rm gitobioinformatics/trimmomatic
+     
+        • $ docker pull gitobioinformatics/bowtie2
        • $ docker pull gitobioinformatics/bowtie2
-        #Run FastQC       
-        $ docker run -v $PWD:$PWD --rm gitobioinformatics/fastqc
        
        
        
-       
-        #Run FastQC
-        $ docker run -v $PWD:$PWD --rm gitobioinformatics/fastqc
              
         #Run Trimmomatic
         
