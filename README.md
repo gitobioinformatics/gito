@@ -84,11 +84,11 @@ The logo of the project was inspired by the Boto Tucuxi (Sotalia fluviatilis), w
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ### Acknowledgements
 We thank the following institutions, which contributed to ensuring the success of our work:<br>
-   • Ministério da Ciência, Tecnologia, Inovação e Comunicação (MCTIC)
+Ministério da Ciência, Tecnologia, Inovação e Comunicação (MCTIC)
     
-   • Museu Paraense Emílio Goeldi (MPEG)
+Museu Paraense Emílio Goeldi (MPEG)
     
-   • Centro Universitário do Estado do Pará (CESUPA)
+Centro Universitário do Estado do Pará (CESUPA)
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ### Funding
