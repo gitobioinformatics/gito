@@ -44,6 +44,12 @@ Option 1: Through a Command Line Interface (CLI)
         $ docker run -v $PWD:$PWD --rm gitobioinformatics/fastqc
        
        • $ docker pull gitobioinformatics/bowtie2
+        #Run FastQC       
+        $ docker run -v $PWD:$PWD --rm gitobioinformatics/fastqc
+       
+       
+       
+       
         #Run FastQC
         $ docker run -v $PWD:$PWD --rm gitobioinformatics/fastqc
              
