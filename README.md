@@ -64,7 +64,7 @@ You can download and deploy this Docker image with your cloud provider such as D
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ### Reproducing a pipeline example
-GITO was used to reproduce the pipeline present in the work of Hernández-Fernández (2017), which is the first de novo transcriptome assembly of [Eretmochelys imbricate published](https://doi.org/10.1016/j.dib.2017.10.015), instructions used and execution results can be [accessed here](https://github.com/gitobioinformatics/gito/tree/master/examples/eretmochelys_imbricata).
+GITO was used to reproduce the pipeline present in the work of Hernández-Fernández (2017), which is the first de novo transcriptome assembly of Eretmochelys imbricate [published](https://doi.org/10.1016/j.dib.2017.10.015), instructions used and execution results can be [accessed here](https://github.com/gitobioinformatics/gito/tree/master/examples/eretmochelys_imbricata).
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
