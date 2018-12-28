@@ -70,7 +70,7 @@ GITO was used to reproduce the pipeline present in the work of Hernández-Ferná
 
 ### GITO's security analysis
 
-We used [Quay Security Scanner](https://quay.io) to assess vulnerabilities in the GITO. Quay identifies insecure packages by matching the metadata against Common Vulnerabilities and Exposures (CVE) vulnerability database. After the analysis, the Quay software did not identify any vulnerability in GITO, neither in the base image nor in the images with the tools used in the pipeline.The results of the analysis can be found here
+Due to the extremely small size, the GITO has a smaller attack surface compared to the containers that use larger images. To assess safety, we used [Quay Security Scanner](https://quay.io) to assess vulnerabilities in the GITO. Quay identifies insecure packages by matching the metadata against Common Vulnerabilities and Exposures (CVE) vulnerability database. After the analysis, the Quay software did not identify any vulnerability in GITO, neither in the base image nor in the images with the tools used in the pipeline.The results of the analysis can be found here
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
