@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/160723954.svg)](https://zenodo.org/badge/latestdoi/160723954)
 
 ![Gito](https://raw.githubusercontent.com/gitobioinformatics/gito/master/gito.png)
 
