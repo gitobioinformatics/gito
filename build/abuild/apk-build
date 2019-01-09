@@ -1,6 +1,6 @@
 #!/bin/sh
 
-_aports_dir=${APORTS_DIR:-$HOME/aports}
+_aports_dir=${APORTS_DIR:-$HOME/ports}
 
 _build_pkg() {
     if [ -z "$1" ]; then
