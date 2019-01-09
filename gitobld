@@ -64,10 +64,10 @@ run_abuild() {
 
 		docker run \
 			--detach \
-            --env USERID=$USERID \
+			--env USERID=$USERID \
 			--name $ABUILD_CONTAINER_NAME \
 			--mount type=bind,src=$PWD,dst=/var/lib/abuild \
-            --mount type=bind,src=$PKG_PUBKEY_PATH,dst=/etc/apk/keys/${PKG_PUBKEY_PATH##*/} \
+			--mount type=bind,src=$PKG_PUBKEY_PATH,dst=/etc/apk/keys/${PKG_PUBKEY_PATH##*/} \
 			$ABUILD_IMAGE tail -f /dev/null
 
 		ABUILD_CONTAINER=$(docker_find_id $ABUILD_CONTAINER_NAME)
@@ -91,8 +91,8 @@ apk_build_usage() {
 		Options:
 		    -d  Search for apks on this directory (default: ports/)
 		    -h  Show this help
-            -k  Set path to packager public key
-            -u  Set user id for running abuild (default: current user)
+		    -k  Set path to packager public key
+		    -u  Set user id for running abuild (default: current user)
 
 	EOF
 
@@ -100,36 +100,36 @@ apk_build_usage() {
 }
 
 apk_build() {
-	export OPTIND=
+	local OPTIND
 	while getopts "d:hk:u:" opt; do
 		case $opt in
 			d) PKG_DIRECTORY=$OPTARG ;;
 			h) apk_build_usage ;;
-            k) PKG_PUBKEY_PATH=$OPTARG ;;
-            u) USERID=$OPTARG ;;
+			k) PKG_PUBKEY_PATH=$OPTARG ;;
+			u) USERID=$OPTARG ;;
 		esac
 	done
 
 	PKG_DIRECTORY=${PKG_DIRECTORY:-ports}
-    PKG_PUBKEY_PATH=${PKG_PUBKEY_PATH:-$PWD/keys/packager_key.rsa.pub}
-    USERID=${USERID:-$(id -u)}
+	PKG_PUBKEY_PATH=${PKG_PUBKEY_PATH:-$PWD/keys/packager_key.rsa.pub}
+	USERID=${USERID:-$(id -u)}
 
 	shift $((OPTIND-1))
 
 	[ "$#" -eq 0 ] && die ""
 
-    while [ "$#" -gt 0 ]; do
-        _apk_name=$1
+	while [ "$#" -gt 0 ]; do
+		_apk_name=$1
 
-        if ! apk_has "$_apk_name"; then
-            die ""
-        fi
+		if ! apk_has "$_apk_name"; then
+			die ""
+		fi
 
-        run_abuild
-        docker exec --tty --user $USERID $ABUILD_CONTAINER apk-build $_apk_name
+		run_abuild
+		docker exec --tty --user $USERID $ABUILD_CONTAINER apk-build $_apk_name
 
-        shift
-    done
+		shift
+	done
 }
 
 apk_server_usage() {
@@ -148,15 +148,15 @@ apk_server_usage() {
 }
 
 apk_server() {
-    export OPTIND=
-    while getopts "hn:" opt; do
-        case $opt in 
-            h) apk_server_usage ;;
-            n) DOCKER_NETWORK=$OPTARG ;;
-        esac
-    done
+	local OPTIND
+	while getopts "hn:" opt; do
+		case $opt in
+			h) apk_server_usage ;;
+			n) DOCKER_NETWORK=$OPTARG ;;
+		esac
+	done
 
-    shift $((OPTIND-1))
+	shift $((OPTIND-1))
 
 	[ "$#" -gt 1 ] && die ""
 	[ "$#" -eq 1 ] && APK_SERVER_HOST=$1
@@ -186,7 +186,7 @@ df_has() {
 df_build() {
 	[ -z "$1" ] && die ""
 
-    _tool_name=$1
+	_tool_name=$1
 
 	if ! df_has $_tool_name; then
 		die ""
@@ -243,7 +243,7 @@ build_usage() {
 }
 
 build() {
-	export OPTIND=
+	local OPTIND
 	while getopts "hk:n:r:u:" opt; do
 		case $opt in
 			h) build_usage ;;
@@ -254,8 +254,8 @@ build() {
 		esac
 	done
 
-    PKG_REPOSITORY=${PKG_REPOSITORY:-'http://'"$APK_SERVER_HOST"'/packages/ports'}
-    PKG_PUBKEY_URL=${PKG_PUBKEY_URL:-'http://'"$APK_SERVER_HOST"'/keys/packager_key.rsa.pub'}
+	PKG_REPOSITORY=${PKG_REPOSITORY:-'http://'"$APK_SERVER_HOST"'/packages/ports'}
+	PKG_PUBKEY_URL=${PKG_PUBKEY_URL:-'http://'"$APK_SERVER_HOST"'/keys/packager_key.rsa.pub'}
 
 	REPOSITORY_USER=${REPOSITORY_USER:-gitobioinformatics}
 
@@ -296,7 +296,7 @@ updatedf_usage() {
 }
 
 updatedf() {
-	export OPTIND=
+	local OPTIND
 	while getopts "hk:r:" opt; do
 		case $opt in
 			a) ALPINE_VERSION=$OPTARG ;;
@@ -356,7 +356,7 @@ usage() {
 main() {
 	_cmd=${1:-build}
 
-	shift 1
+	[ "$#" -gt 0 ] && shift
 
 	case $_cmd in
 		apk-build) apk_build $@ ;;
