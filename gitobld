@@ -285,7 +285,7 @@ df_update() {
 
 build_usage() {
 	cat <<-EOF
-		Usage: gito-bld build [OPTION]... all | TOOL...
+		Usage: gitobld build [OPTION]... all | TOOL...
 
 		Update dockerfiles using a template
 
@@ -296,7 +296,7 @@ build_usage() {
 		    -N  Do not use cache when building the image
 		    -r  Set apk repository for tools
 		    -S  Run local server for apks
-			-u  Set user name for image tags
+		    -u  Set user name for image tags
 	EOF
 
 	exit 0
