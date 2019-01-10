@@ -15,25 +15,44 @@ die() {
 	exit 1
 }
 
-docker_run_if_stopped() {
+docker_ensure_state() {
 	[ -z "$1" ] && return 1
 
 	_container_id=$1
 
-	if ! docker_container_exists $_container_id; then
-		return 1
-	fi
+	_state=$2
 
-	_is_running=$(docker inspect -f '{{.State.Running}}' $_container_id 2>&1)
+	case $_state in
+		running | stopped )
+			[ "$_state" = running ] && _state_cond=true || _state_cond=false
+			[ "$_state_cond" = true ] && _rev_state_cond=false || _rev_state_cond=true
 
-	if [ "$_is_running" = false ]; then
-		docker start $_container_id > /dev/null 2>&1
-		sleep 5
-	fi
+			if ! docker_container_exists $_container_id; then
+				return 1
+			fi
 
-	_is_running=$(docker inspect -f '{{.State.Running}}' $_container_id 2>&1)
+			_is_running=$(docker inspect -f '{{.State.Running}}' $_container_id 2>&1)
 
-	[ "$_is_running" = true ] && return 0 || return 1
+			if [ "$_is_running" == "$_rev_state_cond" ]; then
+				case $_state in
+					running)
+						docker start $_container_id > /dev/null 2>&1
+						;;
+					stopped)
+						docker stop $_container_id > /dev/null 2>&1
+						;;
+				esac
+				sleep 10
+			fi
+
+			_is_running=$(docker inspect -f '{{.State.Running}}' $_container_id 2>&1)
+
+			[ "$_is_running" == "$_state_cond" ] && return 0 || return 1
+			;;
+
+		*) return 1 ;;
+	esac
+
 }
 
 docker_rm_if_exists() {
@@ -52,6 +71,17 @@ docker_container_exists() {
 	fi
 }
 
+docker_image_exists() {
+	docker inspect --type image $1 > /dev/null 2>&1
+}
+
+docker_obj_exists() {
+	_type=$1
+	_id=$2
+
+	docker inspect --type $_type $_id > /dev/null 2>&1
+}
+
 docker_find_id() {
 	[ -z "$1" ] && return 0
 
@@ -59,7 +89,11 @@ docker_find_id() {
 }
 
 run_abuild() {
-	if ! docker_run_if_stopped $ABUILD_CONTAINER; then
+	if ! docker_image_exists $ABUILD_IMAGE; then
+		docker build --tag $ABUILD_IMAGE build/abuild
+	fi
+
+	if [ -z "$ABUILD_CONTAINER" ] || ! docker_ensure_state $ABUILD_CONTAINER running; then
 		docker_rm_if_exists $ABUILD_CONTAINER
 
 		docker run \
@@ -71,7 +105,50 @@ run_abuild() {
 			$ABUILD_IMAGE tail -f /dev/null
 
 		ABUILD_CONTAINER=$(docker_find_id $ABUILD_CONTAINER_NAME)
+
+		save_env
 	fi
+}
+
+stop_abuild() {
+	[ -z "$ABUILD_CONTAINER" ] && return 1
+
+	docker_ensure_state $ABUILD_CONTAINER stopped
+}
+
+run_apk_server() {
+	if ! docker_obj_exists network $DOCKER_NETWORK; then
+		docker network create $DOCKER_NETWORK
+	fi
+
+	if ! docker_image_exists $APK_SERVER_IMAGE; then
+		docker build --tag $APK_SERVER_IMAGE build/apk-server
+	fi
+
+	if [ -z "$APK_SERVER_CONTAINER" ] || ! docker_ensure_state $APK_SERVER_CONTAINER running; then
+		docker_rm_if_exists $APK_SERVER_CONTAINER
+
+		_docker_args=""
+
+		[ -n "$DOCKER_NETWORK" ] && _docker_args="$_docker_args --network $DOCKER_NETWORK"
+
+		docker run \
+			--detach \
+			--name $APK_SERVER_HOST \
+			--mount type=bind,src=$PWD,dst=/app/apk_server \
+			$_docker_args \
+			$APK_SERVER_IMAGE
+
+		APK_SERVER_CONTAINER=$(docker_find_id $APK_SERVER_HOST)
+
+		save_env
+	fi
+}
+
+stop_apk_server() {
+	[ -z "$APK_SERVER_CONTAINER" ] && return 1
+
+	docker_ensure_state $APK_SERVER_CONTAINER stopped
 }
 
 apk_has() {
@@ -92,7 +169,7 @@ apk_build_usage() {
 		    -d  Search for apks on this directory (default: ports/)
 		    -h  Show this help
 		    -k  Set path to packager public key
-		    -u  Set user id for running abuild (default: current user)
+		    -u  Set user id for running abuild (default: $(id -u))
 
 	EOF
 
@@ -112,11 +189,14 @@ apk_build() {
 
 	PKG_DIRECTORY=${PKG_DIRECTORY:-ports}
 	PKG_PUBKEY_PATH=${PKG_PUBKEY_PATH:-$PWD/keys/packager_key.rsa.pub}
+
 	USERID=${USERID:-$(id -u)}
 
 	shift $((OPTIND-1))
 
 	[ "$#" -eq 0 ] && die ""
+	
+	run_abuild
 
 	while [ "$#" -gt 0 ]; do
 		_apk_name=$1
@@ -125,58 +205,12 @@ apk_build() {
 			die ""
 		fi
 
-		run_abuild
 		docker exec --tty --user $USERID $ABUILD_CONTAINER apk-build $_apk_name
 
 		shift
 	done
-}
 
-apk_server_usage() {
-	cat <<-EOF
-		Usage: gitobld apk-server [-n DOCKER_NETWORK] ADDRESS
-		
-		Run local file server for development
-
-		Options:
-		    -h  Show this help
-		    -n  Set docker network used by local apk server
-		        (default: gitobld-server)
-	EOF
-
-	exit 0
-}
-
-apk_server() {
-	local OPTIND
-	while getopts "hn:" opt; do
-		case $opt in
-			h) apk_server_usage ;;
-			n) DOCKER_NETWORK=$OPTARG ;;
-		esac
-	done
-
-	shift $((OPTIND-1))
-
-	[ "$#" -gt 1 ] && die ""
-	[ "$#" -eq 1 ] && APK_SERVER_HOST=$1
-
-	if ! docker_run_if_stopped $APK_SERVER_CONTAINER; then
-		docker_rm_if_exists $APK_SERVER_CONTAINER
-
-		_docker_args=""
-
-		[ -n "$DOCKER_NETWORK" ] && _docker_args="$_docker_args --network $DOCKER_NETWORK"
-
-		docker run \
-			--detach \
-			--name $APK_SERVER_HOST \
-			--mount type=bind,src=$PWD,dst=/app/apk_server \
-			$_docker_args \
-			$APK_SERVER_IMAGE
-
-		APK_SERVER_CONTAINER=$(docker_find_id $APK_SERVER_HOST)
-	fi
+	stop_abuild
 }
 
 df_has() {
@@ -199,6 +233,8 @@ df_build() {
 	_tool_tag="$REPOSITORY_USER"/"$_tool_name":$(apk_version $_tool_name)
 
 	_build_args="--tag $_tool_tag"
+
+	[ -n "$BUILD_NO_CACHE" ] && _build_args="$_build_args --no-cache"
 	
 	[ -n "$DOCKER_NETWORK" ] && _build_args="$_build_args --network $DOCKER_NETWORK"
 
@@ -234,9 +270,9 @@ build_usage() {
 		Options:
 		    -h  Show this help
 		    -k  Set public key url for apks
-		    -n  Set docker network used by local apk server
-		        (default: gitobld-server)
+		    -N  Do not use cache when building the image
 		    -r  Set apk repository for tools
+		    -S  Run local server for apks
 	EOF
 
 	exit 0
@@ -244,12 +280,13 @@ build_usage() {
 
 build() {
 	local OPTIND
-	while getopts "hk:n:r:u:" opt; do
+	while getopts "hk:Nr:Su:" opt; do
 		case $opt in
 			h) build_usage ;;
 			k) PKG_PUBKEY_URL=$OPTARG ;;
-			n) DOCKER_NETWORK=$OPTARG ;;
+			N) BUILD_NO_CACHE=1 ;;
 			r) PKG_REPOSITORY=$OPTARG ;;
+			S) _run_server=1 ;;
 			u) REPOSITORY_USER=$OPTARG ;;
 		esac
 	done
@@ -263,9 +300,13 @@ build() {
 	
 	[ "$1" = all ] && set -- $_all_tools
 
+	[ -n "$_run_server" ] && run_apk_server
+
 	for tool in $@; do
 		df_build $tool
 	done
+
+	[ -n "$_run_server" ] && stop_apk_server
 }
 
 stop_() {
@@ -320,8 +361,11 @@ updatedf() {
 save_env() {
 	cat <<-EOF > $GITOBLD_ENV
 		ABUILD_CONTAINER=$ABUILD_CONTAINER
+
 		APK_SERVER_CONTAINER=$APK_SERVER_CONTAINER
 		APK_SERVER_HOST=$APK_SERVER_HOST
+
+		DOCKER_NETWORK=$DOCKER_NETWORK
 	EOF
 }
 
@@ -329,7 +373,6 @@ usage() {
 	cat <<-EOF
 		Usage: gitobld [OPTIONS]... COMMAND [COMMAND OPTIONS]...
 		       gitobld apk-build [-d] [PACKAGE]...
-		       gitobld apk-server [-n] [ADDRESS]
 		       gitobld build [OPTIONS]... all | TOOL...
 		       gitobld updatedf [OPTIONS]... all | TOOL...
 
@@ -341,7 +384,6 @@ usage() {
 
 		Commands:
 		    apk-build   Build a Alpine package
-		    apk-server  Run local file server for development
 		    build       Build Docker image of tool
 		    stop        Stop all containers on gitobld environment file
 		    updatedf    Update dockerfiles using a template
@@ -360,13 +402,10 @@ main() {
 
 	case $_cmd in
 		apk-build) apk_build $@ ;;
-		apk-server) apk_server $@ ;;
 		build) build $@ ;;
 		stop) stop_ ;;
 		updatedf) updatedf $@ ;;
 	esac
-
-	save_env
 }
 
 while getopts "e:chm" opt; do
@@ -387,6 +426,8 @@ ABUILD_CONTAINER_NAME=${ABUILD_CONTAINER_NAME:-gitobld_abuild}
 
 APK_SERVER_IMAGE=${APK_SERVER_IMAGE:-gitobioinformatics/apk-server}
 APK_SERVER_HOST=${APK_SERVER_HOST:-gitobld_apk_server.local}
+
+DOCKER_NETWORK=${DOCKER_NETWORK:-gitobld-network}
 
 main $@
 
