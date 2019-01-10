@@ -7,6 +7,7 @@ build_pkg() {
     fi
 
     _pkgdir=$APORTS_DIR/$1
+    _tmp_aports_dir=$TEMP_DIR/$(basename $APORTS_DIR)
 
     if [ ! -d "$_pkgdir" ]; then
         echo "Package '$1' doesn't exists in '$APORTS_DIR' directory!"
@@ -14,8 +15,8 @@ build_pkg() {
     fi
 
     if [ -n "$USE_TEMP_DIR" ]; then
-        cp -r $_pkgdir $TEMP_APORTS_DIR
-        cd $TEMP_APORTS_DIR/$1
+        cp -r $APORTS_DIR $TEMP_DIR
+        cd $_tmp_aports_dir/$1
     else
         cd $_pkgdir
     fi
@@ -37,9 +38,6 @@ main() {
 
     if [ -n "$USE_TEMP_DIR" ]; then
         TEMP_DIR=$(mktemp -d)
-        TEMP_APORTS_DIR=$TEMP_DIR/$(basename $APORTS_DIR)
-
-        mkdir -p $TEMP_APORTS_DIR
     fi
 
     for pkg in $@; do
