@@ -2,17 +2,13 @@
 
 set -e
 
-_all_tools="
-	bowtie2
-	fastqc
-	sra-tools
-	trimmomatic
-	trinity
-	"
-
 die() {
 	[ "$#" -gt 0 ] && echo $@
 	exit 1
+}
+
+list_all_tools() {
+	find tools -type d ! -path tools -exec basename {} \;
 }
 
 docker_ensure_state() {
@@ -167,17 +163,28 @@ apk_version() {
 	grep '^pkgver=.*' ports/"$1"/APKBUILD | cut -d= -f2
 }
 
-build_apk() {
-	_apk_name=$1
-
-	if ! apk_has "$_apk_name"; then
-		die ""
+build_apks() {
+	if ! docker_obj_exists volume $GITOBLD_VOLUME; then
+		docker volume create $GITOBLD_VOLUME > /dev/null 2>&1
+		save_env
 	fi
 
-	docker exec \
-		--interactive --tty \
-		--user abuild $ABUILD_CONTAINER \
-		apk-build -t $_apk_name
+	run_abuild
+
+	for apk_ in $@; do
+		_apk_name=$1
+
+		if ! apk_has "$_apk_name"; then
+			die ""
+		fi
+
+		docker exec \
+			--interactive --tty \
+			--user abuild $ABUILD_CONTAINER \
+			apk-build -t $_apk_name
+	done
+
+	stop_abuild
 }
 
 apk_build_usage() {
@@ -199,6 +206,7 @@ apk_build_usage() {
 }
 
 apk_build() {
+	local OPTIND
 	while getopts "Bd:hk:p:" opt; do
 		case $opt in
 			B) BUILD_IMAGES=1 ;;
@@ -222,25 +230,14 @@ apk_build() {
 
 	[ "$#" -eq 0 ] && die ""
 
-	if ! docker_obj_exists volume $GITOBLD_VOLUME; then
-		docker volume create $GITOBLD_VOLUME > /dev/null 2>&1
-		save_env
-	fi
-	
-	run_abuild
-
-	for apk_ in $@; do
-		build_apk $apk_
-	done
-
-	stop_abuild
+	build_apks $@
 }
 
 df_has() {
 	ls tools/"$1"/Dockerfile > /dev/null 2>&1
 }
 
-df_build() {
+build_image() {
 	[ -z "$1" ] && die ""
 
 	_tool_name=$1
@@ -338,8 +335,8 @@ build() {
 	fi
 
 	REPOSITORY_USER=${REPOSITORY_USER:-gitobioinformatics}
-	
-	[ "$1" = all ] && set -- $_all_tools
+
+	[ "$1" = all ] && set -- $(list_all_tools)
 
 	if [ -n "$_build_apks" ]; then
 		apk_build $@
@@ -348,7 +345,7 @@ build() {
 	[ -n "$_run_server" ] && run_apk_server
 
 	for tool in $@; do
-		df_build $tool
+		build_image $tool
 	done
 
 	[ -n "$_run_server" ] && stop_apk_server
@@ -395,7 +392,7 @@ updatedf() {
 
 	shift $((OPTIND-1))
 
-	[ "$1" = all ] && set -- $_all_tools
+	[ "$1" = all ] && set -- $(list_all_tools)
 
 	for tool in $@; do
 		df_update $tool
@@ -441,6 +438,30 @@ usage() {
 
 
 main() {
+	while getopts "e:h" opt; do
+		case $opt in
+			e) GITOBLD_ENV=$OPTARG ;;
+			h) usage ;;
+		esac
+	done
+
+	shift $((OPTIND-1))
+
+	GITOBLD_ENV=${GITOBLD_ENV:-./.gitobld_env}
+
+	if [ -f "$GITOBLD_ENV" ]; then
+		. $GITOBLD_ENV
+	fi
+
+	ABUILD_IMAGE=${APK_SERVER_IMAGE:-gitobioinformatics/abuild}
+	ABUILD_CONTAINER_NAME=${ABUILD_CONTAINER_NAME:-gitobld_abuild}
+
+	APK_SERVER_IMAGE=${APK_SERVER_IMAGE:-gitobioinformatics/apk-server}
+	APK_SERVER_HOST=${APK_SERVER_HOST:-gitobld_apk_server.local}
+
+	GITOBLD_NETWORK=${GITOBLD_NETWORK:-gitobld-network}
+	GITOBLD_VOLUME=${GITOBLD_VOLUME:-gitobld-volume}
+
 	_cmd=${1:-build}
 
 	[ "$#" -gt 0 ] && shift
@@ -454,28 +475,6 @@ main() {
 		updatedf) updatedf $@ ;;
 	esac
 }
-
-while getopts "e:h" opt; do
-	case $opt in
-		e) GITOBLD_ENV=$OPTARG ;;
-		h) usage ;;
-	esac
-done
-
-GITOBLD_ENV=${GITOBLD_ENV:-./.gitobld_env}
-
-if [ -f "$GITOBLD_ENV" ]; then
-	. $GITOBLD_ENV
-fi
-
-ABUILD_IMAGE=${APK_SERVER_IMAGE:-gitobioinformatics/abuild}
-ABUILD_CONTAINER_NAME=${ABUILD_CONTAINER_NAME:-gitobld_abuild}
-
-APK_SERVER_IMAGE=${APK_SERVER_IMAGE:-gitobioinformatics/apk-server}
-APK_SERVER_HOST=${APK_SERVER_HOST:-gitobld_apk_server.local}
-
-GITOBLD_NETWORK=${GITOBLD_NETWORK:-gitobld-network}
-GITOBLD_VOLUME=${GITOBLD_VOLUME:-gitobld-volume}
 
 main $@
 
