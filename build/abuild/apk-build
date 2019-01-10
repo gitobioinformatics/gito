@@ -1,33 +1,53 @@
 #!/bin/sh
 
-_aports_dir=${APORTS_DIR:-$HOME/ports}
-
-_build_pkg() {
+build_pkg() {
     if [ -z "$1" ]; then
         echo "Package name is empty!"
         return 1
     fi
 
-    _pkgdir=$_aports_dir/$prefix/$1
+    _pkgdir=$APORTS_DIR/$1
 
     if [ ! -d "$_pkgdir" ]; then
-        echo "Package '$1' doesn't exists in '$_aports_dir' directory!"
+        echo "Package '$1' doesn't exists in '$APORTS_DIR' directory!"
         return 1
     fi
 
-    cd $_pkgdir
+    if [ -n "$USE_TEMP_DIR" ]; then
+        cp -r $_pkgdir $TEMP_APORTS_DIR
+        cd $TEMP_APORTS_DIR/$1
+    else
+        cd $_pkgdir
+    fi
+
     abuild -R
 }
 
-while getopts "P:" opt; do
-    case $opt in
-        'P') prefix=$OPTARG;;
-    esac
-done
+main() {
+    while getopts "p:t" opt; do
+        case $opt in
+            p) APORTS_DIR=$OPTARG;;
+            t) USE_TEMP_DIR=1 ;;
+        esac
+    done
 
-shift $((OPTIND-1))
+    shift $((OPTIND-1))
 
-for pkg in $@; do
-    _build_pkg $pkg
-done
+    APORTS_DIR=${APORTS_DIR:-$HOME/aports}
+
+    if [ -n "$USE_TEMP_DIR" ]; then
+        TEMP_DIR=$(mktemp -d)
+        TEMP_APORTS_DIR=$TEMP_DIR/$(basename $APORTS_DIR)
+
+        mkdir -p $TEMP_APORTS_DIR
+    fi
+
+    for pkg in $@; do
+        build_pkg $pkg
+    done
+
+    [ -n "$USE_TEMP_DIR" ] && rm -rf $TEMP_DIR
+}
+
+main $@
 
