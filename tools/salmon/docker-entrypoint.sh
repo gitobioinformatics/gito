@@ -19,5 +19,9 @@ if [ "${1#-}" != "$1" ]; then
 	set -- salmon $@
 fi
 
+if [ -n "$1" ] && [ "$(salmon --no-version-check --help 2>&1)" != "$(salmon --no-version-check $1 --help 2>&1)" ]; then
+    set -- salmon $@
+fi
+
 exec $@
 
