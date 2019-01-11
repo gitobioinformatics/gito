@@ -55,7 +55,7 @@ docker_rm_if_exists() {
 	[ -z "$1" ] && return
 
 	if docker_container_exists $1; then
-		docker rm $1
+		docker rm $1 > /dev/null 2>&1
 	fi
 }
 
@@ -84,12 +84,29 @@ docker_find_id() {
 	docker ps --all --quiet --no-trunc --filter name=$1 >&1
 }
 
-run_abuild() {
-	if [ -n "$BUILD_IMAGES" ] || ! docker_image_exists $ABUILD_IMAGE; then
-		docker build --tag $ABUILD_IMAGE build/abuild
-	fi
+build_image() {
+	_image_tag=$1
+	_df_path=$2
 
-	if [ -z "$ABUILD_CONTAINER" ] || ! docker_ensure_state $ABUILD_CONTAINER running; then
+	if [ -n "$BUILD_IMAGES" ] || ! docker_image_exists $_image_tag; then
+		docker build --tag $_image_tag $_df_dir
+	fi
+}
+
+create_container_is_required() {
+	_container_id=$1
+
+	[ -n "$FORCE_RECREATE" -o -z "$_container_id" ] && return
+
+	docker_ensure_state $_container_id running && return
+
+	return 1
+}
+
+run_abuild() {
+	build_image $ABUILD_IMAGE build/abuild
+
+	if create_container_is_required $ABUILD_CONTAINER; then
 		docker_rm_if_exists $ABUILD_CONTAINER
 
 		_workdir=/var/lib/abuild
@@ -121,11 +138,9 @@ run_apk_server() {
 		docker network create $GITOBLD_NETWORK
 	fi
 
-	if [ -n "$BUILD_IMAGES" ] || ! docker_image_exists $APK_SERVER_IMAGE; then
-		docker build --tag $APK_SERVER_IMAGE build/apk-server
-	fi
+	build_image $APK_SERVER_IMAGE build/apk-server
 
-	if [ -z "$APK_SERVER_CONTAINER" ] || ! docker_ensure_state $APK_SERVER_CONTAINER running; then
+	if create_container_is_required $APK_SERVER_CONTAINER; then
 		docker_rm_if_exists $APK_SERVER_CONTAINER
 
 		_docker_args=""
@@ -144,7 +159,6 @@ run_apk_server() {
 			$APK_SERVER_IMAGE
 
 		APK_SERVER_CONTAINER=$(docker_find_id $APK_SERVER_HOST)
-
 		save_env
 	fi
 }
@@ -198,7 +212,8 @@ apk_build_usage() {
 		Build a Alpine package
 
 		Options:
-		    -B  Force build of 'abuild' image
+		    -b  Force build of 'abuild' image
+		    -c  Recreate containers
 		    -d  Search for apks on this directory (default: ports/)
 		    -h  Show this help
 		    -k  Set path to packager private key
@@ -211,9 +226,10 @@ apk_build_usage() {
 
 apk_build() {
 	local OPTIND
-	while getopts "Bd:hk:p:R" opt; do
+	while getopts "bc:d:hk:p:R" opt; do
 		case $opt in
-			B) BUILD_IMAGES=1 ;;
+			b) BUILD_IMAGES=1 ;;
+			c) FORCE_RECREATE=1 ;;
 			d) PKG_DIRECTORY=$OPTARG ;;
 			h) apk_build_usage ;;
 			k) PKG_PRIVKEY_PATH=$OPTARG ;;
@@ -242,7 +258,7 @@ df_has() {
 	ls tools/"$1"/Dockerfile > /dev/null 2>&1
 }
 
-build_image() {
+build_tool_image() {
 	[ -z "$1" ] && die ""
 
 	_tool_name=$1
@@ -297,7 +313,8 @@ build_usage() {
 		Update dockerfiles using a template
 
 		Options:
-		    -B  Force build of 'apk-server', when using 'S' flag
+		    -b  Force build of 'apk-server', when using 'S' flag
+		    -c  Recreate containers
 		    -d
 		    -e  Set apk repository for tools
 		    -h  Show this help
@@ -314,9 +331,10 @@ build_usage() {
 }
 
 build() {
-	while getopts "Bd:e:hK:NRPSu:" opt; do
+	while getopts "bcd:e:hK:NRPSu:" opt; do
 		case $opt in
-			B) BUILD_IMAGES=1 ;;
+			b) BUILD_IMAGES=1 ;;
+			c) FORCE_RECREATE=1 ;;
 			d) PKG_DIRECTORY=$OPTARG ;;
 			e) PKG_REPOSITORY=$OPTARG ;;
 			h) build_usage ;;
@@ -354,7 +372,7 @@ build() {
 	[ -n "$_run_server" ] && run_apk_server
 
 	for tool in $@; do
-		build_image $tool
+		build_tool_image $tool
 	done
 
 	[ -n "$_run_server" ] && stop_apk_server
@@ -362,11 +380,11 @@ build() {
 
 clean() {
 	if [ -n "$ABUILD_CONTAINER" ]; then
-		docker_rm_if_exists $ABUILD_CONTAINER > /dev/null 2>&1
+		docker_rm_if_exists $ABUILD_CONTAINER
 	fi
 
 	if [ -n "$APK_SERVER_CONTAINER" ]; then
-		docker_rm_if_exists $APK_SERVER_CONTAINER > /dev/null 2>&1
+		docker_rm_if_exists $APK_SERVER_CONTAINER
 	fi
 
 	ABUILD_CONTAINER=
