@@ -6,3 +6,6 @@ ARG PKG_PUBKEY_URL
 RUN wget ${PKG_PUBKEY_URL} -P /etc/apk/keys \
     && apk add --no-cache --repository ${PKG_REPOSITORY} trimmomatic
 
+COPY docker-entrypoint.sh /usr/local/bin
+ENTRYPOINT ["docker-entrypoint.sh"]
+

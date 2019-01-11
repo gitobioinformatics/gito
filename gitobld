@@ -268,9 +268,9 @@ df_update() {
 	[ -z "$1" ] && die ""
 
 	_tool_name=$1
-	_tools_dir=tools/$_tool_name
+	_tool_dir=tools/$_tool_name
 
-	mkdir -p $_tools_dir
+	mkdir -p $_tool_dir
 	sed \
 		-e 's/%%TOOL_NAME%%/'"$_tool_name"'/g' \
 		-e 's/%%ALPINE_VERSION%%/'"$ALPINE_VERSION"'/g' \
@@ -278,7 +278,11 @@ df_update() {
 		-e 's,%%PKG_PUBKEY%%,'"$PKG_PUBKEY"',g' \
 		-e 's,%%PKG_REPOSITORY%%,'"$PKG_REPOSITORY"',g' \
 		Dockerfile.template \
-		> $_tools_dir/Dockerfile
+		> $_tool_dir/Dockerfile
+
+	if [ ! -f "$_tool_dir"/docker-entrypoint.sh ]; then
+		cp docker-entrypoint.sh "$_tool_dir"
+	fi
 }
 
 build_usage() {
