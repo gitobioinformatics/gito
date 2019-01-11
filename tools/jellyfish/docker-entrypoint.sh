@@ -19,5 +19,9 @@ if [ "${1#-}" != "$1" ]; then
 	set -- jellyfish $@
 fi
 
+if [ -n "$1" ] && jellyfish "$1" --help > /dev/null 2>&1; then
+    set -- jellyfish $@
+fi
+
 exec $@
 
