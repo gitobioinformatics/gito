@@ -355,14 +355,19 @@ build() {
 	[ -n "$_run_server" ] && stop_apk_server
 }
 
-stop_() {
-	if [ -n "$ABUILD_CONTAINER" ] && docker_container_exists $ABUILD_CONTAINER; then
-		docker stop $ABUILD_CONTAINER > /dev/null 2>&1
+clean() {
+	if [ -n "$ABUILD_CONTAINER" ]; then
+		docker_rm_if_exists $ABUILD_CONTAINER > /dev/null 2>&1
 	fi
 
-	if [ -n "$APK_SERVER_CONTAINER" ] && docker_container_exists $APK_SERVER_CONTAINER; then
-		docker stop $APK_SERVER_CONTAINER > /dev/null 2>&1
+	if [ -n "$APK_SERVER_CONTAINER" ]; then
+		docker_rm_if_exists $APK_SERVER_CONTAINER > /dev/null 2>&1
 	fi
+
+	ABUILD_CONTAINER=
+	APK_SERVER_CONTAINER=
+
+	save_env
 }
 
 updatedf_usage() {
@@ -431,7 +436,7 @@ usage() {
 		Commands:
 		    apk-build   Build a Alpine package
 		    build       Build Docker image of tool
-		    stop        Stop all containers on gitobld environment file
+		    clean       Remove all containers created by gitobld
 		    updatedf    Update dockerfiles using a template
 
 		Run 'gitobld COMMAND -h' for more information on a command.
@@ -475,7 +480,7 @@ main() {
 	case $_cmd in
 		apk-build) apk_build $@ ;;
 		build) build $@ ;;
-		stop) stop_ ;;
+		clean) clean ;;
 		updatedf) updatedf $@ ;;
 	esac
 }
