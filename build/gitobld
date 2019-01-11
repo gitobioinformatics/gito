@@ -38,6 +38,7 @@ docker_ensure_state() {
 						docker stop $_container_id > /dev/null 2>&1
 						;;
 				esac
+
 				sleep 10
 			fi
 
@@ -54,8 +55,11 @@ docker_ensure_state() {
 docker_rm_if_exists() {
 	[ -z "$1" ] && return
 
-	if docker_container_exists $1; then
-		docker rm $1 > /dev/null 2>&1
+    _container_id=$1
+
+	if docker_container_exists $_container_id; then
+        docker_ensure_state $_container_id stopped
+		docker rm $_container_id > /dev/null 2>&1
 	fi
 }
 
@@ -86,7 +90,7 @@ docker_find_id() {
 
 build_image() {
 	_image_tag=$1
-	_df_path=$2
+	_df_dir=$2
 
 	if [ -n "$BUILD_IMAGES" ] || ! docker_image_exists $_image_tag; then
 		docker build --tag $_image_tag $_df_dir
@@ -98,7 +102,7 @@ create_container_is_required() {
 
 	[ -n "$FORCE_RECREATE" -o -z "$_container_id" ] && return
 
-	docker_ensure_state $_container_id running && return
+	docker_ensure_state $_container_id running || return
 
 	return 1
 }
@@ -125,6 +129,7 @@ run_abuild() {
 		ABUILD_CONTAINER=$(docker_find_id $ABUILD_CONTAINER_NAME)
 		save_env
 	fi
+
 }
 
 stop_abuild() {
@@ -298,11 +303,11 @@ df_update() {
 		-e 's,%%PKG_PUBKEY_URL%%,'"$PKG_PUBKEY_URL"',g' \
 		-e 's,%%PKG_PUBKEY%%,'"$PKG_PUBKEY"',g' \
 		-e 's,%%PKG_REPOSITORY%%,'"$PKG_REPOSITORY"',g' \
-		Dockerfile.template \
+		build/template/Dockerfile.template \
 		> $_tool_dir/Dockerfile
 
 	if [ ! -f "$_tool_dir"/docker-entrypoint.sh ]; then
-		cp docker-entrypoint.sh "$_tool_dir"
+		cp build/template/docker-entrypoint.sh "$_tool_dir"
 	fi
 }
 
@@ -413,6 +418,7 @@ updatedf_usage() {
 updatedf() {
 	ALPINE_VERSION=3.8
 
+    local OPTIND
 	while getopts "hk:r:" opt; do
 		case $opt in
 			a) ALPINE_VERSION=$OPTARG ;;
@@ -429,6 +435,18 @@ updatedf() {
 	for tool in $@; do
 		df_update $tool
 	done
+}
+
+find_toplevel_path() {
+    if [ $(basename $PWD) = 'build' ]; then
+        _toplevel=$(dirname $PWD)
+    elif type git > /dev/null 2>&1; then
+        _toplevel=$(git rev-parse --show-toplevel)
+    else
+        _toplevel=$PWD
+    fi
+
+    echo $_toplevel
 }
 
 save_env() {
@@ -478,6 +496,8 @@ main() {
 	done
 
 	shift $((OPTIND-1))
+
+    cd $(find_toplevel_path)
 
 	GITOBLD_ENV=${GITOBLD_ENV:-./.gitobld_env}
 
