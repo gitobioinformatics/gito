@@ -171,6 +171,10 @@ build_apks() {
 
 	run_abuild
 
+	_apk_build_args="-t"
+
+	[ -n "$BUILD_DEPS" ] && _apk_build_args="$_apk_build_args -R"
+
 	for apk_ in $@; do
 		_apk_name=$1
 
@@ -181,7 +185,7 @@ build_apks() {
 		docker exec \
 			--interactive --tty \
 			--user abuild $ABUILD_CONTAINER \
-			apk-build -t $_apk_name
+			apk-build $_apk_build_args $_apk_name
 	done
 
 	stop_abuild
@@ -199,7 +203,7 @@ apk_build_usage() {
 		    -h  Show this help
 		    -k  Set path to packager private key
 		    -p  Set path to packager public key
-
+		    -R  Build APKBUILD depencies
 	EOF
 
 	exit 0
@@ -207,13 +211,14 @@ apk_build_usage() {
 
 apk_build() {
 	local OPTIND
-	while getopts "Bd:hk:p:" opt; do
+	while getopts "Bd:hk:p:R" opt; do
 		case $opt in
 			B) BUILD_IMAGES=1 ;;
 			d) PKG_DIRECTORY=$OPTARG ;;
 			h) apk_build_usage ;;
 			k) PKG_PRIVKEY_PATH=$OPTARG ;;
 			p) PKG_PUBKEY_PATH=$OPTARG ;;
+			R) BUILD_DEPS=1 ;;
 		esac
 	done
 
@@ -343,7 +348,7 @@ build() {
 	[ "$1" = all ] && set -- $(list_all_tools)
 
 	if [ -n "$_build_apks" ]; then
-		apk_build $@
+		BUILD_DEPS=1 apk_build $@
 	fi
 
 	[ -n "$_run_server" ] && run_apk_server
