@@ -19,5 +19,9 @@ if [ "${1#-}" != "$1" ]; then
 	set -- samtools $@
 fi
 
+if [ -n "$1" ] && samtools help "$1" > /dev/null 2>&1; then
+    set -- samtools $@
+fi
+
 exec $@
 
