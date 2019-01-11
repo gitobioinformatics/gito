@@ -19,7 +19,11 @@ if [ "${1#-}" != "$1" ]; then
 	set -- samtools $@
 fi
 
-if [ -n "$1" ] && samtools help "$1" > /dev/null 2>&1; then
+if [ "$1" = 'help' ]; then
+    set -- samtools $@
+fi
+
+if [ -n "$1" ] && [ "$(samtools help "$1" 2>&1)" != "[main] unrecognized command '$1'" ]; then
     set -- samtools $@
 fi
 
