@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [Unreleased]
 ### Added
 - New helper script for building GITO based images.
 - Added jellyfish.
@@ -9,7 +9,7 @@
 ### Changed
 - Added 'docker-entrypoint.sh' for all images.
 
-## [1.0.0] - 2018-12-31
+## 1.0.0 - 2018-12-31
 ### Added
 - Alpine-based GITO base image.
 - Added bowtie2.
@@ -17,4 +17,6 @@
 - Added trimmomatic.
 - Added trinity.
 - Added sra-tools.
+
+[Unreleased]: https://github.com/gitobioinformatics/gito/compare/v1.0...HEAD
 
