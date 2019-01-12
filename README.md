@@ -91,33 +91,28 @@ GITO was used to reproduce the pipeline present in the work of Hernández-Ferná
 To build GITO images from source, you can use the following process:
 
 1. Install latest version of [Docker](https://docs.docker.com/install)
-  
-  For Linux users, you can follow the instructions [here] (https://docs.docker.com/install/linux/linux-postinstall/) to manage Docker as non-root user. Otherwise, execute `gitobld` script using `sudo`.
+
+   For Linux users, you can follow the instructions [here](https://docs.docker.com/install/linux/linux-postinstall/) to manage Docker as non-root user. Otherwise, execute `gitobld` script using `sudo`.
 
 2. Get the source code.
-
-```
- $ git clone https://github.com/gitobioinformatics/gito.git
- $ cd gito
-```
+   ```
+    $ git clone https://github.com/gitobioinformatics/gito.git
+    $ cd gito
+   ```
 
 3. Create a private and public key to sign the apk packages:
-
-```
- $ mkdir -p keys
- $ openssl genrsa -out keys/packager_key.rsa 2048
- $ openssl rsa -in keys/packager_key.rsa -pubout -out keys/packager_key.rsa.pub
-```
+   ```
+    $ mkdir -p keys
+    $ openssl genrsa -out keys/packager_key.rsa 2048
+    $ openssl rsa -in keys/packager_key.rsa -pubout -out keys/packager_key.rsa.pub
+   ```
 
 4. Run the helper script to build the images:
+   ```
+    $ ./gitobld build -SR all
+   ```
 
-```
- $ ./gitobld build -SR all
-```
-
-  You can build individual images by using the tool name instead of _all_.
-  
-  To find more info execute `./gitobld -h`.
+   You can build individual images by using the tool name instead of _all_.
 
 ---
 
