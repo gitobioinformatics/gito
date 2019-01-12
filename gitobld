@@ -437,18 +437,6 @@ updatedf() {
 	done
 }
 
-find_toplevel_path() {
-    if [ $(basename $PWD) = 'build' ]; then
-        _toplevel=$(dirname $PWD)
-    elif type git > /dev/null 2>&1; then
-        _toplevel=$(git rev-parse --show-toplevel)
-    else
-        _toplevel=$PWD
-    fi
-
-    echo $_toplevel
-}
-
 save_env() {
 	cat <<-EOF > $GITOBLD_ENV
 		ABUILD_CONTAINER=$ABUILD_CONTAINER
@@ -496,8 +484,6 @@ main() {
 	done
 
 	shift $((OPTIND-1))
-
-    cd $(find_toplevel_path)
 
 	GITOBLD_ENV=${GITOBLD_ENV:-./.gitobld_env}
 
