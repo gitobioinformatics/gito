@@ -263,20 +263,24 @@ df_has() {
 	ls tools/"$1"/Dockerfile > /dev/null 2>&1
 }
 
-build_tool_image() {
-	[ -z "$1" ] && die ""
+get_tool_tag() {
+	if [ -z "$1" ] || ! apk_has $1; then
+		return 1
+	fi
 
-	_tool_name=$1
+	echo "$REPOSITORY_USER"/"$1":$(apk_version $1)
+}
+
+build_tool_image() {
+	_tool_tag=$(get_tool_tag $1)
+
+	if [ -z "$_tool_tag" ]; then
+		die ""
+	fi
 
 	if ! df_has $_tool_name; then
 		die ""
 	fi
-
-	if ! apk_has $_tool_name; then
-		die ""
-	fi
-
-	_tool_tag="$REPOSITORY_USER"/"$_tool_name":$(apk_version $_tool_name)
 
 	_build_args="--tag $_tool_tag"
 
@@ -398,6 +402,72 @@ clean() {
 	save_env
 }
 
+push_usage() {
+	cat <<-EOF
+	    Usage: gitobld push [OPTION]... all | TOOL...
+
+		Send images to remote repository
+
+		Options:
+		    -h  Show this help
+		    -l  Tag current version as 'latest', and push both tags to remote
+			-L  Tag current version as 'latest', and only push this tag
+		    -r  Set remote repository
+		    -u  Set user for images tags (default: gitobioinformatics)
+	EOF
+
+	exit 0
+}
+
+push_tool_image() {
+	_tool_tag=$(get_tool_tag $1)
+
+	if [ -z "$_tool_tag" ]; then
+		die ""
+	fi
+
+	[ -z "$ONLY_SEND_LATEST" ] && _send_tags="$_tool_tag"
+
+	if [ -n "$SEND_LATEST" -o -n "$ONLY_SEND_LATEST" ]; then
+		_send_tags="$_send_tags ${_tool_tag%:*}:latest"
+	fi
+
+	if [ -n "$REMOTE_REPOSITORY" ]; then
+		_send_tags=$(echo $_send_tags | sed -e 's,[^ ]* *,'"$REMOTE_REPOSITORY"'/&,g')
+	fi
+
+	for tag in $_send_tags; do
+		if [ "$tag" != "$_tool_tag" ]; then
+			docker tag $_tool_tag $tag
+		fi
+
+		docker push $tag
+	done
+}
+
+push() {
+	local OPTIND
+	while getopts "hlLr:u:" opt; do
+		case $opt in
+			h) push_usage ;;
+			l) SEND_LATEST=1 ;;
+			L) ONLY_SEND_LATEST=1 ;;
+			r) REMOTE_REPOSITORY=$OPTARG ;;
+			u) REPOSITORY_USER=$OPTARG ;;
+		esac
+	done
+
+	shift $((OPTIND-1))
+
+	REPOSITORY_USER=${REPOSITORY_USER:-gitobioinformatics}
+
+	[ "$1" = all ] && set -- $(list_all_tools)
+
+	for tool in $@; do
+		push_tool_image $tool
+	done
+}
+
 updatedf_usage() {
 	cat <<-EOF
 		Usage: gitobld updatedf [OPTION]... all | TOOL...
@@ -409,7 +479,6 @@ updatedf_usage() {
 		    -h  Show this help
 		    -k  Set public key url for apks
 		    -r  Set apk repository for tools
-		    -u  Set user for images tags (default: gitobioinformatics)
 	EOF
 
 	exit 0
@@ -452,8 +521,9 @@ save_env() {
 usage() {
 	cat <<-EOF
 		Usage: gitobld [OPTIONS]... COMMAND [COMMAND OPTIONS]...
-		       gitobld apk-build [-d] [PACKAGE]...
+		       gitobld apk-build [PACKAGE]...
 		       gitobld build [OPTIONS]... all | TOOL...
+		       gitobld push [OPTIONS]... all | TOOL...
 		       gitobld updatedf [OPTIONS]... all | TOOL...
 
 		Helper script for building GITO images.
@@ -466,6 +536,7 @@ usage() {
 		    apk-build   Build a Alpine package
 		    build       Build Docker image of tool
 		    clean       Remove all containers created by gitobld
+		    push        Send images to remote repository
 		    updatedf    Update dockerfiles using a template
 
 		Run 'gitobld COMMAND -h' for more information on a command.
@@ -510,7 +581,9 @@ main() {
 		apk-build) apk_build $@ ;;
 		build) build $@ ;;
 		clean) clean ;;
+		push) push $@ ;;
 		updatedf) updatedf $@ ;;
+		*) die "" ;;
 	esac
 }
 
