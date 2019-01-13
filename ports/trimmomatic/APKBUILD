@@ -4,7 +4,7 @@
 pkgname=trimmomatic
 pkgver=0.38
 pkgrel=0
-pkgdesc="Trimmomatic: A flexible trimmer for Illumina Sequence Data"
+pkgdesc="Trimmomatic is a flexible trimmer for Illumina Sequence Data"
 url="http://www.usadellab.org/cms/?page=trimmomatic"
 arch="noarch"
 license="GPL-3.0-or-later"
