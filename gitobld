@@ -214,6 +214,10 @@ apk_has() {
 	ls ports/"$1"/APKBUILD > /dev/null 2>&1
 }
 
+apk_description() {
+    grep '^pkgdesc=.*' ports/"$1"/APKBUILD | cut -d= -f2 | sed -e 's/^"\(.*\)"$/\1/g'
+}
+
 apk_version() {
 	grep '^pkgver=.*' ports/"$1"/APKBUILD | cut -d= -f2
 }
@@ -349,6 +353,15 @@ df_update() {
 		-e 's,%%PKG_REPOSITORY%%,'"$PKG_REPOSITORY"',g' \
 		build/template/Dockerfile.template \
 		> $_tool_dir/Dockerfile
+
+    if [ ! -f "$_tool_dir"/README.md ]; then
+        sed \
+            -e 's/%%TOOL_NAME%%/'"$_tool_name"'/g' \
+            -e 's/%%TOOL_BADGES%%//g' \
+            -e 's/%%TOOL_DESCRIPTION%%/'"$(apk_description $_tool_name)"'/g' \
+            build/template/README.md \
+            > $_tool_dir/README.md
+    fi
 
 	if [ ! -f "$_tool_dir"/docker-entrypoint.sh ]; then
 		cp build/template/docker-entrypoint.sh "$_tool_dir"
