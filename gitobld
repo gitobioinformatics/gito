@@ -8,7 +8,7 @@ die() {
 }
 
 list_all_tools() {
-	find tools -type d ! -path tools -exec basename {} \;
+	find library -type d ! -path library -exec basename {} \;
 }
 
 realpath() {
