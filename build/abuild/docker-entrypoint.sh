@@ -2,7 +2,7 @@
 
 set -e
 
-if [ $(id -u) -eq 0 ]; then
+if [ "$(id -u)" -eq 0 ]; then
     chown -R abuild ./packages
 
     if [ "$1" = 'apk-build' ]; then

@@ -13,7 +13,7 @@ RUN mkdir -p /var/cache/distfiles \
 	&& chmod g+w /var/cache/distfiles
 
 RUN adduser -h $ABUILD_HOME -H -S -G abuild abuild \
-    && echo "abuild ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+    && echo "%abuild ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 COPY apk-build /usr/local/bin
 
