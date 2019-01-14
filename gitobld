@@ -2,6 +2,27 @@
 
 set -e
 
+update_color_config() {
+	case "$1" in
+		always)
+			enable_colors
+			;;
+		never)
+			disable_colors
+			;;
+		auto)
+			if [ -t 1 ]; then
+				enable_colors
+			else
+				disable_colors
+			fi
+			;;
+		*)
+			return 1
+			;;
+	esac
+}
+
 enable_colors() {
 	NORMAL="\033[1;0m"
 	STRONG="\033[1;1m"
@@ -686,6 +707,7 @@ usage() {
 		Helper script for building GITO images.
 
 		Options:
+		    -c {always,never,auto}  Set colored output configuration. (default: auto)
 		    -e  Set path for gitobld environment file (default: .gitobld_env)
 		    -h  Show this help
 
@@ -702,10 +724,10 @@ usage() {
 	exit 0
 }
 
-
 main() {
-	while getopts "e:h" opt; do
+	while getopts "c:e:h" opt; do
 		case $opt in
+			c) GITOBLD_COLOR_CONFIG=$OPTARG ;;
 			e) GITOBLD_ENV=$OPTARG ;;
 			h) usage ;;
 		esac
@@ -713,13 +735,17 @@ main() {
 
 	shift $((OPTIND-1))
 
+	GITOBLD_COLOR_CONFIG=${GITOBLD_COLOR_CONFIG:-auto}
+
+	if ! update_color_config $GITOBLD_COLOR_CONFIG; then
+		die "Invalid color config $OPTARG"
+	fi
+
 	GITOBLD_ENV=${GITOBLD_ENV:-./.gitobld_env}
 
 	if [ -f "$GITOBLD_ENV" ]; then
 		. $GITOBLD_ENV
 	fi
-
-	enable_colors
 
 	BASE_IMAGE_TAG=${BASE_IMAGE_TAG:-gitobioinformatics/gito}
 
