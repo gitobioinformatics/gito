@@ -116,14 +116,14 @@ Due to the extremely small size, the GITO has a smaller attack surface compared 
 
 | Image | Scanning Result |
 | --- | --- |
-| Bowtie2 | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/bowtie2/manifest?tab=vulnerabilities)
-| FastQC | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/fastqc/manifest?tab=vulnerabilities)
-| Jellyfish | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/jellyfish/manifest?tab=vulnerabilities)
-| Salmon | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/salmon/manifest?tab=vulnerabilities)
-| Samtools | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/samtools/manifest?tab=vulnerabilities)
-| SRA Tools | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/sra-tools/manifest?tab=vulnerabilities)
-| Trimmomatic | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/trimmomatic/manifest?tab=vulnerabilities)
-| Trinity | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/trinity/manifest?tab=vulnerabilities)
+| Bowtie2 | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/bowtie2?tab=tags)
+| FastQC | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/fastqc?tab=tags)
+| Jellyfish | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/jellyfish?tab=tags)
+| Salmon | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/salmon?tab=tags)
+| Samtools | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/samtools?tab=tags)
+| SRA Tools | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/sra-tools?tab=tags)
+| Trimmomatic | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/trimmomatic?tab=tags)
+| Trinity | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/trinity?tab=tags)
 
 ---
 
