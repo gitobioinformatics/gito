@@ -112,7 +112,18 @@ To build GITO images from source, you can use the following process:
 
 ### Security and vulnerabilities
 
-Due to the extremely small size, the GITO has a smaller attack surface compared to the containers that use larger images. To assess safety, we used [Quay Security Scanner](https://quay.io) to assess vulnerabilities in the GITO. Quay identifies insecure packages by matching the metadata against Common Vulnerabilities and Exposures (CVE) vulnerability database. After the analysis, the Quay software did not identify any vulnerability in GITO, neither in the base image nor in the images with the tools used in the pipeline. The results of the analysis were published in the Quay portal, and the scanning of each tool can be accessed here ([fastqc](https://quay.io/repository/gitobioinformatics/fastqc?tab=tags), [trimmomatic](https://quay.io/repository/gitobioinformatics/trimmomatic?tab=tags), [trinity](https://quay.io/repository/gitobioinformatics/trinity?tab=tags), [sra-tools](https://quay.io/repository/gitobioinformatics/sra-tools?tab=tags) and [bowtie2](https://quay.io/repository/gitobioinformatics/bowtie2?tab=tags))
+Due to the extremely small size, the GITO has a smaller attack surface compared to the containers that use larger images. To assess safety, we used [Quay Security Scanner](https://quay.io) to assess vulnerabilities in the GITO. Quay identifies insecure packages by matching the metadata against Common Vulnerabilities and Exposures (CVE) vulnerability database. The results of the analysis were published in the Quay portal, and the scanning of each tool can be accessed here:
+
+| Image | Scanning Result |
+| --- | --- |
+| Bowtie2 | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/bowtie2/manifest?tab=vulnerabilities)
+| FastQC | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/fastqc/manifest?tab=vulnerabilities)
+| Jellyfish | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/jellyfish/manifest?tab=vulnerabilities)
+| Salmon | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/salmon/manifest?tab=vulnerabilities)
+| Samtools | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/samtools/manifest?tab=vulnerabilities)
+| SRA Tools | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/sra-tools/manifest?tab=vulnerabilities)
+| Trimmomatic | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/trimmomatic/manifest?tab=vulnerabilities)
+| Trinity | [![Quay Security Scan](https://img.shields.io/badge/Quay%20Security%20Scan-Passed-brightgreen.svg)](https://quay.io/repository/gitobioinformatics/trinity/manifest?tab=vulnerabilities)
 
 ---
 
