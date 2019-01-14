@@ -4,8 +4,6 @@
 
 # GITO - A lightweight and safe container for bioinformatics
 
-### Full Description:
-
 GITO, a lightweight and safe container docker image based on [Alpine](https://alpinelinux.org) containing bioinformatics tools ready to be used. The base image is only 4.41 MB in size and contains only the OS libraries and language de-pendencies required to run an application, but robust enough to run bioinformatics pipeline with security.
 
 GITO is an open source using the [Docker platform](https://www.docker.com) and provides an easy and modular method for building, distributing, and replicating pipelines, which has a base image (GITO-base) that forms the single foundation layer on which each container application is built.
@@ -13,20 +11,16 @@ GITO was conceived with the "start with the minimum and add dependencies as need
 called [musl-libc](https://www.musl-libc.org). Musl-libc is free, lightweight, security-oriented and smaller in size compared to 
 the Glibc library. The source code for bioinformatics tools, written in C, C ++ and Java, has been compiled for native Alpine executables.
 
+---
 
-
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ### Guide to downloading and running this Docker image
 #### Step 1: Install Docker
 
-To download and run this Docker image, you first need to set up Docker on your machine. The easiest way to start with Docker is to install the [Docker Toolbox](https://www.docker.com/products/docker-desktop) by simply 
- downloading and clicking the installer which is available for both Mac OSX and Windows. For Linux users, follow the 
- instructions [here](https://docs.docker.com/get-started/).
- 
+To download and run this Docker image, you first need to set up Docker on your machine. The easiest way to start with Docker is to install the Docker Desktop (https://www.docker.com/products/docker-desktop) by simply downloading and clicking the installer which is available for both Mac OSX and Windows. For Linux users, follow the instructions [here](https://docs.docker.com/install), and to use the cli without `sudo`, follow the [post-installation steps](https://docs.docker.com/install/linux/linux-postinstall)
+
 #### Step 2: Download and run the Docker image
 
-Option 1: Through a Command Line Interface (CLI)
-            The image can be downloaded and executed through the CLI of Docker's Docker Quickstart Terminal in the [Docker Toolbox](https://www.docker.com/products/docker-desktop) with the following commands:
+The image can be downloaded and executed through the Docker's CLI with the following commands:
 
    1.  Pull(download) the Docker images:
    
