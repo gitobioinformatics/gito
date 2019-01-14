@@ -45,29 +45,31 @@ container_delete() {
 
 	_container_id=$1
 
-	msg "Removing container '$_container_id'..."
-
 	if docker_container_exists $_container_id; then
 		docker_ensure_state $_container_id stopped
 		docker rm $_container_id > /dev/null 2>&1
 	else
-		warn "Container '$_container_id' don't exist."
+		#warn "Container '$_container_id' don't exist."
+		echo "Container '$_container_id' don't exist."
 	fi
 }
 
 container_try_start() {
 	_container_id=$1
 
-	[ -n "$FORCE_RECREATE" -o -z "$_container_id" ] && return
+	[ -n "$FORCE_RECREATE" -o -z "$_container_id" ] && return 1
 
-	msg "Starting '$_container_id' container..."
+	#msg "Starting '$_container_id' container..."
+	echo "Starting '$_container_id' container..."
 
 	if ! container_set_state $_container_id running; then
-		warn "Failed to start container '$_container_id'..."
-		return
+		#warn "Failed to start container '$_container_id'..."
+		echo "Failed to start container '$_container_id'..."
+		return 1
 	fi
 
-	return 1
+	# TODO: Fix this true
+	true
 }
 
 image_build() {
@@ -79,7 +81,8 @@ image_build() {
 	if [ -n "$BUILD_IMAGES" ] || ! docker_obj_exists $_image_tag image; then
 		[ -z "$BUILD_NO_CACHE" ] && _build_args="$_build_args --no-cache"
 
-		msg "Building '$_image_tag' at $_df_dir..."
+		#msg "Building '$_image_tag' at $_df_dir..."
+		echo "Building '$_image_tag' at $_df_dir..."
 		docker build --tag $_image_tag $_df_dir
 	fi
 }
@@ -91,6 +94,10 @@ docker_find_id() {
 }
 
 docker_obj_create() {
+	if [ -n "$FORCE_OPERATION" ] && docker_obj_exists "$1"; then
+		docker_obj_delete "$1"
+	fi
+
 	docker $OBJECT_TYPE create "$1"
 }
 
@@ -112,7 +119,11 @@ docker_obj_delete() {
 		return
 	fi
 
-	docker $OBJECT_TYPE rm "$1"
+	if [ -n "$FORCE_OPERATION" ]; then
+		docker $OBJECT_TYPE rm --force "$1"
+	else
+		docker $OBJECT_TYPE rm "$1"
+	fi
 }
 
 while getopts "bcdefinNqs:t:x" opt; do
@@ -132,8 +143,10 @@ while getopts "bcdefinNqs:t:x" opt; do
 	esac
 done
 
+shift $((OPTIND-1))
+
 if [ -n "$BUILD_IMAGE" ]; then
-	image_build "$1"
+	image_build "$1" "$2"
 elif [ -n "$CREATE_OBJECT" ]; then
 	docker_obj_create "$1"
 elif [ -n "$DELETE_OBJECT" ]; then
@@ -144,7 +157,9 @@ elif [ -n "$FIND_OBJECT_NAME" ]; then
 	echo ""
 elif [ -n "$CONTAINER_SET_STATE" ]; then
 	container_set_state "$1"
-elif [ -n "$container_try_start" ]; then
+elif [ -n "$CONTAINER_TRY_START" ]; then
 	container_try_start "$1"
+elif [ -n "$CHECK_IF_EXISTS" ]; then
+	docker_obj_exists "$1"
 fi
 

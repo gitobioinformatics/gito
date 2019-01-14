@@ -30,7 +30,8 @@ apk_server_run() {
 			_docker_args="$_docker_args --mount src=$GITOBLD_VOLUME,dst=$_http_root/packages,readonly"
 		fi
 
-		msg "Creating '$APK_SERVER_HOST' container..."
+		#msg "Creating '$APK_SERVER_HOST' container..."
+		echo "Creating '$APK_SERVER_HOST' container..."
 
 		docker run \
 			--detach \
@@ -49,6 +50,14 @@ apk_server_stop() {
 	msg "Stopping container '"$APK_SERVER_CONTAINER"'..."
 	gitobld-docker -qs stopped $APK_SERVER_CONTAINER
 }
+
+APK_SERVER_IMAGE=${APK_SERVER_IMAGE:-gitobioinformatics/apk-server}
+APK_SERVER_HOST=${APK_SERVER_HOST:-gitobld_apk_server.local}
+
+PKG_PUBKEY_PATH=${PKG_PUBKEY_PATH:-$PWD/keys/packager_key.rsa.pub}
+
+GITOBLD_VOLUME=${GITOBLD_VOLUME:-gitobld-volume}
+GITOBLD_NETWORK=${GITOBLD_NETWORK:-gitobld-network}
 
 opt=${1:-'-r'}
 

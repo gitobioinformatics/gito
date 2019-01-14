@@ -5,25 +5,27 @@ list_all_tools() {
 }
 
 library_has() {
-	[ ! -f "library/"$1"/Dockerfile" ] && return 1
-}
-
-get_tool_version() {
-	echo ""
+	[ ! -f "library/$1/Dockerfile" ] && return 1 || true
 }
 
 get_tool_tag() {
-	if [ -n "$1" ] && apk_has $1; then
-		echo "$REPOSITORY_USER"/"$1":$(get_tool_version $1)
+	#TODO: Make this better.
+	if [ -n "$1" ]; then
+		echo "${REPOSITORY_USER:-gitobioinformatics}"/"$1":$(get_tool_version $1)
 	fi
 }
 
-while getopts "aetv" opt; do
-	case $opt in
-		a) list_all_tools ;;
-		e) library_has "$1" ;;
-		t) get_tool_tag "$1" ;;
-		v) get_tool_version "$1" ;;
-	esac
-done
+get_tool_version() {
+	gitobld-ports -v "$1"
+}
+
+opt=${1:-'-a'}
+[ "$#" -gt 0 ] && shift 
+
+case $opt in
+	'-a') list_all_ports ;;
+	'-e') library_has "$1" ;;
+	'-t') get_tool_tag "$1" ;;
+	'-v') get_tool_version "$1" ;;
+esac
 

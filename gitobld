@@ -106,7 +106,7 @@ apk_build() {
 	gitobld-abuild
 
 	for pkg in $@; do
-		msg "Building package '$_apk_name'..."
+		msg "Building package '$pkg'..."
 		gitobld-apk-build $pkg
 	done
 
@@ -195,7 +195,7 @@ build() {
 	[ -n "$_run_server" ] && gitobld-apk-server
 
 	for tool in $@; do
-		msg "Building Docker image for '$_tool_name'..."
+		msg "Building Docker image for '$tool'..."
 		gitobld-build $tool
 	done
 
@@ -204,13 +204,13 @@ build() {
 
 clean() {
 	if [ -n "$ABUILD_CONTAINER" ]; then
-		#docker_rm_if_exists $ABUILD_CONTAINER
-		gitobld-docker -df $ABUILD_CONTAINER
+		msg "Removing container '$ABUILD_CONTAINER'..."
+		gitobld-docker -def $ABUILD_CONTAINER
 	fi
 
 	if [ -n "$APK_SERVER_CONTAINER" ]; then
-		#docker_rm_if_exists $APK_SERVER_CONTAINER
-		gitobld-docker -df $APK_SERVER_CONTAINER
+		msg "Removing container '$APK_SERVER_CONTAINER'..."
+		gitobld-docker -def $APK_SERVER_CONTAINER
 	fi
 
 	ABUILD_CONTAINER=
@@ -300,8 +300,8 @@ updatedf() {
 	[ "$1" = all ] && set -- $(gitobld-library -a)
 
 	for tool in $@; do
-		msg "Updating '$_tool_name'..."
-		gitobld-updatedf $tool
+		msg "Updating '$tool'..."
+		gitobld-updatedf -a $ALPINE_VERSION $tool
 	done
 }
 
@@ -344,6 +344,14 @@ main() {
 
 	shift $((OPTIND-1))
 
+	GITOBLD_SCRIPTS=${GITOBLD_SCRIPTS:-$PWD/build/scripts}
+
+	if [ ! -d "$GITOBLD_SCRIPTS" ]; then
+		die "Directory '$GITOBLD_SCRIPTS' of 'gitobld' scripts don't exist."
+	fi
+
+	export PATH="$PATH:$GITOBLD_SCRIPTS"
+
 	GITOBLD_COLOR_CONFIG=${GITOBLD_COLOR_CONFIG:-auto}
 
 	if ! update_color_config $GITOBLD_COLOR_CONFIG; then
@@ -353,15 +361,6 @@ main() {
 	. gitobld-env
 
 	BASE_IMAGE_TAG=${BASE_IMAGE_TAG:-gitobioinformatics/gito}
-
-	ABUILD_IMAGE=${APK_SERVER_IMAGE:-gitobioinformatics/abuild}
-	ABUILD_CONTAINER_NAME=${ABUILD_CONTAINER_NAME:-gitobld_abuild}
-
-	APK_SERVER_IMAGE=${APK_SERVER_IMAGE:-gitobioinformatics/apk-server}
-	APK_SERVER_HOST=${APK_SERVER_HOST:-gitobld_apk_server.local}
-
-	GITOBLD_NETWORK=${GITOBLD_NETWORK:-gitobld-network}
-	GITOBLD_VOLUME=${GITOBLD_VOLUME:-gitobld-volume}
 
 	[ -z "$1" ] && usage
 

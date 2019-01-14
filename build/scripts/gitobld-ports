@@ -5,7 +5,7 @@ list_all_ports() {
 }
 
 ports_has() {
-	[ ! -f "ports/"$1"/APKBUILD" ] && return 1
+	[ ! -f "ports/$1/APKBUILD" ] && return 1 || true
 }
 
 get_apkbuild_description() {
@@ -16,12 +16,13 @@ get_apkbuild_version() {
 	grep '^pkgver=.*' ports/"$1"/APKBUILD | cut -d= -f2
 }
 
-while getopts "adev" opt; do
-	case $opt in
-		a) list_all_ports ;;
-		d) get_apkbuild_description "$1" ;;
-		e) ports_has "$1" ;;
-		v) get_apkbuild_version "$1" ;;
-	esac
-done
+opt=${1:-'-a'}
+shift 
+
+case $opt in
+	'-a') list_all_ports ;;
+	'-d') get_apkbuild_description "$1" ;;
+	'-e') ports_has "$1" ;;
+	'-v') get_apkbuild_version "$1" ;;
+esac
 

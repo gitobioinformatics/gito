@@ -1,19 +1,26 @@
 #!/bin/sh
 
 abuild_exec() {
+	# TODO: Change to container id.
+
+	if [ -n "$BUILD_OUTPUT_DIR" ]; then
+		_userid="$(id -u):$(id -g)"
+	else
+		_userid="abuild"
+	fi
+
 	docker exec \
 		--interactive --tty \
 		--user $_userid \
-		$ABUILD_CONTAINER $@
-
-	apk-build $_apk_build_args $_apk_name
+		$ABUILD_CONTAINER_NAME $@
 }
 
 abuild_run() {
 	if [ -z "$BUILD_OUTPUT_DIR" ] && ! gitobld-docker -qet volume $GITOBLD_VOLUME; then
-		msg "Creating '$GITOBLD_VOLUME' volume..."
+		#msg "Creating '$GITOBLD_VOLUME' volume..."
+		echo "Creating '$GITOBLD_VOLUME' volume..."
 		#docker volume create $GITOBLD_VOLUME > /dev/null 2>&1
-		gitobld-docker -qct network $GITOBLD_VOLUME
+		gitobld-docker -qct volume $GITOBLD_VOLUME
 		gitobld-env -w
 	fi
 
@@ -39,7 +46,8 @@ abuild_run() {
 			_run_args="$_run_args --mount src=$GITOBLD_VOLUME,dst=$_repodest_dir"
 		fi
 
-		msg "Creating '$ABUILD_CONTAINER_NAME' container..."
+		#msg "Creating '$ABUILD_CONTAINER_NAME' container..."
+		echo "Creating '$ABUILD_CONTAINER_NAME' container..."
 
 		docker run \
 			--detach \
@@ -59,15 +67,28 @@ abuild_run() {
 abuild_stop() {
 	[ -z "$ABUILD_CONTAINER" ] && return 1
 
-	msg "Stopping container '"$ABUILD_CONTAINER"'..."
+	#msg "Stopping container '"$ABUILD_CONTAINER"'..."
+	echo "Stopping container '"$ABUILD_CONTAINER"'..."
 	gitobld-docker -qs stopped $ABUILD_CONTAINER
 }
 
+ABUILD_IMAGE=${APK_SERVER_IMAGE:-gitobioinformatics/abuild}
+ABUILD_CONTAINER_NAME=${ABUILD_CONTAINER_NAME:-gitobld-abuild}
+
+PKG_DIRECTORY=${PKG_DIRECTORY:-$PWD/ports}
+
+PKG_PRIVKEY_PATH=${PKG_PRIVKEY_PATH:-$PWD/keys/packager_key.rsa}
+PKG_PUBKEY_PATH=${PKG_PUBKEY_PATH:-$PKG_PRIVKEY_PATH.pub}
+
+GITOBLD_VOLUME=${GITOBLD_VOLUME:-gitobld-volume}
+
 opt=${1:-'-r'}
 
+[ "$#" -gt 0 ] && shift
+
 case $opt in
-	-e) abuild_exec "$@" ;;
-	-r) run_abuild ;;
-	-s) stop_abuild ;;
+	-e) abuild_exec $@ ;;
+	-r) abuild_run ;;
+	-s) abuild_stop ;;
 esac
 
