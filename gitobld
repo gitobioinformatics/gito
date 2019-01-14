@@ -758,7 +758,9 @@ main() {
 	GITOBLD_NETWORK=${GITOBLD_NETWORK:-gitobld-network}
 	GITOBLD_VOLUME=${GITOBLD_VOLUME:-gitobld-volume}
 
-	_cmd=${1:-build}
+	[ -z "$1" ] && usage
+
+	_cmd="$1"
 
 	[ "$#" -gt 0 ] && shift
 
@@ -770,7 +772,7 @@ main() {
 		clean) clean ;;
 		push) push $@ ;;
 		updatedf) updatedf $@ ;;
-		*) echo "Invalid command '$_cmd'" ;;
+		*) die "Invalid command '$_cmd'" ;;
 	esac
 }
 
