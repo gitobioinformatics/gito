@@ -387,7 +387,7 @@ build_usage() {
 		    -d
 		    -e  Set apk repository for tools
 		    -h  Show this help
-		    -K  Set private key path
+		    -k  Set private key path
 		    -N  Do not use cache when building the image
 		    -o  Set output directory, when using '-R' flag
 		    -r  Set package repository path
@@ -402,7 +402,7 @@ build_usage() {
 }
 
 build() {
-	while getopts "bBcd:e:hK:No:r:RPSu:" opt; do
+	while getopts "bBcd:e:hk:KNo:r:RPSu:" opt; do
 		case $opt in
 			b) BUILD_IMAGES=1 ;;
 			B) BUILD_BASE_IMAGE=1 ;;
