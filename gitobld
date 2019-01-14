@@ -52,7 +52,7 @@ error() {
 }
 
 die() {
-	[ "$#" -gt 0 ] && error $@
+	[ "$#" -gt 0 ] && error "$1"
 	exit 1
 }
 
