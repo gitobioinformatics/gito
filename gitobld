@@ -140,7 +140,7 @@ run_abuild() {
 		if [ -n "$BUILD_OUTPUT_DIR" ]; then
 			_run_args="
 				$_run_args
-				--user $(id -u)
+				--user $(id -u):$(id -g)
 				--group-add abuild
 				--mount type=bind,src=$(realpath $BUILD_OUTPUT_DIR),dst=$_repodest_dir
 				"
@@ -241,9 +241,15 @@ build_apks() {
 			die ""
 		fi
 
+		if [ -n "$BUILD_OUTPUT_DIR" ]; then
+			_userid="$(id -u):$(id -g)"
+		else
+			_userid="abuild"
+		fi
+
 		docker exec \
 			--interactive --tty \
-			--user $(id -u):$(id -g) \
+			--user $_userid \
 			$ABUILD_CONTAINER \
 			apk-build $_apk_build_args $_apk_name
 	done
