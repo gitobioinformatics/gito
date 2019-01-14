@@ -186,6 +186,12 @@ create_container_is_required() {
 }
 
 run_abuild() {
+	if [ -z "$BUILD_OUTPUT_DIR" ] && ! docker_obj_exists volume $GITOBLD_VOLUME; then
+		msg "Creating '$GITOBLD_VOLUME' volume..."
+		docker volume create $GITOBLD_VOLUME > /dev/null 2>&1
+		save_env
+	fi
+
 	build_image $ABUILD_IMAGE build/abuild
 
 	if create_container_is_required $ABUILD_CONTAINER; then
@@ -289,43 +295,31 @@ apk_version() {
 	grep '^pkgver=.*' ports/"$1"/APKBUILD | cut -d= -f2
 }
 
-build_apks() {
-	if [ -z "$BUILD_OUTPUT_DIR" ] && ! docker_obj_exists volume $GITOBLD_VOLUME; then
-		msg "Creating '$GITOBLD_VOLUME' volume..."
-		docker volume create $GITOBLD_VOLUME > /dev/null 2>&1
-		save_env
-	fi
+build_apk() {
+	_apk_name=$1
 
-	run_abuild
+	if ! apk_has "$_apk_name"; then
+		error "The package '$_apk_name' don't exists at ports directory."
+		return 1
+	fi
 
 	_apk_build_args="-t"
 
 	[ -n "$BUILD_DEPS" ] && _apk_build_args="$_apk_build_args -R"
 
-	for apk_ in $@; do
-		_apk_name=$1
+	msg "Building package '$_apk_name'..."
 
-		if ! apk_has "$_apk_name"; then
-			error "The package '$_apk_name' don't exists at ports directory."
-			return 1
-		fi
+	if [ -n "$BUILD_OUTPUT_DIR" ]; then
+		_userid="$(id -u):$(id -g)"
+	else
+		_userid="abuild"
+	fi
 
-		msg "Building package '$_apk_name'..."
-
-		if [ -n "$BUILD_OUTPUT_DIR" ]; then
-			_userid="$(id -u):$(id -g)"
-		else
-			_userid="abuild"
-		fi
-
-		docker exec \
-			--interactive --tty \
-			--user $_userid \
-			$ABUILD_CONTAINER \
-			apk-build $_apk_build_args $_apk_name
-	done
-
-	stop_abuild
+	docker exec \
+		--interactive --tty \
+		--user $_userid \
+		$ABUILD_CONTAINER \
+		apk-build $_apk_build_args $_apk_name
 }
 
 apk_build_usage() {
@@ -376,7 +370,13 @@ apk_build() {
 	PKG_PRIVKEY_PATH=${PKG_PRIVKEY_PATH:-$PWD/keys/packager_key.rsa}
 	PKG_PUBKEY_PATH=${PKG_PUBKEY_PATH:-$PKG_PRIVKEY_PATH.pub}
 
-	build_apks $@
+	run_abuild
+
+	for pkg in $@; do
+		build_apk $pkg
+	done
+
+	stop_abuild
 }
 
 df_has() {
