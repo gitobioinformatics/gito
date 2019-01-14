@@ -2,8 +2,36 @@
 
 set -e
 
+enable_colors() {
+	NORMAL="\033[1;0m"
+	STRONG="\033[1;1m"
+	RED="\033[1;31m"
+	GREEN="\033[1;32m"
+	YELLOW="\033[1;33m"
+}
+
+disable_colors() {
+	NORMAL=""
+	STRONG=""
+	RED=""
+	GREEN=""
+	YELLOW=""
+}
+
+msg() {
+	printf "%s\n" "$1"
+}
+
+warn() {
+	printf "${YELLOW}Warning:${NORMAL} %s\n" "$1"
+}
+
+error() {
+	printf "${RED}Error:${NORMAL} %s\n" "$1"
+}
+
 die() {
-	[ "$#" -gt 0 ] && echo $@
+	[ "$#" -gt 0 ] && error $@
 	exit 1
 }
 
@@ -65,9 +93,13 @@ docker_rm_if_exists() {
 
 	_container_id=$1
 
+	msg "Removing container '$_container_id'..."
+
 	if docker_container_exists $_container_id; then
 		docker_ensure_state $_container_id stopped
 		docker rm $_container_id > /dev/null 2>&1
+	else
+		warn "Container '$_container_id' don't exist."
 	fi
 }
 
@@ -101,6 +133,7 @@ build_image() {
 	_df_dir=$2
 
 	if [ -n "$BUILD_IMAGES" ] || ! docker_image_exists $_image_tag; then
+		msg "Building '$_image_tag' at $_df_dir..."
 		docker build --tag $_image_tag $_df_dir
 	fi
 }
@@ -111,6 +144,7 @@ build_base_image() {
 	if [ -n "$REBUILD_BASE_IMAGE" ] || ! docker_image_exists $BASE_IMAGE_TAG; then
 		[ -z "$BUILD_NO_CACHE" ] && _build_args="$_build_args --no-cache"
 
+		msg "Building '$BASE_IMAGE_TAG'..."
 		docker build "$_build_args" base
 	fi
 }
@@ -120,7 +154,12 @@ create_container_is_required() {
 
 	[ -n "$FORCE_RECREATE" -o -z "$_container_id" ] && return
 
-	docker_ensure_state $_container_id running || return
+	msg "Starting '$_container_id' container..."
+
+	if ! docker_ensure_state $_container_id running; then
+		warn "Failed to start container '$_container_id'..."
+		return
+	fi
 
 	return 1
 }
@@ -148,6 +187,8 @@ run_abuild() {
 			_run_args="$_run_args --mount src=$GITOBLD_VOLUME,dst=$_repodest_dir"
 		fi
 
+		msg "Creating '$ABUILD_CONTAINER_NAME' container..."
+
 		docker run \
 			--detach \
 			--name $ABUILD_CONTAINER_NAME \
@@ -166,11 +207,13 @@ run_abuild() {
 stop_abuild() {
 	[ -z "$ABUILD_CONTAINER" ] && return 1
 
+	msg "Stopping container '"$ABUILD_CONTAINER"'..."
 	docker_ensure_state $ABUILD_CONTAINER stopped
 }
 
 run_apk_server() {
 	if ! docker_obj_exists network $GITOBLD_NETWORK; then
+		msg "Creating '$GITOBLD_NETWORK' network..."
 		docker network create $GITOBLD_NETWORK
 	fi
 
@@ -193,6 +236,8 @@ run_apk_server() {
 			_docker_args="$_docker_args --mount src=$GITOBLD_VOLUME,dst=$_http_root/packages,readonly"
 		fi
 
+		msg "Creating '$APK_SERVER_HOST' container..."
+
 		docker run \
 			--detach \
 			--name $APK_SERVER_HOST \
@@ -207,6 +252,7 @@ run_apk_server() {
 stop_apk_server() {
 	[ -z "$APK_SERVER_CONTAINER" ] && return 1
 
+	msg "Stopping container '"$APK_SERVER_CONTAINER"'..."
 	docker_ensure_state $APK_SERVER_CONTAINER stopped
 }
 
@@ -215,7 +261,7 @@ apk_has() {
 }
 
 apk_description() {
-    grep '^pkgdesc=.*' ports/"$1"/APKBUILD | cut -d= -f2 | sed -e 's/^"\(.*\)"$/\1/g'
+	grep '^pkgdesc=.*' ports/"$1"/APKBUILD | cut -d= -f2 | sed -e 's/^"\(.*\)"$/\1/g'
 }
 
 apk_version() {
@@ -224,6 +270,7 @@ apk_version() {
 
 build_apks() {
 	if [ -z "$BUILD_OUTPUT_DIR" ] && ! docker_obj_exists volume $GITOBLD_VOLUME; then
+		msg "Creating '$GITOBLD_VOLUME' volume..."
 		docker volume create $GITOBLD_VOLUME > /dev/null 2>&1
 		save_env
 	fi
@@ -238,8 +285,11 @@ build_apks() {
 		_apk_name=$1
 
 		if ! apk_has "$_apk_name"; then
-			die ""
+			error "The package '$_apk_name' don't exists at ports directory."
+			return 1
 		fi
+
+		msg "Building package '$_apk_name'..."
 
 		if [ -n "$BUILD_OUTPUT_DIR" ]; then
 			_userid="$(id -u):$(id -g)"
@@ -294,16 +344,16 @@ apk_build() {
 
 	shift $((OPTIND-1))
 
+	if [ "$#" -eq 0 ]; then
+		die "No packages passed to 'gitobld apk-build' command."
+	fi
+
+	[ "$1" = all ] && set -- $(list_all_tools)
+
 	PKG_DIRECTORY=${PKG_DIRECTORY:-$PWD/ports}
 
 	PKG_PRIVKEY_PATH=${PKG_PRIVKEY_PATH:-$PWD/keys/packager_key.rsa}
 	PKG_PUBKEY_PATH=${PKG_PUBKEY_PATH:-$PKG_PRIVKEY_PATH.pub}
-
-	if [ -z "$PKG_PRIVKEY_PATH" -o -z "$PKG_PUBKEY_PATH" ]; then
-		die ""
-	fi
-
-	[ "$#" -eq 0 ] && die ""
 
 	build_apks $@
 }
@@ -313,11 +363,9 @@ df_has() {
 }
 
 get_tool_tag() {
-	if [ -z "$1" ] || ! apk_has $1; then
-		return 1
+	if [ -n "$1" ] && apk_has $1; then
+		echo "$REPOSITORY_USER"/"$1":$(apk_version $1)
 	fi
-
-	echo "$REPOSITORY_USER"/"$1":$(apk_version $1)
 }
 
 build_tool_image() {
@@ -325,11 +373,13 @@ build_tool_image() {
 	_tool_tag=$(get_tool_tag $_tool_name)
 
 	if [ -z "$_tool_tag" ]; then
-		die ""
+		error "Invalid tool name '$_tool_name'"
+		return 1
 	fi
 
 	if ! df_has $_tool_name; then
-		die ""
+		error "No tool with '$_tool_name' name at library directory."
+		return 1
 	fi
 
 	_build_args="--tag $_tool_tag"
@@ -341,14 +391,24 @@ build_tool_image() {
 	[ -n "$PKG_REPOSITORY" ] && _build_args="$_build_args --build-arg PKG_REPOSITORY=$PKG_REPOSITORY"
 	[ -n "$PKG_PUBKEY_URL" ] && _build_args="$_build_args --build-arg PKG_PUBKEY_URL=$PKG_PUBKEY_URL"
 
+	msg "Building Docker image for '$_tool_name'..."
+
 	docker build $_build_args library/"$_tool_name"
 }
 
-df_update() {
-	[ -z "$1" ] && die ""
+update_tool_df() {
+	[ -z "$1" ] && return 1
 
 	_tool_name=$1
+
+	if ! apk_has $_tool_name; then
+		error "Missing package for '$_tool_name' at ports directory."
+		return 1
+	fi
+
 	_tool_dir=library/$_tool_name
+
+	msg "Updating '$_tool_name'..."
 
 	mkdir -p $_tool_dir
 	sed \
@@ -360,17 +420,21 @@ df_update() {
 		build/template/Dockerfile.template \
 		> $_tool_dir/Dockerfile
 
-    if [ ! -f "$_tool_dir"/README.md ]; then
-        sed \
-            -e 's/%%TOOL_NAME%%/'"$_tool_name"'/g' \
-            -e 's/%%TOOL_BADGES%%//g' \
-            -e 's/%%TOOL_DESCRIPTION%%/'"$(apk_description $_tool_name)"'/g' \
-            build/template/README.md \
-            > $_tool_dir/README.md
-    fi
+	echo "  Added Dockerfile"
 
 	if [ ! -f "$_tool_dir"/docker-entrypoint.sh ]; then
 		cp build/template/docker-entrypoint.sh "$_tool_dir"
+		echo "  Added docker-entrypoint.sh"
+	fi
+
+	if [ ! -f "$_tool_dir"/README.md ]; then
+		sed \
+			-e 's/%%TOOL_NAME%%/'"$_tool_name"'/g' \
+			-e 's/%%TOOL_BADGES%%//g' \
+			-e 's/%%TOOL_DESCRIPTION%%/'"$(apk_description $_tool_name)"'/g' \
+			build/template/README.md \
+			> $_tool_dir/README.md
+		echo "  Added README.md"
 	fi
 }
 
@@ -424,6 +488,12 @@ build() {
 
 	shift $((OPTIND-1))
 
+	if [ "$#" -eq 0 ]; then
+		die "No tools passed to 'gitobld build' command."
+	fi
+
+	[ "$1" = all ] && set -- $(list_all_tools)
+
 	PKG_DIRECTORY=${PKG_DIRECTORY:-$PWD/ports}
 
 	PKG_REPOSITORY=${PKG_REPOSITORY:-http://"$APK_SERVER_HOST"/packages/aports}
@@ -436,8 +506,6 @@ build() {
 	fi
 
 	REPOSITORY_USER=${REPOSITORY_USER:-gitobioinformatics}
-
-	[ "$1" = all ] && set -- $(list_all_tools)
 
 	[ -n "$BUILD_BASE_IMAGE" ] && build_base_image
 
@@ -491,10 +559,17 @@ push_usage() {
 }
 
 push_tool_image() {
+	_tool_name=$1
 	_tool_tag=$(get_tool_tag $1)
 
 	if [ -z "$_tool_tag" ]; then
-		die ""
+		error "Invalid tool name '$_tool_name'"
+		return 1
+	fi
+
+	if ! docker_obj_exists image $_tool_tag; then
+		error "Image for '$_tool_name' don't exists."
+		return 1
 	fi
 
 	[ -z "$ONLY_SEND_LATEST" ] && _send_tags="$_tool_tag"
@@ -507,11 +582,14 @@ push_tool_image() {
 		_send_tags=$(echo $_send_tags | sed -e 's,[^ ]* *,'"$REMOTE_REPOSITORY"'/&,g')
 	fi
 
+	msg "Pushing '$_tool_name' to '${REMOTE_REPOSITORY:-docker.io}'..."
+
 	for tag in $_send_tags; do
 		if [ "$tag" != "$_tool_tag" ]; then
 			docker tag $_tool_tag $tag
 		fi
 
+		msg "Pushing '$tag'..."
 		docker push $tag
 	done
 }
@@ -530,9 +608,13 @@ push() {
 
 	shift $((OPTIND-1))
 
-	REPOSITORY_USER=${REPOSITORY_USER:-gitobioinformatics}
+	if [ "$#" -eq 0 ]; then
+		die "No tools passed to 'gitobld push' command."
+	fi
 
 	[ "$1" = all ] && set -- $(list_all_tools)
+
+	REPOSITORY_USER=${REPOSITORY_USER:-gitobioinformatics}
 
 	for tool in $@; do
 		push_tool_image $tool
@@ -570,10 +652,14 @@ updatedf() {
 
 	shift $((OPTIND-1))
 
+	if [ "$#" -eq 0 ]; then
+		die "No tools passed to 'gitobld updatedf' command."
+	fi
+
 	[ "$1" = all ] && set -- $(list_all_tools)
 
 	for tool in $@; do
-		df_update $tool
+		update_tool_df $tool
 	done
 }
 
@@ -633,6 +719,8 @@ main() {
 		. $GITOBLD_ENV
 	fi
 
+	enable_colors
+
 	BASE_IMAGE_TAG=${BASE_IMAGE_TAG:-gitobioinformatics/gito}
 
 	ABUILD_IMAGE=${APK_SERVER_IMAGE:-gitobioinformatics/abuild}
@@ -656,7 +744,7 @@ main() {
 		clean) clean ;;
 		push) push $@ ;;
 		updatedf) updatedf $@ ;;
-		*) die "" ;;
+		*) echo "Invalid command '$_cmd'" ;;
 	esac
 }
 
