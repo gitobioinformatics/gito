@@ -1,0 +1,43 @@
+#!/bin/sh
+
+update_tool_df() {
+	[ -z "$1" ] && return 1
+
+	_tool_name=$1
+
+	if ! gitobld-ports -e $_tool_name; then
+		#error "Missing package for '$_tool_name' at ports directory."
+		echo "Missing package for '$_tool_name' at ports directory."
+		return 1
+	fi
+
+	_tool_dir=library/$_tool_name
+
+	mkdir -p $_tool_dir
+	sed \
+		-e 's/%%TOOL_NAME%%/'"$_tool_name"'/g' \
+		-e 's/%%ALPINE_VERSION%%/'"$ALPINE_VERSION"'/g' \
+		-e 's,%%PKG_PUBKEY_URL%%,'"$PKG_PUBKEY_URL"',g' \
+		-e 's,%%PKG_PUBKEY%%,'"$PKG_PUBKEY"',g' \
+		-e 's,%%PKG_REPOSITORY%%,'"$PKG_REPOSITORY"',g' \
+		build/template/Dockerfile.template \
+		> $_tool_dir/Dockerfile
+
+	echo "Added Dockerfile"
+
+	if [ ! -f "$_tool_dir"/docker-entrypoint.sh ]; then
+		cp build/template/docker-entrypoint.sh "$_tool_dir"
+		echo "Added docker-entrypoint.sh"
+	fi
+
+	if [ ! -f "$_tool_dir"/README.md ]; then
+		sed \
+			-e 's/%%TOOL_NAME%%/'"$_tool_name"'/g' \
+			-e 's/%%TOOL_BADGES%%//g' \
+			-e 's/%%TOOL_DESCRIPTION%%/'"$(gitobld-ports -d $_tool_name)"'/g' \
+			build/template/README.md \
+			> $_tool_dir/README.md
+		echo "Added README.md"
+	fi
+}
+

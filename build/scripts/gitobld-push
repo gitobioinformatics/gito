@@ -1,0 +1,38 @@
+#!/bin/sh
+
+push_tool_image() {
+	_tool_name=$1
+	_tool_tag=$(get_tool_tag $1)
+
+	if [ -z "$_tool_tag" ]; then
+		#error "Invalid tool name '$_tool_name'"
+		echo "Invalid tool name '$_tool_name'"
+		return 1
+	fi
+
+	if ! docker_obj_exists image $_tool_tag; then
+		#error "Image for '$_tool_name' don't exists."
+		echo "Image for '$_tool_name' don't exists."
+		return 1
+	fi
+
+	[ -z "$ONLY_SEND_LATEST" ] && _send_tags="$_tool_tag"
+
+	if [ -n "$SEND_LATEST" -o -n "$ONLY_SEND_LATEST" ]; then
+		_send_tags="$_send_tags ${_tool_tag%:*}:latest"
+	fi
+
+	if [ -n "$REMOTE_REPOSITORY" ]; then
+		_send_tags=$(echo $_send_tags | sed -e 's,[^ ]* *,'"$REMOTE_REPOSITORY"'/&,g')
+	fi
+
+	for tag in $_send_tags; do
+		if [ "$tag" != "$_tool_tag" ]; then
+			docker tag $_tool_tag $tag
+		fi
+
+		echo "Pushing '$tag'..."
+		docker push $tag
+	done
+}
+

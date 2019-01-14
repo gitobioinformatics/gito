@@ -1,0 +1,29 @@
+#!/bin/sh
+
+list_all_tools() {
+	find library -type d ! -path library -exec basename {} \;
+}
+
+library_has() {
+	[ ! -f "library/"$1"/Dockerfile" ] && return 1
+}
+
+get_tool_version() {
+	echo ""
+}
+
+get_tool_tag() {
+	if [ -n "$1" ] && apk_has $1; then
+		echo "$REPOSITORY_USER"/"$1":$(get_tool_version $1)
+	fi
+}
+
+while getopts "aetv" opt; do
+	case $opt in
+		a) list_all_tools ;;
+		e) library_has "$1" ;;
+		t) get_tool_tag "$1" ;;
+		v) get_tool_version "$1" ;;
+	esac
+done
+

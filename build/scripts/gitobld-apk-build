@@ -1,0 +1,24 @@
+#!/bin/sh
+
+build_apk() {
+	_apk_name=$1
+
+	if ! apk_has "$_apk_name"; then
+		#error "The package '$_apk_name' don't exists at ports directory."
+		echo "The package '$_apk_name' don't exists at ports directory."
+		return 1
+	fi
+
+	_apk_build_args="-t"
+
+	[ -n "$BUILD_DEPS" ] && _apk_build_args="$_apk_build_args -R"
+
+	if [ -n "$BUILD_OUTPUT_DIR" ]; then
+		_userid="$(id -u):$(id -g)"
+	else
+		_userid="abuild"
+	fi
+
+	gitobld-abuild -e apk-build "$_apk_build_args" $_apk_name
+}
+

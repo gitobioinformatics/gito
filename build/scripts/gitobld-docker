@@ -1,0 +1,150 @@
+#!/bin/sh
+
+container_set_state() {
+	[ -z "$1" ] && return 1
+
+	_container_id=$1
+
+	_state=$2
+
+	case $_state in
+		running | stopped )
+			[ "$_state" = running ] && _state_cond=true || _state_cond=false
+			[ "$_state_cond" = true ] && _rev_state_cond=false || _rev_state_cond=true
+
+			if ! docker_container_exists $_container_id; then
+				return 1
+			fi
+
+			_is_running=$(docker inspect -f '{{.State.Running}}' $_container_id 2>&1)
+
+			if [ "$_is_running" = "$_rev_state_cond" ]; then
+				case $_state in
+					running)
+						docker start $_container_id > /dev/null 2>&1
+						;;
+					stopped)
+						docker stop $_container_id > /dev/null 2>&1
+						;;
+				esac
+
+				sleep 10
+			fi
+
+			_is_running=$(docker inspect -f '{{.State.Running}}' $_container_id 2>&1)
+
+			[ "$_is_running" = "$_state_cond" ] && return 0 || return 1
+			;;
+
+		*) return 1 ;;
+	esac
+}
+
+container_delete() {
+	[ -z "$1" ] && return
+
+	_container_id=$1
+
+	msg "Removing container '$_container_id'..."
+
+	if docker_container_exists $_container_id; then
+		docker_ensure_state $_container_id stopped
+		docker rm $_container_id > /dev/null 2>&1
+	else
+		warn "Container '$_container_id' don't exist."
+	fi
+}
+
+container_try_start() {
+	_container_id=$1
+
+	[ -n "$FORCE_RECREATE" -o -z "$_container_id" ] && return
+
+	msg "Starting '$_container_id' container..."
+
+	if ! container_set_state $_container_id running; then
+		warn "Failed to start container '$_container_id'..."
+		return
+	fi
+
+	return 1
+}
+
+image_build() {
+	_image_tag=$1
+	_df_dir=$2
+
+	_build_args="--tag $_image_tag"
+
+	if [ -n "$BUILD_IMAGES" ] || ! docker_obj_exists $_image_tag image; then
+		[ -z "$BUILD_NO_CACHE" ] && _build_args="$_build_args --no-cache"
+
+		msg "Building '$_image_tag' at $_df_dir..."
+		docker build --tag $_image_tag $_df_dir
+	fi
+}
+
+docker_find_id() {
+	[ -z "$1" ] && return 0
+
+	docker ps --all --quiet --no-trunc --filter name=$1 >&1
+}
+
+docker_obj_create() {
+	docker $OBJECT_TYPE create "$1"
+}
+
+docker_obj_exists() {
+	[ -z "$1" ] && return 1
+
+	_id=$1
+	[ "$#" -eq 2 ] && _type=$2 || _type=$OBJECT_TYPE
+
+	if [ -n "$_type" ]; then
+		docker inspect --type $_type $_id > /dev/null 2>&1
+	else
+		docker inspect $_id > /dev/null 2>&1
+	fi
+}
+
+docker_obj_delete() {
+	if [ -n "$CHECK_IF_EXISTS" ] && ! docker_obj_exists "$1"; then
+		return
+	fi
+
+	docker $OBJECT_TYPE rm "$1"
+}
+
+while getopts "bcdefinNqs:t:x" opt; do
+	case $opt in
+		b) BUILD_IMAGE=1 ;;
+		c) CREATE_OBJECT=1 ;;
+		d) DELETE_OBJECT=1 ;;
+		e) CHECK_IF_EXISTS=1 ;;
+		f) FORCE_OPERATION=1 ;;
+		i) FIND_OBJECT_ID=1 ;;
+		n) FIND_OBJECT_NAME=1 ;;
+		N) NO_CACHE=1 ;;
+		q) QUIET_MODE=1 ;;
+		s) CONTAINER_SET_STATE=1 ;;
+		t) OBJECT_TYPE=$OPTARG ;;
+		x) CONTAINER_TRY_START=1 ;;
+	esac
+done
+
+if [ -n "$BUILD_IMAGE" ]; then
+	image_build "$1"
+elif [ -n "$CREATE_OBJECT" ]; then
+	docker_obj_create "$1"
+elif [ -n "$DELETE_OBJECT" ]; then
+	docker_obj_delete "$1"
+elif [ -n "$FIND_OBJECT_ID" ]; then
+	docker_find_id "$1"
+elif [ -n "$FIND_OBJECT_NAME" ]; then
+	echo ""
+elif [ -n "$CONTAINER_SET_STATE" ]; then
+	container_set_state "$1"
+elif [ -n "$container_try_start" ]; then
+	container_try_start "$1"
+fi
+
