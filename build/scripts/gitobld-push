@@ -30,14 +30,8 @@ push_tool_image() {
 
 	msg "Pushing '$tool' to '${REMOTE_REPOSITORY:-docker.io}'..."
 
-	for tag in $tags; do
-		if [ "$tag" != "$tool_tag" ]; then
-			docker tag $tool_tag $tag
-		fi
-
-		echo "Pushing '$tag'..."
-		docker push $tag
-	done
+	gitobld-docker -T "$tool_tag" $tags
+	gitobld-docker -p $tags
 }
 
 usage() {
