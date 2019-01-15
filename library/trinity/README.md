@@ -1,6 +1,6 @@
-# trinity [![Version](https://img.shields.io/badge/Version-2.8.4-blue.svg)]()
+# Trinity [![Version](https://img.shields.io/badge/Version-2.8.4-blue.svg)]()
 
-Docker image for trinity ([Home][homepage]).
+Docker image for Trinity ([Home][homepage]).
 
 ## How to pull(download) the latest Docker image
 ```
@@ -17,7 +17,7 @@ Docker image for trinity ([Home][homepage]).
  $ docker rmi gitobioinformatics/trinity
 ```
 
-[hub]: https://hub.docker.com/r/gitobioinformatics/trinity
-[quay]: https://quay.io/repository/gitobioinformatics/trinity
+[hub]: https://hub.docker.com/r/gitobioinformatics/Trinity
+[quay]: https://quay.io/repository/gitobioinformatics/Trinity
 [homepage]: https://github.com/trinityrnaseq/trinityrnaseq/wiki
 

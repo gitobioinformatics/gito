@@ -3,7 +3,7 @@ FROM alpine:3.8
 ARG PKG_REPOSITORY 
 ARG PKG_PUBKEY_URL 
 
-LABEL name="trimmomatic"
+LABEL name="Trimmomatic"
 LABEL version="0.38"
 LABEL homepage=""http://www.usadellab.org/cms/?page"
 

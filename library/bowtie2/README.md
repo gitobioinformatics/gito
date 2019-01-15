@@ -1,6 +1,6 @@
-# bowtie2 [![Version](https://img.shields.io/badge/Version-2.3.4.3-blue.svg)]()
+# Bowtie2 [![Version](https://img.shields.io/badge/Version-2.3.4.3-blue.svg)]()
 
-Docker image for bowtie2 ([Home][homepage]).
+Docker image for Bowtie2 ([Home][homepage]).
 
 ## How to pull(download) the latest Docker image
 ```
@@ -17,7 +17,7 @@ Docker image for bowtie2 ([Home][homepage]).
  $ docker rmi gitobioinformatics/bowtie2
 ```
 
-[hub]: https://hub.docker.com/r/gitobioinformatics/bowtie2
-[quay]: https://quay.io/repository/gitobioinformatics/bowtie2
+[hub]: https://hub.docker.com/r/gitobioinformatics/Bowtie2
+[quay]: https://quay.io/repository/gitobioinformatics/Bowtie2
 [homepage]: http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
 

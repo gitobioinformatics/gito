@@ -3,7 +3,7 @@ FROM alpine:3.8
 ARG PKG_REPOSITORY 
 ARG PKG_PUBKEY_URL 
 
-LABEL name="trinity"
+LABEL name="Trinity"
 LABEL version="2.8.4"
 LABEL homepage="https://github.com/trinityrnaseq/trinityrnaseq/wiki"
 

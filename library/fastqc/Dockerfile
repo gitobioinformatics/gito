@@ -3,7 +3,7 @@ FROM alpine:3.8
 ARG PKG_REPOSITORY 
 ARG PKG_PUBKEY_URL 
 
-LABEL name="fastqc"
+LABEL name="FastQC"
 LABEL version="0.11.7"
 LABEL homepage="http://www.bioinformatics.babraham.ac.uk/projects/fastqc"
 

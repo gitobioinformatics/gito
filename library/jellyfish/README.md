@@ -1,6 +1,6 @@
-# jellyfish [![Version](https://img.shields.io/badge/Version-2.2.10-blue.svg)]()
+# Jellyfish [![Version](https://img.shields.io/badge/Version-2.2.10-blue.svg)]()
 
-Docker image for jellyfish ([Home][homepage]).
+Docker image for Jellyfish ([Home][homepage]).
 
 ## How to pull(download) the latest Docker image
 ```
@@ -17,7 +17,7 @@ Docker image for jellyfish ([Home][homepage]).
  $ docker rmi gitobioinformatics/jellyfish
 ```
 
-[hub]: https://hub.docker.com/r/gitobioinformatics/jellyfish
-[quay]: https://quay.io/repository/gitobioinformatics/jellyfish
+[hub]: https://hub.docker.com/r/gitobioinformatics/Jellyfish
+[quay]: https://quay.io/repository/gitobioinformatics/Jellyfish
 [homepage]: http://www.genome.umd.edu/jellyfish.html
 

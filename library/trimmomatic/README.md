@@ -1,6 +1,6 @@
-# trimmomatic [![Version](https://img.shields.io/badge/Version-0.38-blue.svg)]()
+# Trimmomatic [![Version](https://img.shields.io/badge/Version-0.38-blue.svg)]()
 
-Docker image for trimmomatic ([Home][homepage]).
+Docker image for Trimmomatic ([Home][homepage]).
 
 ## How to pull(download) the latest Docker image
 ```
@@ -17,7 +17,7 @@ Docker image for trimmomatic ([Home][homepage]).
  $ docker rmi gitobioinformatics/trimmomatic
 ```
 
-[hub]: https://hub.docker.com/r/gitobioinformatics/trimmomatic
-[quay]: https://quay.io/repository/gitobioinformatics/trimmomatic
+[hub]: https://hub.docker.com/r/gitobioinformatics/Trimmomatic
+[quay]: https://quay.io/repository/gitobioinformatics/Trimmomatic
 [homepage]: "http://www.usadellab.org/cms/?page
 
