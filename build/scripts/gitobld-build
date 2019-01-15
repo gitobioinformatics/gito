@@ -18,8 +18,6 @@ build_tool_image() {
 		return 1
 	fi
 
-	build_args="--tag $tool_tag"
-
 	[ -n "$BUILD_NO_CACHE" ] && build_args="$build_args --no-cache"
 	
 	[ -n "$GITOBLD_NETWORK" ] && build_args="$build_args --network $GITOBLD_NETWORK"
@@ -28,8 +26,7 @@ build_tool_image() {
 	[ -n "$PKG_PUBKEY_URL" ] && build_args="$build_args --build-arg PKG_PUBKEY_URL=$PKG_PUBKEY_URL"
 
 	msg "Building Docker image for '$tool'..."
-
-	docker build $build_args library/"$tool_name"
+	gitobld-docker -b $tool_tag library/"$tool_name" $build_args
 }
 
 usage() {
@@ -62,7 +59,6 @@ usage() {
 while getopts "bBcd:e:hk:KNo:r:RPSu:" opt; do
 	case $opt in
 		b) rebuild_image_opt='-b' ;;
-		B) BUILD_BASE_IMAGE=1 ;;
 		c) force_recreate_opt='-c' ;;
 		d) PKG_DIRECTORY=$OPTARG ;;
 		e) PKG_REPOSITORY=$OPTARG ;;
@@ -89,8 +85,6 @@ fi
 
 APK_SERVER_HOST=${APK_SERVER_HOST:-gitobld-apk-server.local}
 
-BASE_IMAGE_TAG=${BASE_IMAGE_TAG:-gitobioinformatics/gito}
-
 PKG_DIRECTORY=${PKG_DIRECTORY:-$PWD/ports}
 PKG_REPOSITORY=${PKG_REPOSITORY:-http://"$APK_SERVER_HOST"/packages/aports}
 
@@ -104,8 +98,6 @@ fi
 REPOSITORY_USER=${REPOSITORY_USER:-gitobioinformatics}
 
 GITOBLD_NETWORK=${GITOBLD_NETWORK:-gitobld-network}
-
-[ -n "$BUILD_BASE_IMAGE" ] && build_base_image
 
 if [ -n "$BUILD_APKS" ]; then
 	BUILD_DEPS=1 gitobld-apk-build $@

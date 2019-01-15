@@ -86,20 +86,22 @@ container_run() {
 }
 
 image_build() {
-	_image_tag=$1
-	_df_dir=$2
-
-	if [ -z "$FORCE_OPERATION" ] && docker_obj_exists $_image_tag image; then
-		if [ -z "$CHECK_IF_EXISTS" ]; then
-			echo "The image '$_image_tag' already exists"
-			return 1
-		else
-			return 0
-		fi
+	if [ "$#" -lt 2 ]; then
+		echo "Missing image tag and build context."
+		return 1
 	fi
 
-	echo "Building '$_image_tag' at $_df_dir..."
-	docker build --tag $_image_tag $no_cache_opt $_df_dir
+	image_tag=$1
+	build_context=$2
+
+	shift 2
+
+	if [ -n "$CHECK_IF_EXISTS" ] && docker_obj_exists $image_tag image; then
+		return 0
+	fi
+
+	echo "Building '$image_tag' at $build_context..."
+	docker build --tag $image_tag $@ $no_cache_opt $build_context
 }
 
 docker_find_id() {
@@ -161,7 +163,7 @@ done
 shift $((OPTIND-1))
 
 if [ -n "$BUILD_IMAGE" ]; then
-	image_build "$1" "$2"
+	image_build $@
 elif [ -n "$CREATE_OBJECT" ]; then
 	docker_obj_create "$1"
 elif [ -n "$DELETE_OBJECT" ]; then
