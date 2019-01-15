@@ -8,10 +8,20 @@ apply_patch() {
 	target="$1"
 
 	if [ -f "$target" ]; then
-		tee "$target".new | diff - $target | patch "$target".new
+		tee "$target".new | diff - $target > "$target".diff || true
 
-		rm "$target"
-		mv "$target".new $target
+		if [ -s "$target".diff ]; then
+			patch -i "$target".diff "$target".new
+
+			rm "$target"
+			mv "$target".new $target
+
+			echo "Added $(basename $target)"
+		else
+			rm "$target".new
+		fi
+
+		rm "$target".diff
 	else
 		cat > $target
 	fi
@@ -52,12 +62,9 @@ update_tool_df() {
 		build/template/Dockerfile.template \
 		| apply_patch $tool_dir/Dockerfile
 
-	echo "Added Dockerfile"
 
 	cat build/template/docker-entrypoint.sh | apply_patch "$tool_dir"/docker-entrypoint.sh
 	chmod +x "$tool_dir"/docker-entrypoint.sh
-
-	echo "Added docker-entrypoint.sh"
 
 	badges="[![Version](https://img.shields.io/badge/Version-$tool_version-blue.svg)]()"
 
@@ -70,7 +77,6 @@ update_tool_df() {
 		-e 's/%%TOOL_DESCRIPTION%%/'"$(gitobld-library -d $tool_id)"'/g' \
 		build/template/README.md \
 		| apply_patch $tool_dir/README.md
-	echo "Added README.md"
 }
 
 usage() {
