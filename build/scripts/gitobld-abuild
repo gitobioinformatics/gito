@@ -10,15 +10,15 @@ abuild_exec() {
 }
 
 abuild_run() {
-	if [ -z "$BUILD_OUTPUT_DIR" ] && ! gitobld-docker -qet volume $GITOBLD_VOLUME; then
+	if [ -z "$BUILD_OUTPUT_DIR" ] && ! gitobld-docker -qet volume "$GITOBLD_VOLUME"; then
 		echo "Creating '$GITOBLD_VOLUME' volume..."
 
-		gitobld-docker -qct volume $GITOBLD_VOLUME
+		gitobld-docker -qct volume "$GITOBLD_VOLUME"
 		export GITOBLD_VOLUME
 		gitobld-env -w
 	fi
 
-	gitobld-docker -b $ABUILD_IMAGE build/abuild
+	gitobld-docker -b "$ABUILD_IMAGE" build/abuild
 
 	repodest=/app/packages
 	aportsdir=/app/aports
@@ -30,10 +30,7 @@ abuild_run() {
 	fi
 
 	if [ -n "$BUILD_OUTPUT_DIR" ]; then
-		runargs="
-			$runargs
-			--mount type=bind,src=$(gitobld-realpath $BUILD_OUTPUT_DIR),dst=$repodest
-			"
+		runargs="$runargs --mount type=bind,src=$(gitobld-realpath "$BUILD_OUTPUT_DIR"),dst=$repodest"
 	else
 		run_args="$run_args --mount src=$GITOBLD_VOLUME,dst=$repodest"
 	fi
@@ -45,8 +42,8 @@ abuild_run() {
 		--mount type=bind,src=$PKG_PUBKEY_PATH,dst=/etc/apk/keys/${PKG_PUBKEY_PATH##*/},readonly
 		"
 
-	gitobld-docker -xef $ABUILD_CONTAINER_NAME $runargs $ABUILD_IMAGE tail -f /dev/null
-	ABUILD_CONTAINER=$(gitobld-docker -it container $ABUILD_CONTAINER_NAME)
+	gitobld-docker -xef "$ABUILD_CONTAINER_NAME" $runargs "$ABUILD_IMAGE" tail -f /dev/null
+	ABUILD_CONTAINER=$(gitobld-docker -it container "$ABUILD_CONTAINER_NAME")
 
 	export ABUILD_CONTAINER
 	gitobld-env -w
