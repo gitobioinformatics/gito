@@ -2,23 +2,6 @@
 
 set -e
 
-clean() {
-	if [ -n "$ABUILD_CONTAINER" ]; then
-		msg "Removing container '$ABUILD_CONTAINER'..."
-		gitobld-docker -def $ABUILD_CONTAINER
-	fi
-
-	if [ -n "$APK_SERVER_CONTAINER" ]; then
-		msg "Removing container '$APK_SERVER_CONTAINER'..."
-		gitobld-docker -def $APK_SERVER_CONTAINER
-	fi
-
-	export ABUILD_CONTAINER=
-	export APK_SERVER_CONTAINER=
-
-	gitobld-env -w
-}
-
 usage() {
 	cat <<-EOF
 		Usage: gitobld [OPTIONS]... COMMAND [COMMAND OPTIONS]...
@@ -37,7 +20,6 @@ usage() {
 		Commands:
 		    apk-build   Build a Alpine package
 		    build       Build Docker image of tool
-		    clean       Remove all containers created by gitobld
 		    push        Send images to remote repository
 		    updatedf    Update dockerfiles using a template
 
@@ -82,7 +64,6 @@ main() {
 	case $subcommand in
 		apk-build) gitobld-apk-build $@ ;;
 		build) gitobld-build $@ ;;
-		clean) clean ;;
 		push) gitobld-push $@ ;;
 		updatedf) gitobld-updatedf $@ ;;
 		*) die "Invalid subcommand '$subcommand'" ;;
