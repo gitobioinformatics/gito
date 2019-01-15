@@ -4,22 +4,21 @@ container_set_state() {
 	[ -z "$1" ] && return 1
 
 	_container_id=$1
+	state=$2
 
-	_state=$2
-
-	case $_state in
+	case $state in
 		running | stopped )
-			[ "$_state" = running ] && _state_cond=true || _state_cond=false
+			[ "$state" = running ] && _state_cond=true || _state_cond=false
 			[ "$_state_cond" = true ] && _rev_state_cond=false || _rev_state_cond=true
 
-			if ! docker_obj_exists $_container_id; then
+			if ! docker_obj_exists "$_container_id"; then
 				return 1
 			fi
 
 			_is_running=$(docker inspect -f '{{.State.Running}}' $_container_id 2>&1)
 
 			if [ "$_is_running" = "$_rev_state_cond" ]; then
-				case $_state in
+				case $state in
 					running)
 						docker start $_container_id > /dev/null 2>&1
 						;;
@@ -48,28 +47,26 @@ container_run() {
 
 	OBJECT_TYPE=container
 
-	if [ -n "$CHECK_IF_EXISTS" ]; then
-		container_id=$(docker_find_id "$1")
+	if docker_obj_exists $container_name; then
+		if [ -n "$FORCE_OPERATION" ]; then
+			docker_obj_delete "$container_name"
+		elif [ -n "$CHECK_IF_EXISTS" ]; then
+			container_id=$(docker_find_id "$container_name")
 
-		if [ -n "$container_id" ]; then
-			echo "Starting '$container_name' container..."
-			container_set_state "$container_id" running
+			if [ -n "$container_id" ]; then
+				echo "Starting '$container_name' container..."
+				container_set_state "$container_id" running
 
-			if [ "$?" -ne 0 ]; then
-				echo "Failed to start container '$container_id'"
-			else
-				return
+				if [ "$?" -ne 0 ]; then
+					echo "Failed to start container '$container_name'"
+				else
+					return 0
+				fi
 			fi
-		fi
-	fi
-
-	if docker_obj_exists "$container_name"; then
-		if [ -z "$FORCE_OPERATION" ]; then
+		else
 			echo "Container '$container_name' already exists"
 			return 1
 		fi
-
-		docker_obj_delete "$container_name"
 	fi
 
 	docker_args="$@"
@@ -92,15 +89,17 @@ image_build() {
 	_image_tag=$1
 	_df_dir=$2
 
-	_build_args="--tag $_image_tag"
-
-	if [ -n "$BUILD_IMAGES" ] || ! docker_obj_exists $_image_tag image; then
-		[ -z "$BUILD_NO_CACHE" ] && _build_args="$_build_args --no-cache"
-
-		#msg "Building '$_image_tag' at $_df_dir..."
-		echo "Building '$_image_tag' at $_df_dir..."
-		docker build --tag $_image_tag $_df_dir
+	if [ -z "$FORCE_OPERATION" ] && docker_obj_exists $_image_tag image; then
+		if [ -z "$CHECK_IF_EXISTS" ]; then
+			echo "The image '$_image_tag' already exists"
+			return 1
+		else
+			return 0
+		fi
 	fi
+
+	echo "Building '$_image_tag' at $_df_dir..."
+	docker build --tag $_image_tag $no_cache_opt $_df_dir
 }
 
 docker_find_id() {
@@ -121,7 +120,7 @@ docker_obj_exists() {
 	[ -z "$1" ] && return 1
 
 	_id=$1
-	[ "$#" -eq 2 ] && _type=$2 || _type=$OBJECT_TYPE
+	[ -n "$2" ] && _type=$2 || _type=$OBJECT_TYPE
 
 	if [ -n "$_type" ]; then
 		docker inspect --type $_type $_id > /dev/null 2>&1
@@ -151,9 +150,9 @@ while getopts "bcdefinNqs:t:x" opt; do
 		f) FORCE_OPERATION=1 ;;
 		i) FIND_OBJECT_ID=1 ;;
 		n) FIND_OBJECT_NAME=1 ;;
-		N) NO_CACHE=1 ;;
+		N) no_cache_opt='--no-cache' ;;
 		q) QUIET_MODE=1 ;;
-		s) CONTAINER_SET_STATE=$OPTARG ;;
+		s) CONTAINER_STATE=$OPTARG ;;
 		t) OBJECT_TYPE=$OPTARG ;;
 		x) CONTAINER_RUN=1 ;;
 	esac
@@ -171,8 +170,8 @@ elif [ -n "$FIND_OBJECT_ID" ]; then
 	docker_find_id "$1"
 elif [ -n "$FIND_OBJECT_NAME" ]; then
 	echo ""
-elif [ -n "$CONTAINER_SET_STATE" ]; then
-	container_set_state "$1"
+elif [ -n "$CONTAINER_STATE" ]; then
+	container_set_state "$1" $CONTAINER_STATE
 elif [ -n "$CONTAINER_RUN" ]; then
 	container_run $@
 elif [ -n "$CHECK_IF_EXISTS" ]; then

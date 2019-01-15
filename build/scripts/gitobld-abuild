@@ -18,7 +18,7 @@ abuild_run() {
 		gitobld-env -w
 	fi
 
-	gitobld-docker -b "$ABUILD_IMAGE" build/abuild
+	gitobld-docker -be $rebuild_image_opt "$ABUILD_IMAGE" build/abuild
 
 	repodest=/app/packages
 	aportsdir=/app/aports
@@ -32,7 +32,7 @@ abuild_run() {
 	if [ -n "$BUILD_OUTPUT_DIR" ]; then
 		runargs="$runargs --mount type=bind,src=$(gitobld-realpath "$BUILD_OUTPUT_DIR"),dst=$repodest"
 	else
-		run_args="$run_args --mount src=$GITOBLD_VOLUME,dst=$repodest"
+		runargs="$runargs --mount src=$GITOBLD_VOLUME,dst=$repodest"
 	fi
 
 	runargs="
@@ -42,7 +42,8 @@ abuild_run() {
 		--mount type=bind,src=$PKG_PUBKEY_PATH,dst=/etc/apk/keys/${PKG_PUBKEY_PATH##*/},readonly
 		"
 
-	gitobld-docker -xef "$ABUILD_CONTAINER_NAME" $runargs "$ABUILD_IMAGE" tail -f /dev/null
+	gitobld-docker -xe $force_recreate_opt "$ABUILD_CONTAINER_NAME" \
+		$runargs "$ABUILD_IMAGE" tail -f /dev/null
 	ABUILD_CONTAINER=$(gitobld-docker -it container "$ABUILD_CONTAINER_NAME")
 
 	export ABUILD_CONTAINER
@@ -50,10 +51,12 @@ abuild_run() {
 }
 
 abuild_stop() {
-	[ -z "$ABUILD_CONTAINER" ] && return 1
+	container_id=$(gitobld-docker -it container "$ABUILD_CONTAINER_NAME")
 
-	echo "Stopping container '"$ABUILD_CONTAINER"'..."
-	gitobld-docker -qs stopped $ABUILD_CONTAINER
+	if [ -n "$container_id" ] ; then
+		echo "Stopping container '"$ABUILD_CONTAINER_NAME"'..."
+		gitobld-docker -qs stopped "$container_id"
+	fi
 }
 
 ABUILD_IMAGE=${APK_SERVER_IMAGE:-gitobioinformatics/abuild}
@@ -66,11 +69,21 @@ PKG_PUBKEY_PATH=${PKG_PUBKEY_PATH:-$PKG_PRIVKEY_PATH.pub}
 
 GITOBLD_VOLUME=${GITOBLD_VOLUME:-gitobld-volume}
 
-opt=${1:-'-r'}
+while getopts "bcers" opt; do
+	case $opt in
+		b) rebuild_image_opt='-f' ;;
+		c) force_recreate_opt='-f' ;;
+		e) command_opt='-e' ;;
+		r) command_opt='-r' ;;
+		s) command_opt='-s' ;;
+	esac
+done
 
-[ "$#" -gt 0 ] && shift
+shift $((OPTIND-1))
 
-case $opt in
+command_opt=${command_opt:-'-r'}
+
+case $command_opt in
 	-e) abuild_exec $@ ;;
 	-r) abuild_run ;;
 	-s) abuild_stop ;;

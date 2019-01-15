@@ -27,7 +27,7 @@ usage() {
 		Build a Alpine package
 
 		Options:
-		    -b  Force build of 'abuild' image
+		    -b  Rebuild 'abuild' image
 		    -c  Recreate containers
 		    -d  Search for apks on this directory
 		    -h  Show this help
@@ -43,8 +43,8 @@ usage() {
 
 while getopts "bcd:hk:o:p:RU:" opt; do
 	case $opt in
-		b) BUILD_IMAGES=1 ;;
-		c) FORCE_RECREATE=1 ;;
+		b) rebuild_image_opt='-b' ;;
+		c) force_recreate_opt='-c' ;;
 		d) PKG_DIRECTORY=$OPTARG ;;
 		h) usage ;;
 		k) PKG_PRIVKEY_PATH=$OPTARG ;;
@@ -72,7 +72,7 @@ RUN_AS_USER=${RUN_AS_USER:-"$(id -u):$(id -g)"}
 
 export RUN_AS_USER
 
-gitobld-abuild
+gitobld-abuild $rebuild_image_opt $force_recreate_opt
 
 for pkg in $@; do
 	build_apk "$pkg"

@@ -61,9 +61,9 @@ usage() {
 
 while getopts "bBcd:e:hk:KNo:r:RPSu:" opt; do
 	case $opt in
-		b) BUILD_IMAGES=1 ;;
+		b) rebuild_image_opt='-b' ;;
 		B) BUILD_BASE_IMAGE=1 ;;
-		c) FORCE_RECREATE=1 ;;
+		c) force_recreate_opt='-c' ;;
 		d) PKG_DIRECTORY=$OPTARG ;;
 		e) PKG_REPOSITORY=$OPTARG ;;
 		h) usage ;;
@@ -115,7 +115,9 @@ if [ -n "$BUILD_OUTPUT_DIR" -a -z "$REPOSITORY_PATH" ]; then
 	REPOSITORY_PATH=$BUILD_OUTPUT_DIR
 fi
 
-[ -n "$RUN_SERVER" ] && gitobld-apk-server
+if [ -n "$RUN_SERVER" ]; then
+	gitobld-apk-server $rebuild_image_opt $force_recreate_opt
+fi
 
 for tool in $@; do
 	build_tool_image "$tool"

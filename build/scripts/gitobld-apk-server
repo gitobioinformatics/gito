@@ -9,7 +9,7 @@ apk_server_run() {
 		gitobld-env -w
 	fi
 
-	gitobld-docker -b $APK_SERVER_IMAGE build/apk-server
+	gitobld-docker -be $rebuild_image_opt $APK_SERVER_IMAGE build/apk-server
 
 	runargs=""
 	http_root=/app/apk_server
@@ -25,7 +25,7 @@ apk_server_run() {
 		runargs="$runargs --mount src=$GITOBLD_VOLUME,dst=$http_root/packages,readonly"
 	fi
 
-	gitobld-docker -xef "$APK_SERVER_HOST" $runargs "$APK_SERVER_IMAGE"
+	gitobld-docker -xe $force_recreate_opt "$APK_SERVER_HOST" $runargs "$APK_SERVER_IMAGE"
 	APK_SERVER_CONTAINER=$(gitobld-docker -it container $APK_SERVER_HOST)
 
 	export APK_SERVER_CONTAINER
@@ -33,10 +33,12 @@ apk_server_run() {
 }
 
 apk_server_stop() {
-	[ -z "$APK_SERVER_CONTAINER" ] && return 1
+	container_id=$(gitobld-docker -it container "$APK_SERVER_HOST")
 
-	echo "Stopping container '"$APK_SERVER_CONTAINER"'..."
-	gitobld-docker -qs stopped $APK_SERVER_CONTAINER
+	if [ -n "$container_id" ] ; then
+		echo "Stopping container '"$APK_SERVER_HOST"'..."
+		gitobld-docker -qs stopped "$container_id"
+	fi
 }
 
 APK_SERVER_IMAGE=${APK_SERVER_IMAGE:-gitobioinformatics/apk-server}
@@ -47,9 +49,20 @@ PKG_PUBKEY_PATH=${PKG_PUBKEY_PATH:-$PWD/keys/packager_key.rsa.pub}
 GITOBLD_VOLUME=${GITOBLD_VOLUME:-gitobld-volume}
 GITOBLD_NETWORK=${GITOBLD_NETWORK:-gitobld-network}
 
-opt=${1:-'-r'}
+while getopts "bcrs" opt; do
+	case $opt in
+		b) rebuild_image_opt='-f' ;;
+		c) force_recreate_opt='-f' ;;
+		r) command_opt='-r' ;;
+		s) command_opt='-s' ;;
+	esac
+done
 
-case $opt in
+shift $((OPTIND-1))
+
+command_opt=${command_opt:-'-r'}
+
+case $command_opt in
 	-r) apk_server_run ;;
 	-s) apk_server_stop ;;
 esac
