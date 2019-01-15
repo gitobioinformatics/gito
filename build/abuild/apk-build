@@ -6,16 +6,16 @@ build_pkg() {
 		return 1
 	fi
 
-	_pkgdir=$APORTS_DIR/$1
-	_tmp_aports_dir=$TEMP_DIR/$(basename $APORTS_DIR)
+	_pkgdir=$APORTSDIR/$1
+	_tmp_aports_dir=$TEMP_DIR/$(basename $APORTSDIR)
 
 	if [ ! -d "$_pkgdir" ]; then
-		echo "Package '$1' doesn't exists in '$APORTS_DIR' directory!"
+		echo "Package '$1' doesn't exists in '$APORTSDIR' directory!"
 		return 1
 	fi
 
 	if [ -n "$USE_TEMP_DIR" ]; then
-		cp -r $APORTS_DIR $TEMP_DIR
+		cp -r $APORTSDIR $TEMP_DIR
 		cd $_tmp_aports_dir/$1
 	else
 		cd $_pkgdir
@@ -31,7 +31,7 @@ build_pkg() {
 main() {
 	while getopts "p:Rt" opt; do
 		case $opt in
-			p) APORTS_DIR=$OPTARG;;
+			p) APORTSDIR=$OPTARG;;
 			R) BUILD_DEPS=1 ;;
 			t) USE_TEMP_DIR=1 ;;
 		esac
@@ -39,7 +39,7 @@ main() {
 
 	shift $((OPTIND-1))
 
-	APORTS_DIR=${APORTS_DIR:-$HOME/aports}
+	APORTSDIR=${APORTSDIR:-$HOME/aports}
 
 	if [ -n "$USE_TEMP_DIR" ]; then
 		TEMP_DIR=$(mktemp -d)

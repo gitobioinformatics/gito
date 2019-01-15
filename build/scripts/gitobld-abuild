@@ -46,7 +46,7 @@ abuild_run() {
 		docker run \
 			--detach \
 			--name $ABUILD_CONTAINER_NAME \
-			--env APORTS_DIR=$aportsdir \
+			--env APORTSDIR=$aportsdir \
 			--mount type=bind,src=$PKG_DIRECTORY,dst=$aportsdir,readonly \
 			--mount type=bind,src=$PKG_PRIVKEY_PATH,dst=/app/keys/${PKG_PRIVKEY_PATH##*/},readonly \
 			--mount type=bind,src=$PKG_PUBKEY_PATH,dst=/etc/apk/keys/${PKG_PUBKEY_PATH##*/},readonly \
