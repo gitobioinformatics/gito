@@ -17,7 +17,7 @@ Docker image for %%TOOL_NAME%% ([Home][homepage]).
  $ docker rmi gitobioinformatics/%%TOOL_ID%%
 ```
 
-[hub]: https://hub.docker.com/r/gitobioinformatics/%%TOOL_NAME%%
-[quay]: https://quay.io/repository/gitobioinformatics/%%TOOL_NAME%%
+[hub]: https://hub.docker.com/r/gitobioinformatics/%%TOOL_ID%%
+[quay]: https://quay.io/repository/gitobioinformatics/%%TOOL_ID%%
 [homepage]: %%TOOL_HOMEPAGE%%
 

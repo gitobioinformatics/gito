@@ -17,7 +17,7 @@ Docker image for Salmon ([Home][homepage]).
  $ docker rmi gitobioinformatics/salmon
 ```
 
-[hub]: https://hub.docker.com/r/gitobioinformatics/Salmon
-[quay]: https://quay.io/repository/gitobioinformatics/Salmon
+[hub]: https://hub.docker.com/r/gitobioinformatics/salmon
+[quay]: https://quay.io/repository/gitobioinformatics/salmon
 [homepage]: https://combine-lab.github.io/salmon
 

@@ -17,7 +17,7 @@ Docker image for Bowtie2 ([Home][homepage]).
  $ docker rmi gitobioinformatics/bowtie2
 ```
 
-[hub]: https://hub.docker.com/r/gitobioinformatics/Bowtie2
-[quay]: https://quay.io/repository/gitobioinformatics/Bowtie2
+[hub]: https://hub.docker.com/r/gitobioinformatics/bowtie2
+[quay]: https://quay.io/repository/gitobioinformatics/bowtie2
 [homepage]: http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
 

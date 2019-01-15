@@ -17,7 +17,7 @@ Docker image for Trinity ([Home][homepage]).
  $ docker rmi gitobioinformatics/trinity
 ```
 
-[hub]: https://hub.docker.com/r/gitobioinformatics/Trinity
-[quay]: https://quay.io/repository/gitobioinformatics/Trinity
+[hub]: https://hub.docker.com/r/gitobioinformatics/trinity
+[quay]: https://quay.io/repository/gitobioinformatics/trinity
 [homepage]: https://github.com/trinityrnaseq/trinityrnaseq/wiki
 

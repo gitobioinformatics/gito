@@ -17,7 +17,7 @@ Docker image for FastQC ([Home][homepage]).
  $ docker rmi gitobioinformatics/fastqc
 ```
 
-[hub]: https://hub.docker.com/r/gitobioinformatics/FastQC
-[quay]: https://quay.io/repository/gitobioinformatics/FastQC
+[hub]: https://hub.docker.com/r/gitobioinformatics/fastqc
+[quay]: https://quay.io/repository/gitobioinformatics/fastqc
 [homepage]: http://www.bioinformatics.babraham.ac.uk/projects/fastqc
 

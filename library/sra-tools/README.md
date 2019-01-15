@@ -17,7 +17,7 @@ Docker image for SRA Tools ([Home][homepage]).
  $ docker rmi gitobioinformatics/sra-tools
 ```
 
-[hub]: https://hub.docker.com/r/gitobioinformatics/SRA Tools
-[quay]: https://quay.io/repository/gitobioinformatics/SRA Tools
+[hub]: https://hub.docker.com/r/gitobioinformatics/sra-tools
+[quay]: https://quay.io/repository/gitobioinformatics/sra-tools
 [homepage]: https://github.com/ncbi/sra-tools
 

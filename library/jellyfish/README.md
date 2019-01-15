@@ -17,7 +17,7 @@ Docker image for Jellyfish ([Home][homepage]).
  $ docker rmi gitobioinformatics/jellyfish
 ```
 
-[hub]: https://hub.docker.com/r/gitobioinformatics/Jellyfish
-[quay]: https://quay.io/repository/gitobioinformatics/Jellyfish
+[hub]: https://hub.docker.com/r/gitobioinformatics/jellyfish
+[quay]: https://quay.io/repository/gitobioinformatics/jellyfish
 [homepage]: http://www.genome.umd.edu/jellyfish.html
 

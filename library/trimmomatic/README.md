@@ -17,7 +17,7 @@ Docker image for Trimmomatic ([Home][homepage]).
  $ docker rmi gitobioinformatics/trimmomatic
 ```
 
-[hub]: https://hub.docker.com/r/gitobioinformatics/Trimmomatic
-[quay]: https://quay.io/repository/gitobioinformatics/Trimmomatic
+[hub]: https://hub.docker.com/r/gitobioinformatics/trimmomatic
+[quay]: https://quay.io/repository/gitobioinformatics/trimmomatic
 [homepage]: "http://www.usadellab.org/cms/?page
 
