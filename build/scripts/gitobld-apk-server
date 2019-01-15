@@ -11,36 +11,25 @@ apk_server_run() {
 
 	gitobld-docker -b $APK_SERVER_IMAGE build/apk-server
 
-	if ! gitobld-docker -x $APK_SERVER_CONTAINER; then
-		gitobld-docker -qde $APK_SERVER_CONTAINER
+	runargs=""
+	http_root=/app/apk_server
 
-		_docker_args=""
-		_http_root=/app/apk_server
+	[ -n "$PKG_PUBKEY_PATH" ] &&
+		runargs="$runargs --mount type=bind,src=$PKG_PUBKEY_PATH,dst=$http_root/${PKG_PUBKEY_PATH##*/},readonly"
 
-		[ -n "$PKG_PUBKEY_PATH" ] && 
-			_docker_args="$_docker_args --mount type=bind,src=$PKG_PUBKEY_PATH,dst=$_http_root/${PKG_PUBKEY_PATH##*/},readonly"
+	[ -n "$GITOBLD_NETWORK" ] && runargs="$runargs --network $GITOBLD_NETWORK"
 
-		[ -n "$GITOBLD_NETWORK" ] && _docker_args="$_docker_args --network $GITOBLD_NETWORK"
-
-		if [ -n "$REPOSITORY_PATH" ]; then
-			_docker_args="$_docker_args --mount type=bind,src=$(gitobld-realpath $REPOSITORY_PATH),dst=$_http_root/packages,readonly"
-		else
-			_docker_args="$_docker_args --mount src=$GITOBLD_VOLUME,dst=$_http_root/packages,readonly"
-		fi
-
-		echo "Creating '$APK_SERVER_HOST' container..."
-
-		docker run \
-			--detach \
-			--name $APK_SERVER_HOST \
-			$_docker_args \
-			$APK_SERVER_IMAGE > /dev/null 2>&1
-
-		APK_SERVER_CONTAINER=$(gitobld-docker -it container $APK_SERVER_HOST)
-
-		export APK_SERVER_CONTAINER
-		gitobld-env -w
+	if [ -n "$REPOSITORY_PATH" ]; then
+		runargs="$runargs --mount type=bind,src=$(gitobld-realpath $REPOSITORY_PATH),dst=$http_root/packages,readonly"
+	else
+		runargs="$runargs --mount src=$GITOBLD_VOLUME,dst=$http_root/packages,readonly"
 	fi
+
+	gitobld-docker -xef "$APK_SERVER_HOST" $runargs "$APK_SERVER_IMAGE"
+	APK_SERVER_CONTAINER=$(gitobld-docker -it container $APK_SERVER_HOST)
+
+	export APK_SERVER_CONTAINER
+	gitobld-env -w
 }
 
 apk_server_stop() {
