@@ -14,7 +14,6 @@ usage() {
 
 		Options:
 		    -c {always,never,auto}  Set colored output configuration. (default: auto)
-		    -e  Set path for gitobld environment file (default: .gitobld_env)
 		    -h  Show this help
 
 		Commands:
@@ -33,7 +32,6 @@ main() {
 	while getopts "c:e:h" opt; do
 		case $opt in
 			c) GITOBLD_COLOR_CONFIG=$OPTARG ;;
-			e) GITOBLD_ENV=$OPTARG ;;
 			h) usage ;;
 		esac
 	done
