@@ -4,22 +4,6 @@ set -e
 
 . ${GITOBLD_COMMON:-true}
 
-build_apk() {
-	apk_name=$1
-
-	if ! gitobld-ports -e "$apk_name"; then
-		error "The package '$apk_name' don't exists at ports directory."
-		return 1
-	fi
-
-	apk_build_args="-t"
-
-	[ -n "$BUILD_DEPS" ] && apk_build_args="$apk_build_args -R"
-
-	msg "Building package '$pkg'..."
-	gitobld-abuild -e apk-build "$apk_build_args" $apk_name
-}
-
 usage() {
 	cat <<-EOF
 		Usage: $program [-d PKG_DIRECTORY] PACKAGE...
@@ -50,7 +34,7 @@ while getopts "bcd:hk:o:p:RU:" opt; do
 		k) PKG_PRIVKEY_PATH=$OPTARG ;;
 		o) BUILD_OUTPUT_DIR=$OPTARG ;;
 		p) PKG_PUBKEY_PATH=$OPTARG ;;
-		R) BUILD_DEPS=1 ;;
+		R) build_deps_opt='-R' ;;
 		U) RUN_AS_USER=$OPTARG ;;
 	esac
 done
@@ -72,11 +56,13 @@ RUN_AS_USER=${RUN_AS_USER:-"$(id -u):$(id -g)"}
 
 export RUN_AS_USER
 
-gitobld-abuild $rebuild_image_opt $force_recreate_opt
+if ! gitobld-ports -e "$apk_name"; then
+	error "The package '$apk_name' don't exists at ports directory."
+	return 1
+fi
 
-for pkg in $@; do
-	build_apk "$pkg"
-done
+msg "Building packages..."
 
-gitobld-abuild -s
+gitobld-abuild -iR $rebuild_image_opt $force_recreate_opt \
+	apk-build -t $build_deps_opt $@
 

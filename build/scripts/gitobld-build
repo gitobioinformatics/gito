@@ -123,5 +123,5 @@ for tool in $@; do
 	build_tool_image "$tool"
 done
 
-[ -n "$RUN_SERVER" ] && gitobld-apk-server -s
+[ -n "$RUN_SERVER" ] && gitobld-apk-server -d
 

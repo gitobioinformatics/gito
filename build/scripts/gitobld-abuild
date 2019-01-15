@@ -23,7 +23,7 @@ abuild_run() {
 	repodest=/app/packages
 	aportsdir=/app/aports
 
-	runargs=""
+	runargs="$autoremove_opt $interactive_opt"
 
 	if [ -n "$RUN_AS_USER" ] && [ "$RUN_AS_USER" != 'abuild' ]; then
 		runargs="$runargs --group-add abuild"
@@ -42,8 +42,11 @@ abuild_run() {
 		--mount type=bind,src=$PKG_PUBKEY_PATH,dst=/etc/apk/keys/${PKG_PUBKEY_PATH##*/},readonly
 		"
 
-	gitobld-docker -xe $force_recreate_opt "$ABUILD_CONTAINER_NAME" \
-		$runargs "$ABUILD_IMAGE" tail -f /dev/null
+	if [ "$#" -eq 0 ]; then
+		set -- tail -f /dev/null
+	fi
+
+	gitobld-docker -xe $force_recreate_opt "$ABUILD_CONTAINER_NAME" $runargs "$ABUILD_IMAGE" $@
 	ABUILD_CONTAINER=$(gitobld-docker -it container "$ABUILD_CONTAINER_NAME")
 
 	export ABUILD_CONTAINER
@@ -69,12 +72,14 @@ PKG_PUBKEY_PATH=${PKG_PUBKEY_PATH:-$PKG_PRIVKEY_PATH.pub}
 
 GITOBLD_VOLUME=${GITOBLD_VOLUME:-gitobld-volume}
 
-while getopts "bcers" opt; do
+while getopts "bceirRs" opt; do
 	case $opt in
 		b) rebuild_image_opt='-f' ;;
 		c) force_recreate_opt='-f' ;;
 		e) command_opt='-e' ;;
+		i) interactive_opt='--interactive --tty' ;;
 		r) command_opt='-r' ;;
+		R) autoremove_opt='--rm' ;;
 		s) command_opt='-s' ;;
 	esac
 done
@@ -85,7 +90,7 @@ command_opt=${command_opt:-'-r'}
 
 case $command_opt in
 	-e) abuild_exec $@ ;;
-	-r) abuild_run ;;
+	-r) abuild_run $@ ;;
 	-s) abuild_stop ;;
 esac
 

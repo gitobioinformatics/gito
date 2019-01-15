@@ -77,7 +77,7 @@ container_run() {
 
 	echo "Creating '$container_name' container..."
 
-	docker_run_result=$(docker run --detach --name "$container_name" $docker_args)
+	docker run --name "$container_name" $docker_args
 
 	if [ "$?" -ne 0 ]; then
 		echo "Failed to run container '$container_name"
