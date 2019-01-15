@@ -14,7 +14,7 @@ RUN DISTFILES=/var/chache/distfiles \
     && mkdir -p $REPODEST $DISTFILES \
     && chown abuild:abuild $REPODEST \
     && chgrp abuild $DISTFILES \
-    && chmod 640 $REPODEST $DISTFILES
+    && chmod 775 $REPODEST $DISTFILES
 
 RUN apk update \
     && apk add alpine-sdk su-exec
