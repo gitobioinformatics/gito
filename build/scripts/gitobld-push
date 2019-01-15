@@ -1,38 +1,83 @@
 #!/bin/sh
 
+set -e
+
+. ${GITOBLD_COMMON:-true}
+
 push_tool_image() {
-	_tool_name=$1
-	_tool_tag=$(get_tool_tag $1)
+	tool_name=$1
+	tool_tag=$(gitobld-library -t $1)
 
-	if [ -z "$_tool_tag" ]; then
-		#error "Invalid tool name '$_tool_name'"
-		echo "Invalid tool name '$_tool_name'"
+	if [ -z "$tool_tag" ]; then
+		error "Invalid tool name '$tool_name'"
 		return 1
 	fi
 
-	if ! docker_obj_exists image $_tool_tag; then
-		#error "Image for '$_tool_name' don't exists."
-		echo "Image for '$_tool_name' don't exists."
+	if ! gitobld-docker -qe image $tool_tag; then
+		error "Image for '$tool_name' don't exists."
 		return 1
 	fi
 
-	[ -z "$ONLY_SEND_LATEST" ] && _send_tags="$_tool_tag"
+	[ -z "$ONLY_SEND_LATEST" ] && tags="$tool_tag"
 
 	if [ -n "$SEND_LATEST" -o -n "$ONLY_SEND_LATEST" ]; then
-		_send_tags="$_send_tags ${_tool_tag%:*}:latest"
+		tags="$tags ${tool_tag%:*}:latest"
 	fi
 
 	if [ -n "$REMOTE_REPOSITORY" ]; then
-		_send_tags=$(echo $_send_tags | sed -e 's,[^ ]* *,'"$REMOTE_REPOSITORY"'/&,g')
+		tags=$(echo $tags | sed -e 's,[^ ]* *,'"$REMOTE_REPOSITORY"'/&,g')
 	fi
 
-	for tag in $_send_tags; do
-		if [ "$tag" != "$_tool_tag" ]; then
-			docker tag $_tool_tag $tag
+	msg "Pushing '$tool' to '${REMOTE_REPOSITORY:-docker.io}'..."
+
+	for tag in $tags; do
+		if [ "$tag" != "$tool_tag" ]; then
+			docker tag $tool_tag $tag
 		fi
 
 		echo "Pushing '$tag'..."
 		docker push $tag
 	done
 }
+
+usage() {
+	cat <<-EOF
+		Usage: $program [OPTION]... all | TOOL...
+
+		Send images to remote repository
+
+		Options:
+		    -h  Show this help
+		    -l  Tag current version as 'latest', and push both tags to remote
+		    -L  Tag current version as 'latest', and only push this tag
+		    -r  Set remote repository
+		    -u  Set user for images tags
+	EOF
+
+	exit 0
+}
+
+while getopts "hlLr:u:" opt; do
+	case $opt in
+		h) usage ;;
+		l) SEND_LATEST=1 ;;
+		L) ONLY_SEND_LATEST=1 ;;
+		r) REMOTE_REPOSITORY=$OPTARG ;;
+		u) REPOSITORY_USER=$OPTARG ;;
+	esac
+done
+
+shift $((OPTIND-1))
+
+if [ "$#" -eq 0 ]; then
+	die "No tools passed to '$program' command."
+fi
+
+[ "$1" = all ] && set -- $(gitobld-library -a)
+
+REPOSITORY_USER=${REPOSITORY_USER:-gitobioinformatics}
+
+for tool in $@; do
+	push_tool_image $tool
+done
 

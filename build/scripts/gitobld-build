@@ -1,41 +1,125 @@
 #!/bin/sh
 
+set -e
+
+. ${GITOBLD_COMMON:-true}
+
 build_tool_image() {
-	_tool_name=$1
-	_tool_tag=$(gitobld-library -t $_tool_name)
+	tool_name=$1
+	tool_tag=$(gitobld-library -t $tool_name)
 
-	if [ -z "$_tool_tag" ]; then
-		#error "Invalid tool name '$_tool_name'"
-		echo "Invalid tool name '$_tool_name'"
+	if [ -z "$tool_tag" ]; then
+		error "Invalid tool name '$tool_name'"
 		return 1
 	fi
 
-	if ! gitobld-library -e $_tool_name; then
-		#error "No tool with '$_tool_name' name at library directory."
-		echo "No tool with '$_tool_name' name at library directory."
+	if ! gitobld-library -e $tool_name; then
+		error "No tool with '$tool_name' name at library directory."
 		return 1
 	fi
 
-	_build_args="--tag $_tool_tag"
+	build_args="--tag $tool_tag"
 
-	[ -n "$BUILD_NO_CACHE" ] && _build_args="$_build_args --no-cache"
+	[ -n "$BUILD_NO_CACHE" ] && build_args="$build_args --no-cache"
 	
-	[ -n "$GITOBLD_NETWORK" ] && _build_args="$_build_args --network $GITOBLD_NETWORK"
+	[ -n "$GITOBLD_NETWORK" ] && build_args="$build_args --network $GITOBLD_NETWORK"
 
-	[ -n "$PKG_REPOSITORY" ] && _build_args="$_build_args --build-arg PKG_REPOSITORY=$PKG_REPOSITORY"
-	[ -n "$PKG_PUBKEY_URL" ] && _build_args="$_build_args --build-arg PKG_PUBKEY_URL=$PKG_PUBKEY_URL"
+	[ -n "$PKG_REPOSITORY" ] && build_args="$build_args --build-arg PKG_REPOSITORY=$PKG_REPOSITORY"
+	[ -n "$PKG_PUBKEY_URL" ] && build_args="$build_args --build-arg PKG_PUBKEY_URL=$PKG_PUBKEY_URL"
 
-	docker build $_build_args library/"$_tool_name"
+	msg "Building Docker image for '$tool'..."
+
+	docker build $build_args library/"$tool_name"
 }
 
-APK_SERVER_HOST=${APK_SERVER_HOST:-gitobld_apk_server.local}
+usage() {
+	cat <<-EOF
+		Usage: $program [OPTION]... all | TOOL...
 
+		Update dockerfiles using a template
+
+		Options:
+		    -b  Rebuild 'apk-server' image, when using '-S' flag
+		    -B  Rebuild 'gito' base image.
+		    -c  Recreate containers
+		    -d
+		    -e  Set apk repository for tools
+		    -h  Show this help
+		    -k  Set private key path
+		    -N  Do not use cache when building the image
+		    -o  Set output directory, when using '-R' flag
+		    -r  Set package repository path
+		    -R  Build Alpine packages for tools
+		    -S  Run local server for apks
+		    -p  Set public key url
+		    -P  Set public key path
+		    -u  Set user name for image tags
+	EOF
+
+	exit 0
+}
+
+while getopts "bBcd:e:hk:KNo:r:RPSu:" opt; do
+	case $opt in
+		b) BUILD_IMAGES=1 ;;
+		B) BUILD_BASE_IMAGE=1 ;;
+		c) FORCE_RECREATE=1 ;;
+		d) PKG_DIRECTORY=$OPTARG ;;
+		e) PKG_REPOSITORY=$OPTARG ;;
+		h) usage ;;
+		k) PKG_PRIVKEY_PATH=$OPTARG ;;
+		N) BUILD_NO_CACHE=1 ;;
+		o) BUILD_OUTPUT_DIR=$OPTARG ;;
+		r) REPOSITORY_PATH=$OPTARG ;;
+		R) BUILD_APKS=1 ;;
+		S) RUN_SERVER=1 ;;
+		p) PKG_PUBKEY_URL=$OPTARG ;;
+		P) PKG_PUBKEY_PATH=$OPTARG ;;
+		u) REPOSITORY_USER=$OPTARG ;;
+	esac
+done
+
+shift $((OPTIND-1))
+
+if [ "$#" -eq 0 ]; then
+	die "No tools passed to '$program' command."
+fi
+
+[ "$1" = all ] && set -- $(gitobld-library -a)
+
+APK_SERVER_HOST=${APK_SERVER_HOST:-gitobld-apk-server.local}
+
+BASE_IMAGE_TAG=${BASE_IMAGE_TAG:-gitobioinformatics/gito}
+
+PKG_DIRECTORY=${PKG_DIRECTORY:-$PWD/ports}
 PKG_REPOSITORY=${PKG_REPOSITORY:-http://"$APK_SERVER_HOST"/packages/aports}
 
+PKG_PRIVKEY_PATH=${PKG_PRIVKEY_PATH:-$PWD/keys/packager_key.rsa}
 PKG_PUBKEY_PATH=${PKG_PUBKEY_PATH:-$PWD/keys/packager_key.rsa.pub}
-PKG_PUBKEY_URL='http://'"$APK_SERVER_HOST"'/'"${PKG_PUBKEY_PATH##*/}"
+
+if [ -z "$PKG_PUBKEY_URL" -a -n "$RUN_SERVER" ]; then
+	PKG_PUBKEY_URL='http://'"$APK_SERVER_HOST"'/'"${PKG_PUBKEY_PATH##*/}"
+fi
+
+REPOSITORY_USER=${REPOSITORY_USER:-gitobioinformatics}
 
 GITOBLD_NETWORK=${GITOBLD_NETWORK:-gitobld-network}
 
-build_tool_image "$1"
+[ -n "$BUILD_BASE_IMAGE" ] && build_base_image
+
+if [ -n "$BUILD_APKS" ]; then
+	BUILD_DEPS=1 gitobld-apk-build $@
+fi
+
+if [ -n "$BUILD_OUTPUT_DIR" -a -z "$REPOSITORY_PATH" ]; then
+	REPOSITORY_PATH=$BUILD_OUTPUT_DIR
+fi
+
+[ -n "$RUN_SERVER" ] && gitobld-apk-server
+
+for tool in $@; do
+	build_tool_image "$tool"
+done
+
+[ -n "$RUN_SERVER" ] && gitobld-apk-server -s
 

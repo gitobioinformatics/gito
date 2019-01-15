@@ -2,206 +2,6 @@
 
 set -e
 
-update_color_config() {
-	case "$1" in
-		always)
-			enable_colors
-			;;
-		never)
-			disable_colors
-			;;
-		auto)
-			if [ -t 1 ]; then
-				enable_colors
-			else
-				disable_colors
-			fi
-			;;
-		*)
-			return 1
-			;;
-	esac
-}
-
-enable_colors() {
-	NORMAL="\033[1;0m"
-	STRONG="\033[1;1m"
-	RED="\033[1;31m"
-	GREEN="\033[1;32m"
-	YELLOW="\033[1;33m"
-}
-
-disable_colors() {
-	NORMAL=""
-	STRONG=""
-	RED=""
-	GREEN=""
-	YELLOW=""
-}
-
-msg() {
-	printf "%s\n" "$1"
-}
-
-warn() {
-	printf "${YELLOW}Warning:${NORMAL} %s\n" "$1"
-}
-
-error() {
-	printf "${RED}Error:${NORMAL} %s\n" "$1"
-}
-
-die() {
-	[ "$#" -gt 0 ] && error "$1"
-	exit 1
-}
-
-apk_build_usage() {
-	cat <<-EOF
-		Usage: gitobld apk-build [-d PKG_DIRECTORY] PACKAGE...
-		
-		Build a Alpine package
-
-		Options:
-		    -b  Force build of 'abuild' image
-		    -c  Recreate containers
-		    -d  Search for apks on this directory (default: ports/)
-		    -h  Show this help
-		    -k  Set path to packager private key
-		    -o  Set output directory
-		    -p  Set path to packager public key
-		    -R  Build APKBUILD depencies
-	EOF
-
-	exit 0
-}
-
-apk_build() {
-	while getopts "bc:d:hk:o:p:R" opt; do
-		case $opt in
-			b) BUILD_IMAGES=1 ;;
-			c) FORCE_RECREATE=1 ;;
-			d) PKG_DIRECTORY=$OPTARG ;;
-			h) usage ;;
-			k) PKG_PRIVKEY_PATH=$OPTARG ;;
-			o) BUILD_OUTPUT_DIR=$OPTARG ;;
-			p) PKG_PUBKEY_PATH=$OPTARG ;;
-			R) BUILD_DEPS=1 ;;
-		esac
-	done
-
-	shift $((OPTIND-1))
-
-	if [ "$#" -eq 0 ]; then
-		die "No packages passed to 'gitobld apk-build' command."
-	fi
-
-	[ "$1" = all ] && set -- $(gitobld-library -a)
-
-	PKG_DIRECTORY=${PKG_DIRECTORY:-$PWD/ports}
-
-	PKG_PRIVKEY_PATH=${PKG_PRIVKEY_PATH:-$PWD/keys/packager_key.rsa}
-	PKG_PUBKEY_PATH=${PKG_PUBKEY_PATH:-$PKG_PRIVKEY_PATH.pub}
-
-	gitobld-abuild
-
-	for pkg in $@; do
-		msg "Building package '$pkg'..."
-		gitobld-apk-build $pkg
-	done
-
-	gitobld-abuild -s
-}
-
-build_usage() {
-	cat <<-EOF
-		Usage: gitobld build [OPTION]... all | TOOL...
-
-		Update dockerfiles using a template
-
-		Options:
-		    -b  Rebuild 'apk-server' image, when using '-S' flag
-		    -B  Rebuild 'gito' base image.
-		    -c  Recreate containers
-		    -d
-		    -e  Set apk repository for tools
-		    -h  Show this help
-		    -k  Set private key path
-		    -N  Do not use cache when building the image
-		    -o  Set output directory, when using '-R' flag
-		    -r  Set package repository path
-		    -R  Build Alpine packages for tools
-		    -S  Run local server for apks
-		    -p  Set public key url
-		    -P  Set public key path
-		    -u  Set user name for image tags
-	EOF
-
-	exit 0
-}
-
-build() {
-	while getopts "bBcd:e:hk:KNo:r:RPSu:" opt; do
-		case $opt in
-			b) BUILD_IMAGES=1 ;;
-			B) BUILD_BASE_IMAGE=1 ;;
-			c) FORCE_RECREATE=1 ;;
-			d) PKG_DIRECTORY=$OPTARG ;;
-			e) PKG_REPOSITORY=$OPTARG ;;
-			h) usage ;;
-			k) PKG_PRIVKEY_PATH=$OPTARG ;;
-			N) BUILD_NO_CACHE=1 ;;
-			o) BUILD_OUTPUT_DIR=$OPTARG ;;
-			r) REPOSITORY_PATH=$OPTARG ;;
-			R) _build_apks=1 ;;
-			S) _run_server=1 ;;
-			p) PKG_PUBKEY_URL=$OPTARG ;;
-			P) PKG_PUBKEY_PATH=$OPTARG ;;
-			u) REPOSITORY_USER=$OPTARG ;;
-		esac
-	done
-
-	shift $((OPTIND-1))
-
-	if [ "$#" -eq 0 ]; then
-		die "No tools passed to 'gitobld build' command."
-	fi
-
-	[ "$1" = all ] && set -- $(gitobld-library -a)
-
-	PKG_DIRECTORY=${PKG_DIRECTORY:-$PWD/ports}
-
-	PKG_REPOSITORY=${PKG_REPOSITORY:-http://"$APK_SERVER_HOST"/packages/aports}
-
-	PKG_PRIVKEY_PATH=${PKG_PRIVKEY_PATH:-$PWD/keys/packager_key.rsa}
-	PKG_PUBKEY_PATH=${PKG_PUBKEY_PATH:-$PWD/keys/packager_key.rsa.pub}
-
-	if [ -z "$PKG_PUBKEY_URL" -a -n "$_run_server" ]; then
-		PKG_PUBKEY_URL='http://'"$APK_SERVER_HOST"'/'"${PKG_PUBKEY_PATH##*/}"
-	fi
-
-	REPOSITORY_USER=${REPOSITORY_USER:-gitobioinformatics}
-
-	[ -n "$BUILD_BASE_IMAGE" ] && gitobld-base -b
-
-	if [ -n "$_build_apks" ]; then
-		BUILD_DEPS=1 apk_build $@
-	fi
-
-	if [ -n "$BUILD_OUTPUT_DIR" -a -z "$REPOSITORY_PATH" ]; then
-		REPOSITORY_PATH=$BUILD_OUTPUT_DIR
-	fi
-
-	[ -n "$_run_server" ] && gitobld-apk-server
-
-	for tool in $@; do
-		msg "Building Docker image for '$tool'..."
-		gitobld-build $tool
-	done
-
-	[ -n "$_run_server" ] && gitobld-apk-server -s
-}
-
 clean() {
 	if [ -n "$ABUILD_CONTAINER" ]; then
 		msg "Removing container '$ABUILD_CONTAINER'..."
@@ -213,96 +13,10 @@ clean() {
 		gitobld-docker -def $APK_SERVER_CONTAINER
 	fi
 
-	ABUILD_CONTAINER=
-	APK_SERVER_CONTAINER=
+	export ABUILD_CONTAINER=
+	export APK_SERVER_CONTAINER=
 
 	gitobld-env -w
-}
-
-push_usage() {
-	cat <<-EOF
-		Usage: gitobld push [OPTION]... all | TOOL...
-
-		Send images to remote repository
-
-		Options:
-		    -h  Show this help
-		    -l  Tag current version as 'latest', and push both tags to remote
-		    -L  Tag current version as 'latest', and only push this tag
-		    -r  Set remote repository
-		    -u  Set user for images tags (default: gitobioinformatics)
-	EOF
-
-	exit 0
-}
-
-push() {
-	while getopts "hlLr:u:" opt; do
-		case $opt in
-			h) usage ;;
-			l) SEND_LATEST=1 ;;
-			L) ONLY_SEND_LATEST=1 ;;
-			r) REMOTE_REPOSITORY=$OPTARG ;;
-			u) REPOSITORY_USER=$OPTARG ;;
-		esac
-	done
-
-	shift $((OPTIND-1))
-
-	if [ "$#" -eq 0 ]; then
-		die "No tools passed to 'gitobld push' command."
-	fi
-
-	[ "$1" = all ] && set -- $(gitobld-library -a)
-
-	REPOSITORY_USER=${REPOSITORY_USER:-gitobioinformatics}
-
-	for tool in $@; do
-		msg "Pushing '$_tool_name' to '${REMOTE_REPOSITORY:-docker.io}'..."
-		gitobld-push $tool
-	done
-}
-
-updatedf_usage() {
-	cat <<-EOF
-		Usage: gitobld updatedf [OPTION]... all | TOOL...
-
-		Update dockerfiles using a template
-
-		Options:
-		    -a  Set alpine version for dockerfiles (default: $ALPINE_VERSION)
-		    -h  Show this help
-		    -k  Set public key url for apks
-		    -r  Set apk repository for tools
-	EOF
-
-	exit 0
-}
-
-updatedf() {
-	ALPINE_VERSION=3.8
-
-	while getopts "hk:r:" opt; do
-		case $opt in
-			a) ALPINE_VERSION=$OPTARG ;;
-			h) updatedf_usage ;;
-			k) PKG_PUBKEY_URL=$OPTARG ;;
-			r) PKG_REPOSITORY=$OPTARG ;;
-		esac
-	done
-
-	shift $((OPTIND-1))
-
-	if [ "$#" -eq 0 ]; then
-		die "No tools passed to 'gitobld updatedf' command."
-	fi
-
-	[ "$1" = all ] && set -- $(gitobld-library -a)
-
-	for tool in $@; do
-		msg "Updating '$tool'..."
-		gitobld-updatedf -a $ALPINE_VERSION $tool
-	done
 }
 
 usage() {
@@ -351,30 +65,27 @@ main() {
 	fi
 
 	export PATH="$PATH:$GITOBLD_SCRIPTS"
+	export GITOBLD_COLOR_CONFIG=${GITOBLD_COLOR_CONFIG:-auto}
+	export GITOBLD_COMMON=gitobld-common
 
-	GITOBLD_COLOR_CONFIG=${GITOBLD_COLOR_CONFIG:-auto}
-
-	if ! update_color_config $GITOBLD_COLOR_CONFIG; then
-		die "Invalid color config $OPTARG"
-	fi
-
+	. gitobld-common
 	. gitobld-env
-
-	BASE_IMAGE_TAG=${BASE_IMAGE_TAG:-gitobioinformatics/gito}
 
 	[ -z "$1" ] && usage
 
-	_cmd="$1"
+	subcommand="$1"
 
 	[ "$#" -gt 0 ] && shift
 
-	case $_cmd in
-		apk-build) apk_build $@ ;;
-		build) build $@ ;;
+	export COMMAND="$program $subcommand"
+
+	case $subcommand in
+		apk-build) gitobld-apk-build $@ ;;
+		build) gitobld-build $@ ;;
 		clean) clean ;;
-		push) push $@ ;;
-		updatedf) updatedf $@ ;;
-		*) die "Invalid command '$_cmd'" ;;
+		push) gitobld-push $@ ;;
+		updatedf) gitobld-updatedf $@ ;;
+		*) die "Invalid subcommand '$subcommand'" ;;
 	esac
 }
 

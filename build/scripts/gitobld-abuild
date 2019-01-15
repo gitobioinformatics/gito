@@ -17,10 +17,10 @@ abuild_exec() {
 
 abuild_run() {
 	if [ -z "$BUILD_OUTPUT_DIR" ] && ! gitobld-docker -qet volume $GITOBLD_VOLUME; then
-		#msg "Creating '$GITOBLD_VOLUME' volume..."
 		echo "Creating '$GITOBLD_VOLUME' volume..."
-		#docker volume create $GITOBLD_VOLUME > /dev/null 2>&1
+
 		gitobld-docker -qct volume $GITOBLD_VOLUME
+		export GITOBLD_VOLUME
 		gitobld-env -w
 	fi
 
@@ -46,7 +46,6 @@ abuild_run() {
 			_run_args="$_run_args --mount src=$GITOBLD_VOLUME,dst=$_repodest_dir"
 		fi
 
-		#msg "Creating '$ABUILD_CONTAINER_NAME' container..."
 		echo "Creating '$ABUILD_CONTAINER_NAME' container..."
 
 		docker run \
@@ -57,9 +56,11 @@ abuild_run() {
 			--mount type=bind,src=$PKG_PRIVKEY_PATH,dst=$_workdir/keys/${PKG_PRIVKEY_PATH##*/},readonly \
 			--mount type=bind,src=$PKG_PUBKEY_PATH,dst=/etc/apk/keys/${PKG_PUBKEY_PATH##*/},readonly \
 			$_run_args \
-			$ABUILD_IMAGE tail -f /dev/null
+			$ABUILD_IMAGE tail -f /dev/null > /dev/null 2>&1
 
 		ABUILD_CONTAINER=$(gitobld-docker -it container $ABUILD_CONTAINER_NAME)
+
+		export ABUILD_CONTAINER
 		gitobld-env -w
 	fi
 }
@@ -67,7 +68,6 @@ abuild_run() {
 abuild_stop() {
 	[ -z "$ABUILD_CONTAINER" ] && return 1
 
-	#msg "Stopping container '"$ABUILD_CONTAINER"'..."
 	echo "Stopping container '"$ABUILD_CONTAINER"'..."
 	gitobld-docker -qs stopped $ABUILD_CONTAINER
 }

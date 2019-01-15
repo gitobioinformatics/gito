@@ -9,11 +9,15 @@ ports_has() {
 }
 
 get_apkbuild_description() {
-	grep '^pkgdesc=.*' ports/"$1"/APKBUILD | cut -d= -f2 | sed -e 's/^"\(.*\)"$/\1/g'
+	grep -s '^pkgdesc=.*' ports/"$1"/APKBUILD | cut -d= -f2 | sed -e 's/^"\(.*\)"$/\1/g'
+}
+
+get_apkbuild_url() {
+	grep -s '^url=.*' ports/"$1"/APKBUILD | cut -d= -f2 | sed -e 's/^"\(.*\)"$/\1/g'
 }
 
 get_apkbuild_version() {
-	grep '^pkgver=.*' ports/"$1"/APKBUILD | cut -d= -f2
+	grep -s '^pkgver=.*' ports/"$1"/APKBUILD | cut -d= -f2
 }
 
 opt=${1:-'-a'}
@@ -23,6 +27,7 @@ case $opt in
 	'-a') list_all_ports ;;
 	'-d') get_apkbuild_description "$1" ;;
 	'-e') ports_has "$1" ;;
+	'-u') get_apkbuild_url "$1" ;;
 	'-v') get_apkbuild_version "$1" ;;
 esac
 

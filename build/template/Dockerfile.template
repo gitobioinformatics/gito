@@ -3,8 +3,12 @@ FROM alpine:%%ALPINE_VERSION%%
 ARG PKG_REPOSITORY %%PKG_REPOSITORY%%
 ARG PKG_PUBKEY_URL %%PKG_PUBKEY_URL%%
 
+LABEL name="%%TOOL_NAME%%"
+LABEL version="%%TOOL_VERSION%%"
+LABEL homepage="%%TOOL_HOMEPAGE%%"
+
 RUN wget ${PKG_PUBKEY_URL} -P /etc/apk/keys \
-    && apk add --no-cache --repository ${PKG_REPOSITORY} %%TOOL_NAME%%
+    && apk add --no-cache --repository ${PKG_REPOSITORY} %%TOOL_ID%%
 
 COPY docker-entrypoint.sh /usr/local/bin
 ENTRYPOINT ["docker-entrypoint.sh"]

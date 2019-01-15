@@ -17,6 +17,8 @@ GITOBLD_ENV=${GITOBLD_ENV:-./.gitobld_env}
 if [ "$1" = '-w' ]; then
 	save_env
 else
-	. $GITOBLD_ENV
+	if [ -f "$GITOBLD_ENV" ]; then
+		. $GITOBLD_ENV
+	fi
 fi
 

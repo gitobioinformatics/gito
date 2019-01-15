@@ -8,6 +8,24 @@ library_has() {
 	[ ! -f "library/$1/Dockerfile" ] && return 1 || true
 }
 
+get_label_value() {
+	if ! library_has "$1" || [ -z "$2" ]; then
+		return
+	fi
+
+	label_line=$(grep -s 'LABEL '"$2" "library/$1/Dockerfile")
+
+	if [ -n "$label_line" ]; then
+		echo ${label_line#*=} | sed -e 's/^"\(.*\)"$/\1/g'
+	else
+		echo "$3"
+	fi
+}
+
+get_tool_name() {
+	get_label_value "$1" 'name'
+}
+
 get_tool_tag() {
 	#TODO: Make this better.
 	if [ -n "$1" ]; then
@@ -16,16 +34,22 @@ get_tool_tag() {
 }
 
 get_tool_version() {
-	gitobld-ports -v "$1"
+	get_label_value "$1" 'version'
+}
+
+get_tool_homepage() {
+	get_label_value "$1" 'homepage'
 }
 
 opt=${1:-'-a'}
 [ "$#" -gt 0 ] && shift 
 
 case $opt in
-	'-a') list_all_ports ;;
+	'-a') list_all_tools ;;
 	'-e') library_has "$1" ;;
+	'-n') get_tool_name "$1" ;;
 	'-t') get_tool_tag "$1" ;;
 	'-v') get_tool_version "$1" ;;
+	'-w') get_tool_homepage "$1" ;;
 esac
 

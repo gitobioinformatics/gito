@@ -1,54 +1,112 @@
 #!/bin/sh
 
+set -e
+
+. ${GITOBLD_COMMON:-true}
+
+apply_patch() {
+	target="$1"
+
+	if [ -f "$target" ]; then
+		tee "$target".new | diff - $target | patch "$target".new
+
+		rm "$target"
+		mv "$target".new $target
+	else
+		cat > $target
+	fi
+}
+
 update_tool_df() {
 	[ -z "$1" ] && return 1
 
-	_tool_name=$1
+	tool_id=$1
 
-	if ! gitobld-ports -e $_tool_name; then
-		#error "Missing package for '$_tool_name' at ports directory."
-		echo "Missing package for '$_tool_name' at ports directory."
+	if ! gitobld-ports -e $tool_id; then
+		error "Missing package for '$tool_id' at ports directory."
 		return 1
 	fi
 
-	_tool_dir=library/$_tool_name
+	tool_dir=library/$tool_id
 
-	mkdir -p $_tool_dir
+	tool_name=$(gitobld-library -n $tool_id)
+	tool_version=$(gitobld-library -v $tool_id)
+	tool_homepage=$(gitobld-library -w $tool_id)
+
+	tool_name=${tool_name:-$tool_id}
+	tool_version=${tool_version:-$(gitobld-ports -v $tool_id)}
+	tool_homepage=${tool_homepage:-$(gitobld-ports -u $tool_id)}
+
+	msg "Updating '$tool'..."
+
+	mkdir -p $tool_dir
 	sed \
-		-e 's/%%TOOL_NAME%%/'"$_tool_name"'/g' \
+		-e 's/%%TOOL_ID%%/'"$tool_id"'/g' \
+		-e 's/%%TOOL_NAME%%/'"$tool_name"'/g' \
 		-e 's/%%ALPINE_VERSION%%/'"$ALPINE_VERSION"'/g' \
+		-e 's/%%TOOL_VERSION%%/'"$tool_version"'/g' \
+		-e 's,%%TOOL_HOMEPAGE%%,'"$tool_homepage"',g' \
 		-e 's,%%PKG_PUBKEY_URL%%,'"$PKG_PUBKEY_URL"',g' \
 		-e 's,%%PKG_PUBKEY%%,'"$PKG_PUBKEY"',g' \
 		-e 's,%%PKG_REPOSITORY%%,'"$PKG_REPOSITORY"',g' \
 		build/template/Dockerfile.template \
-		> $_tool_dir/Dockerfile
+		| apply_patch $tool_dir/Dockerfile
 
 	echo "Added Dockerfile"
 
-	if [ ! -f "$_tool_dir"/docker-entrypoint.sh ]; then
-		cp build/template/docker-entrypoint.sh "$_tool_dir"
-		echo "Added docker-entrypoint.sh"
-	fi
+	cat build/template/docker-entrypoint.sh | apply_patch "$tool_dir"/docker-entrypoint.sh
+	echo "Added docker-entrypoint.sh"
 
-	if [ ! -f "$_tool_dir"/README.md ]; then
-		sed \
-			-e 's/%%TOOL_NAME%%/'"$_tool_name"'/g' \
-			-e 's/%%TOOL_BADGES%%//g' \
-			-e 's/%%TOOL_DESCRIPTION%%/'"$(gitobld-ports -d $_tool_name)"'/g' \
-			build/template/README.md \
-			> $_tool_dir/README.md
-		echo "Added README.md"
-	fi
+	badges="[![Version](https://img.shields.io/badge/Version-$tool_version-blue.svg)]()"
+
+	sed \
+		-e 's/%%TOOL_ID%%/'"$tool_id"'/g' \
+		-e 's/%%TOOL_NAME%%/'"$tool_name"'/g' \
+		-e 's/"%%TOOL_VERSION%%/'"$tool_version"'/g' \
+		-e 's,%%TOOL_HOMEPAGE%%,'"$tool_homepage"',g' \
+		-e 's,%%TOOL_BADGES%%,'"$badges"',g' \
+		-e 's/%%TOOL_DESCRIPTION%%/'"$(gitobld-library -d $tool_id)"'/g' \
+		build/template/README.md \
+		| apply_patch $tool_dir/README.md
+	echo "Added README.md"
 }
 
-while getopts "a:" opt; do
+usage() {
+	cat <<-EOF
+		Usage: $program [OPTION]... all | TOOL...
+
+		Update dockerfiles using a template
+
+		Options:
+		    -a  Set alpine version for dockerfiles
+		    -h  Show this help
+		    -k  Set public key url for apks
+		    -r  Set apk repository for tools
+	EOF
+
+	exit 0
+}
+
+ALPINE_VERSION=3.8
+
+while getopts "hk:r:" opt; do
 	case $opt in
 		a) ALPINE_VERSION=$OPTARG ;;
-		h) exit 0 ;;
+		h) usage ;;
+		k) PKG_PUBKEY_URL=$OPTARG ;;
+		r) PKG_REPOSITORY=$OPTARG ;;
 	esac
 done
 
 shift $((OPTIND-1))
 
-update_tool_df "$1"
+if [ "$#" -eq 0 ]; then
+	die "No tools passed to '$program' command."
+fi
+
+[ "$1" = all ] && set -- $(gitobld-library -a)
+
+for tool in $@; do
+	update_tool_df "$tool"
+done
 
