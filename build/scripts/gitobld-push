@@ -13,7 +13,7 @@ push_tool_image() {
 		return 1
 	fi
 
-	if ! gitobld-docker -qe image $tool_tag; then
+	if ! gitobld-docker -qet image $tool_tag; then
 		error "Image for '$tool_name' don't exists."
 		return 1
 	fi
