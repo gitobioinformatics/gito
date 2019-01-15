@@ -3,15 +3,9 @@
 abuild_exec() {
 	# TODO: Change to container id.
 
-	if [ -n "$BUILD_OUTPUT_DIR" ]; then
-		_userid="$(id -u):$(id -g)"
-	else
-		_userid="abuild"
-	fi
-
 	docker exec \
 		--interactive --tty \
-		--user $_userid \
+		--user ${RUN_AS_USER:-abuild} \
 		$ABUILD_CONTAINER_NAME $@
 }
 
@@ -27,23 +21,24 @@ abuild_run() {
 	gitobld-docker -b $ABUILD_IMAGE build/abuild
 
 	if ! gitobld-docker -x $ABUILD_CONTAINER; then
-		gitobld-docker -qde $ABUILD_CONTAINER
+		gitobld-docker -qdef $ABUILD_CONTAINER
 
-		_workdir=/var/lib/abuild
-		_repodest_dir="$_workdir"/packages
-		_aports_dir="$_workdir"/aports
+		repodest=/app/packages
+		aportsdir=/app/aports
 
-		_run_args=""
+		_run_args="--user ${RUN_AS_USER:-abuild}"
+
+		if [ -n "$RUN_AS_USER" ] && [ "$RUN_AS_USER" != 'abuild' ]; then
+			_run_args="$_run_args --group-add abuild"
+		fi
 
 		if [ -n "$BUILD_OUTPUT_DIR" ]; then
 			_run_args="
 				$_run_args
-				--user $(id -u):$(id -g)
-				--group-add abuild
-				--mount type=bind,src=$(gitobld-realpath $BUILD_OUTPUT_DIR),dst=$_repodest_dir
+				--mount type=bind,src=$(gitobld-realpath $BUILD_OUTPUT_DIR),dst=$repodest
 				"
 		else
-			_run_args="$_run_args --mount src=$GITOBLD_VOLUME,dst=$_repodest_dir"
+			_run_args="$_run_args --mount src=$GITOBLD_VOLUME,dst=$repodest"
 		fi
 
 		echo "Creating '$ABUILD_CONTAINER_NAME' container..."
@@ -51,9 +46,9 @@ abuild_run() {
 		docker run \
 			--detach \
 			--name $ABUILD_CONTAINER_NAME \
-			--env APORTS_DIR=$_aports_dir \
-			--mount type=bind,src=$PKG_DIRECTORY,dst=$_aports_dir,readonly \
-			--mount type=bind,src=$PKG_PRIVKEY_PATH,dst=$_workdir/keys/${PKG_PRIVKEY_PATH##*/},readonly \
+			--env APORTS_DIR=$aportsdir \
+			--mount type=bind,src=$PKG_DIRECTORY,dst=$aportsdir,readonly \
+			--mount type=bind,src=$PKG_PRIVKEY_PATH,dst=/app/keys/${PKG_PRIVKEY_PATH##*/},readonly \
 			--mount type=bind,src=$PKG_PUBKEY_PATH,dst=/etc/apk/keys/${PKG_PUBKEY_PATH##*/},readonly \
 			$_run_args \
 			$ABUILD_IMAGE tail -f /dev/null > /dev/null 2>&1

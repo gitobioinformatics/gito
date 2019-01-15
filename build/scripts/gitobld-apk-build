@@ -35,6 +35,7 @@ usage() {
 		    -o  Set output directory
 		    -p  Set path to packager public key
 		    -R  Build APKBUILD depencies
+		    -U  Run container with this user
 	EOF
 
 	exit 0
@@ -50,6 +51,7 @@ while getopts "bc:d:hk:o:p:R" opt; do
 		o) BUILD_OUTPUT_DIR=$OPTARG ;;
 		p) PKG_PUBKEY_PATH=$OPTARG ;;
 		R) BUILD_DEPS=1 ;;
+		U) RUN_AS_USER=$OPTARG ;;
 	esac
 done
 
@@ -65,6 +67,10 @@ PKG_DIRECTORY=${PKG_DIRECTORY:-$PWD/ports}
 
 PKG_PRIVKEY_PATH=${PKG_PRIVKEY_PATH:-$PWD/keys/packager_key.rsa}
 PKG_PUBKEY_PATH=${PKG_PUBKEY_PATH:-$PKG_PRIVKEY_PATH.pub}
+
+RUN_AS_USER=${RUN_AS_USER:-"$(id -u):$(id -g)"}
+
+export RUN_AS_USER
 
 gitobld-abuild
 
