@@ -55,6 +55,8 @@ update_tool_df() {
 	echo "Added Dockerfile"
 
 	cat build/template/docker-entrypoint.sh | apply_patch "$tool_dir"/docker-entrypoint.sh
+	chmod +x "$tool_dir"/docker-entrypoint.sh
+
 	echo "Added docker-entrypoint.sh"
 
 	badges="[![Version](https://img.shields.io/badge/Version-$tool_version-blue.svg)]()"
