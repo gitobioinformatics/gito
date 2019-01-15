@@ -110,6 +110,18 @@ To build GITO images from source, you can use the following process:
 
 ---
 
+### Directory structure
+
+| Directory | Description                                                                            |
+|-----------|----------------------------------------------------------------------------------------|
+| base      | Contains Dockerfile used to build GITO base image.                                     |
+| build     | Utilities to create Docker images using GITO as base.                                  |
+| examples  | Contains example of bioinformatics pipelines using GITO images.                        |
+| library   | Dockerfiles used to build several tools, using Alpine packages from `ports` directory. |
+| ports     | Contains APKBUILD files for bioinformatic tools.                                       |
+
+---
+
 ### Security and vulnerabilities
 
 Due to the extremely small size, the GITO has a smaller attack surface compared to the containers that use larger images. To assess safety, we used [Quay Security Scanner](https://quay.io) to assess vulnerabilities in the GITO. Quay identifies insecure packages by matching the metadata against Common Vulnerabilities and Exposures (CVE) vulnerability database. The results of the analysis were published in the Quay portal, and the scanning of each tool can be accessed below:
