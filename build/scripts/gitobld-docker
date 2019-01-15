@@ -40,22 +40,52 @@ container_set_state() {
 	esac
 }
 
-container_try_start() {
-	_container_id=$1
+container_run() {
+	[ -z "$1" ] && return 1
 
-	[ -n "$FORCE_RECREATE" -o -z "$_container_id" ] && return 1
+	container_name="$1"
+	shift
 
-	#msg "Starting '$_container_id' container..."
-	echo "Starting '$_container_id' container..."
+	OBJECT_TYPE=container
 
-	if ! container_set_state $_container_id running; then
-		#warn "Failed to start container '$_container_id'..."
-		echo "Failed to start container '$_container_id'..."
-		return 1
+	if [ -n "$CHECK_IF_EXISTS" ]; then
+		container_id=$(docker_find_id "$1")
+
+		if [ -n "$container_id" ]; then
+			echo "Starting '$container_name' container..."
+			container_set_state "$container_id" running
+
+			if [ "$?" -ne 0 ]; then
+				echo "Failed to start container '$container_id'"
+			else
+				return
+			fi
+		fi
 	fi
 
-	# TODO: Fix this true
-	true
+	if docker_obj_exists "$container_name"; then
+		if [ -z "$FORCE_OPERATION" ]; then
+			echo "Container '$container_name' already exists"
+			return 1
+		fi
+
+		docker_obj_delete "$container_name"
+	fi
+
+	docker_args="$@"
+
+	if [ -n "$RUN_AS_USER" ]; then
+		docker_args="--user $RUN_AS_USER $docker_args"
+	fi
+
+	echo "Creating '$container_name' container..."
+
+	docker_run_result=$(docker run --detach --name "$container_name" $docker_args)
+
+	if [ "$?" -ne 0 ]; then
+		echo "Failed to run container '$container_name"
+		return 1
+	fi
 }
 
 image_build() {
@@ -125,7 +155,7 @@ while getopts "bcdefinNqs:t:x" opt; do
 		q) QUIET_MODE=1 ;;
 		s) CONTAINER_SET_STATE=$OPTARG ;;
 		t) OBJECT_TYPE=$OPTARG ;;
-		x) CONTAINER_TRY_START=1 ;;
+		x) CONTAINER_RUN=1 ;;
 	esac
 done
 
@@ -143,8 +173,8 @@ elif [ -n "$FIND_OBJECT_NAME" ]; then
 	echo ""
 elif [ -n "$CONTAINER_SET_STATE" ]; then
 	container_set_state "$1"
-elif [ -n "$CONTAINER_TRY_START" ]; then
-	container_try_start "$1"
+elif [ -n "$CONTAINER_RUN" ]; then
+	container_run $@
 elif [ -n "$CHECK_IF_EXISTS" ]; then
 	docker_obj_exists "$1"
 fi
