@@ -38,7 +38,7 @@ abuild_run() {
 		set -- tail -f /dev/null
 	fi
 
-	gitobld-docker -xe $force_recreate_opt "$ABUILD_CONTAINER_NAME" $runargs "$ABUILD_IMAGE" $@
+	gitobld-docker -xe "$ABUILD_CONTAINER_NAME" $runargs "$ABUILD_IMAGE" $@
 }
 
 usage() {
@@ -49,7 +49,6 @@ usage() {
 
 		Options:
 		    -b  Rebuild 'abuild' image
-		    -c  Recreate containers
 		    -d  Search for apks on this directory
 		    -h  Show this help
 		    -k  Set path to packager private key
@@ -62,10 +61,9 @@ usage() {
 	exit 0
 }
 
-while getopts "bcd:hk:o:p:RU:" opt; do
+while getopts "bd:hk:o:p:RU:" opt; do
 	case $opt in
 		b) rebuild_image_opt='-f' ;;
-		c) force_recreate_opt='-f' ;;
 		d) PKG_DIRECTORY=$OPTARG ;;
 		h) usage ;;
 		k) PKG_PRIVKEY_PATH=$OPTARG ;;

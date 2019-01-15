@@ -80,7 +80,7 @@ usage() {
 		Update dockerfiles using a template
 
 		Options:
-		    -a  Set alpine version for dockerfiles
+		    -a  Set alpine version
 		    -h  Show this help
 		    -k  Set public key url for apks
 		    -r  Set apk repository for tools

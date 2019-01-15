@@ -37,8 +37,6 @@ usage() {
 
 		Options:
 		    -b  Rebuild 'apk-server' image, when using '-S' flag
-		    -B  Rebuild 'gito' base image.
-		    -c  Recreate containers
 		    -d
 		    -e  Set apk repository for tools
 		    -h  Show this help
@@ -56,10 +54,9 @@ usage() {
 	exit 0
 }
 
-while getopts "bBcd:e:hk:KNo:r:RPSu:" opt; do
+while getopts "bd:e:hk:KNo:r:RPSu:" opt; do
 	case $opt in
 		b) rebuild_image_opt='-b' ;;
-		c) force_recreate_opt='-c' ;;
 		d) PKG_DIRECTORY=$OPTARG ;;
 		e) PKG_REPOSITORY=$OPTARG ;;
 		h) usage ;;
@@ -108,7 +105,7 @@ if [ -n "$BUILD_OUTPUT_DIR" -a -z "$REPOSITORY_PATH" ]; then
 fi
 
 if [ -n "$RUN_SERVER" ]; then
-	gitobld-apk-server $rebuild_image_opt $force_recreate_opt
+	gitobld-apk-server $rebuild_image_opt
 fi
 
 for tool in $@; do
