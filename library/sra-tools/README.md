@@ -1,8 +1,8 @@
-# sra-tools 
+# sra-tools [![Version](https://img.shields.io/badge/Version-2.9.3-blue.svg)]()
 
-The SRA Toolkit and SDK from NCBI is a collection of tools and libraries for using data in the INSDC Sequence Read Archives
+Docker image for sra-tools [Home][Homepage].
 
-## How to pull the latest Docker image
+## How to pull(download) the latest Docker image
 ```
  $ docker pull gitobioinformatics/sra-tools
 ```
@@ -19,4 +19,5 @@ The SRA Toolkit and SDK from NCBI is a collection of tools and libraries for usi
 
 [DockerHub]: (https://hub.docker.com/r/gitobioinformatics/sra-tools)
 [Quay]: (https://quay.io/repository/gitobioinformatics/sra-tools)
+[Homepage]: (https://github.com/ncbi/sra-tools)
 

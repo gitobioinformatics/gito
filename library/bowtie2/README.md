@@ -1,8 +1,8 @@
-# bowtie2 
+# bowtie2 [![Version](https://img.shields.io/badge/Version-2.3.4.3-blue.svg)]()
 
-Bowtie, an ultrafast, memory-efficient short read aligner for short DNA sequences (reads) from next-gen sequencers
+Docker image for bowtie2 [Home][Homepage].
 
-## How to pull the latest Docker image
+## How to pull(download) the latest Docker image
 ```
  $ docker pull gitobioinformatics/bowtie2
 ```
@@ -19,4 +19,5 @@ Bowtie, an ultrafast, memory-efficient short read aligner for short DNA sequence
 
 [DockerHub]: (https://hub.docker.com/r/gitobioinformatics/bowtie2)
 [Quay]: (https://quay.io/repository/gitobioinformatics/bowtie2)
+[Homepage]: (http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
 

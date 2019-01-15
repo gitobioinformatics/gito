@@ -1,8 +1,8 @@
-# trimmomatic 
+# trimmomatic [![Version](https://img.shields.io/badge/Version-0.38-blue.svg)]()
 
-Trimmomatic, a flexible trimmer for Illumina Sequence Data
+Docker image for trimmomatic [Home][Homepage].
 
-## How to pull the latest Docker image
+## How to pull(download) the latest Docker image
 ```
  $ docker pull gitobioinformatics/trimmomatic
 ```
@@ -19,4 +19,5 @@ Trimmomatic, a flexible trimmer for Illumina Sequence Data
 
 [DockerHub]: (https://hub.docker.com/r/gitobioinformatics/trimmomatic)
 [Quay]: (https://quay.io/repository/gitobioinformatics/trimmomatic)
+[Homepage]: ("http://www.usadellab.org/cms/?page)
 

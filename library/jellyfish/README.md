@@ -1,8 +1,8 @@
-# jellyfish 
+# jellyfish [![Version](https://img.shields.io/badge/Version-2.2.10-blue.svg)]()
 
-A fast multi-threaded k-mer counter
+Docker image for jellyfish [Home][Homepage].
 
-## How to pull the latest Docker image
+## How to pull(download) the latest Docker image
 ```
  $ docker pull gitobioinformatics/jellyfish
 ```
@@ -19,4 +19,5 @@ A fast multi-threaded k-mer counter
 
 [DockerHub]: (https://hub.docker.com/r/gitobioinformatics/jellyfish)
 [Quay]: (https://quay.io/repository/gitobioinformatics/jellyfish)
+[Homepage]: (http://www.genome.umd.edu/jellyfish.html)
 

@@ -1,8 +1,8 @@
-# samtools 
+# samtools [![Version](https://img.shields.io/badge/Version-1.9-blue.svg)]()
 
-Tools (written in C using htslib) for manipulating next-generation sequencing data.
+Docker image for samtools [Home][Homepage].
 
-## How to pull the latest Docker image
+## How to pull(download) the latest Docker image
 ```
  $ docker pull gitobioinformatics/samtools
 ```
@@ -19,4 +19,5 @@ Tools (written in C using htslib) for manipulating next-generation sequencing da
 
 [DockerHub]: (https://hub.docker.com/r/gitobioinformatics/samtools)
 [Quay]: (https://quay.io/repository/gitobioinformatics/samtools)
+[Homepage]: (https://samtools.github.io)
 

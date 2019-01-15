@@ -1,8 +1,8 @@
-# trinity 
+# trinity [![Version](https://img.shields.io/badge/Version-2.8.4-blue.svg)]()
 
-Trinity RNA-Seq de novo transcriptome assembly
+Docker image for trinity [Home][Homepage].
 
-## How to pull the latest Docker image
+## How to pull(download) the latest Docker image
 ```
  $ docker pull gitobioinformatics/trinity
 ```
@@ -19,4 +19,5 @@ Trinity RNA-Seq de novo transcriptome assembly
 
 [DockerHub]: (https://hub.docker.com/r/gitobioinformatics/trinity)
 [Quay]: (https://quay.io/repository/gitobioinformatics/trinity)
+[Homepage]: (https://github.com/trinityrnaseq/trinityrnaseq/wiki)
 

@@ -1,8 +1,8 @@
-# fastqc 
+# fastqc [![Version](https://img.shields.io/badge/Version-0.11.7-blue.svg)]()
 
-A quality control analysis tool for high throughput sequencing data
+Docker image for fastqc [Home][Homepage].
 
-## How to pull the latest Docker image
+## How to pull(download) the latest Docker image
 ```
  $ docker pull gitobioinformatics/fastqc
 ```
@@ -19,4 +19,5 @@ A quality control analysis tool for high throughput sequencing data
 
 [DockerHub]: (https://hub.docker.com/r/gitobioinformatics/fastqc)
 [Quay]: (https://quay.io/repository/gitobioinformatics/fastqc)
+[Homepage]: (http://www.bioinformatics.babraham.ac.uk/projects/fastqc)
 

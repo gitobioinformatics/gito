@@ -1,8 +1,8 @@
-# salmon 
+# salmon [![Version](https://img.shields.io/badge/Version-0.11.3-blue.svg)]()
 
-Highly-accurate %%TOOL_DESCRIPTION%% wicked fast transcript-level quantification from RNA-seq reads using lightweight alignments
+Docker image for salmon [Home][Homepage].
 
-## How to pull the latest Docker image
+## How to pull(download) the latest Docker image
 ```
  $ docker pull gitobioinformatics/salmon
 ```
@@ -19,4 +19,5 @@ Highly-accurate %%TOOL_DESCRIPTION%% wicked fast transcript-level quantification
 
 [DockerHub]: (https://hub.docker.com/r/gitobioinformatics/salmon)
 [Quay]: (https://quay.io/repository/gitobioinformatics/salmon)
+[Homepage]: (https://combine-lab.github.io/salmon)
 
