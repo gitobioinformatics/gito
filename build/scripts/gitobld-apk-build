@@ -4,6 +4,43 @@ set -e
 
 . ${GITOBLD_COMMON:-true}
 
+abuild_run() {
+	if [ -z "$BUILD_OUTPUT_DIR" ] && ! gitobld-docker -qet volume "$GITOBLD_VOLUME"; then
+		msg "Creating '$GITOBLD_VOLUME' volume..."
+		gitobld-docker -qct volume "$GITOBLD_VOLUME"
+	fi
+
+	gitobld-docker -be $rebuild_image_opt "$ABUILD_IMAGE" build/abuild
+
+	repodest=/app/packages
+	aportsdir=/app/aports
+
+	runargs="--interactive --tty --rm"
+
+	if [ -n "$RUN_AS_USER" ] && [ "$RUN_AS_USER" != 'abuild' ]; then
+		runargs="$runargs --group-add abuild"
+	fi
+
+	if [ -n "$BUILD_OUTPUT_DIR" ]; then
+		runargs="$runargs --mount type=bind,src=$BUILD_OUTPUT_DIR,dst=$repodest"
+	else
+		runargs="$runargs --mount src=$GITOBLD_VOLUME,dst=$repodest"
+	fi
+
+	runargs="
+		$runargs
+		--mount type=bind,src=$PKG_DIRECTORY,dst=$aportsdir,readonly
+		--mount type=bind,src=$PKG_PRIVKEY_PATH,dst=/app/keys/${PKG_PRIVKEY_PATH##*/},readonly
+		--mount type=bind,src=$PKG_PUBKEY_PATH,dst=/etc/apk/keys/${PKG_PUBKEY_PATH##*/},readonly
+		"
+
+	if [ "$#" -eq 0 ]; then
+		set -- tail -f /dev/null
+	fi
+
+	gitobld-docker -xe $force_recreate_opt "$ABUILD_CONTAINER_NAME" $runargs "$ABUILD_IMAGE" $@
+}
+
 usage() {
 	cat <<-EOF
 		Usage: $program [-d PKG_DIRECTORY] PACKAGE...
@@ -27,8 +64,8 @@ usage() {
 
 while getopts "bcd:hk:o:p:RU:" opt; do
 	case $opt in
-		b) rebuild_image_opt='-b' ;;
-		c) force_recreate_opt='-c' ;;
+		b) rebuild_image_opt='-f' ;;
+		c) force_recreate_opt='-f' ;;
 		d) PKG_DIRECTORY=$OPTARG ;;
 		h) usage ;;
 		k) PKG_PRIVKEY_PATH=$OPTARG ;;
@@ -47,12 +84,17 @@ fi
 
 [ "$1" = all ] && set -- $(gitobld-library -a)
 
+ABUILD_IMAGE=${APK_SERVER_IMAGE:-gitobioinformatics/abuild}
+ABUILD_CONTAINER_NAME=${ABUILD_CONTAINER_NAME:-gitobld-abuild}
+
 PKG_DIRECTORY=${PKG_DIRECTORY:-$PWD/ports}
 
 PKG_PRIVKEY_PATH=${PKG_PRIVKEY_PATH:-$PWD/keys/packager_key.rsa}
 PKG_PUBKEY_PATH=${PKG_PUBKEY_PATH:-$PKG_PRIVKEY_PATH.pub}
 
 RUN_AS_USER=${RUN_AS_USER:-"$(id -u):$(id -g)"}
+
+GITOBLD_VOLUME=${GITOBLD_VOLUME:-gitobld-volume}
 
 export RUN_AS_USER
 
@@ -64,7 +106,5 @@ for pkg in $@; do
 done
 
 msg "Building packages..."
-
-gitobld-abuild -iR $rebuild_image_opt $force_recreate_opt \
-	apk-build -t $build_deps_opt $@
+abuild_run apk-build -t $build_deps_opt $@
 
