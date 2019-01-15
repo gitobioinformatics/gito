@@ -12,13 +12,20 @@ save_env() {
 	EOF
 }
 
+read_env() {
+	if [ -f "$GITOBLD_ENV" ]; then
+		. $GITOBLD_ENV
+	fi
+
+	export ABUILD_CONTAINER
+	export APK_SERVER_CONTAINER
+}
+
 GITOBLD_ENV=${GITOBLD_ENV:-./.gitobld_env}
 
 if [ "$1" = '-w' ]; then
 	save_env
 else
-	if [ -f "$GITOBLD_ENV" ]; then
-		. $GITOBLD_ENV
-	fi
+	read_env
 fi
 
