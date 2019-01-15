@@ -56,10 +56,12 @@ RUN_AS_USER=${RUN_AS_USER:-"$(id -u):$(id -g)"}
 
 export RUN_AS_USER
 
-if ! gitobld-ports -e "$apk_name"; then
-	error "The package '$apk_name' don't exists at ports directory."
-	return 1
-fi
+for pkg in $@; do
+	if ! gitobld-ports -e "$pkg"; then
+		error "The package '$pkg' don't exists at ports directory."
+		return 1
+	fi
+done
 
 msg "Building packages..."
 
