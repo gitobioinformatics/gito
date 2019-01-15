@@ -1,8 +1,6 @@
 #!/bin/sh
 
 abuild_exec() {
-	# TODO: Change to container id.
-
 	docker exec \
 		--interactive --tty \
 		--user ${RUN_AS_USER:-abuild} \
@@ -28,7 +26,7 @@ abuild_run() {
 	fi
 
 	if [ -n "$BUILD_OUTPUT_DIR" ]; then
-		runargs="$runargs --mount type=bind,src=$(gitobld-realpath "$BUILD_OUTPUT_DIR"),dst=$repodest"
+		runargs="$runargs --mount type=bind,src=$BUILD_OUTPUT_DIR,dst=$repodest"
 	else
 		runargs="$runargs --mount src=$GITOBLD_VOLUME,dst=$repodest"
 	fi

@@ -18,7 +18,7 @@ apk_server_run() {
 	[ -n "$GITOBLD_NETWORK" ] && runargs="$runargs --network $GITOBLD_NETWORK"
 
 	if [ -n "$REPOSITORY_PATH" ]; then
-		runargs="$runargs --mount type=bind,src=$(gitobld-realpath $REPOSITORY_PATH),dst=$http_root/packages,readonly"
+		runargs="$runargs --mount type=bind,src=$REPOSITORY_PATH,dst=$http_root/packages,readonly"
 	else
 		runargs="$runargs --mount src=$GITOBLD_VOLUME,dst=$http_root/packages,readonly"
 	fi
@@ -41,7 +41,6 @@ apk_server_delete() {
 	if [ -n "$container_id" ]; then
 		gitobld-docker -def $container_id
 	fi
-
 }
 
 APK_SERVER_IMAGE=${APK_SERVER_IMAGE:-gitobioinformatics/apk-server}
