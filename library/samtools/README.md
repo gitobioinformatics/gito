@@ -1,6 +1,6 @@
 # samtools [![Version](https://img.shields.io/badge/Version-1.9-blue.svg)]()
 
-Docker image for samtools [Home][Homepage].
+Docker image for samtools ([Home][homepage]).
 
 ## How to pull(download) the latest Docker image
 ```
@@ -17,7 +17,7 @@ Docker image for samtools [Home][Homepage].
  $ docker rmi gitobioinformatics/samtools
 ```
 
-[DockerHub]: (https://hub.docker.com/r/gitobioinformatics/samtools)
-[Quay]: (https://quay.io/repository/gitobioinformatics/samtools)
-[Homepage]: (https://samtools.github.io)
+[hub]: https://hub.docker.com/r/gitobioinformatics/samtools
+[quay]: https://quay.io/repository/gitobioinformatics/samtools
+[homepage]: https://samtools.github.io
 

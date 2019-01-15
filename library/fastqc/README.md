@@ -1,6 +1,6 @@
 # fastqc [![Version](https://img.shields.io/badge/Version-0.11.7-blue.svg)]()
 
-Docker image for fastqc [Home][Homepage].
+Docker image for fastqc ([Home][homepage]).
 
 ## How to pull(download) the latest Docker image
 ```
@@ -17,7 +17,7 @@ Docker image for fastqc [Home][Homepage].
  $ docker rmi gitobioinformatics/fastqc
 ```
 
-[DockerHub]: (https://hub.docker.com/r/gitobioinformatics/fastqc)
-[Quay]: (https://quay.io/repository/gitobioinformatics/fastqc)
-[Homepage]: (http://www.bioinformatics.babraham.ac.uk/projects/fastqc)
+[hub]: https://hub.docker.com/r/gitobioinformatics/fastqc
+[quay]: https://quay.io/repository/gitobioinformatics/fastqc
+[homepage]: http://www.bioinformatics.babraham.ac.uk/projects/fastqc
 

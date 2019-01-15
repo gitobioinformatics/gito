@@ -1,6 +1,6 @@
 # salmon [![Version](https://img.shields.io/badge/Version-0.11.3-blue.svg)]()
 
-Docker image for salmon [Home][Homepage].
+Docker image for salmon ([Home][homepage]).
 
 ## How to pull(download) the latest Docker image
 ```
@@ -17,7 +17,7 @@ Docker image for salmon [Home][Homepage].
  $ docker rmi gitobioinformatics/salmon
 ```
 
-[DockerHub]: (https://hub.docker.com/r/gitobioinformatics/salmon)
-[Quay]: (https://quay.io/repository/gitobioinformatics/salmon)
-[Homepage]: (https://combine-lab.github.io/salmon)
+[hub]: https://hub.docker.com/r/gitobioinformatics/salmon
+[quay]: https://quay.io/repository/gitobioinformatics/salmon
+[homepage]: https://combine-lab.github.io/salmon
 

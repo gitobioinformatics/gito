@@ -1,6 +1,6 @@
 # %%TOOL_NAME%% %%TOOL_BADGES%%
 
-Docker image for %%TOOL_NAME%% [Home][Homepage].
+Docker image for %%TOOL_NAME%% ([Home][homepage]).
 
 ## How to pull(download) the latest Docker image
 ```
@@ -17,7 +17,7 @@ Docker image for %%TOOL_NAME%% [Home][Homepage].
  $ docker rmi gitobioinformatics/%%TOOL_ID%%
 ```
 
-[DockerHub]: (https://hub.docker.com/r/gitobioinformatics/%%TOOL_NAME%%)
-[Quay]: (https://quay.io/repository/gitobioinformatics/%%TOOL_NAME%%)
-[Homepage]: (%%TOOL_HOMEPAGE%%)
+[hub]: https://hub.docker.com/r/gitobioinformatics/%%TOOL_NAME%%
+[quay]: https://quay.io/repository/gitobioinformatics/%%TOOL_NAME%%
+[homepage]: %%TOOL_HOMEPAGE%%
 

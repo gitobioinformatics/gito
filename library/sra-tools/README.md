@@ -1,6 +1,6 @@
 # sra-tools [![Version](https://img.shields.io/badge/Version-2.9.3-blue.svg)]()
 
-Docker image for sra-tools [Home][Homepage].
+Docker image for sra-tools ([Home][homepage]).
 
 ## How to pull(download) the latest Docker image
 ```
@@ -17,7 +17,7 @@ Docker image for sra-tools [Home][Homepage].
  $ docker rmi gitobioinformatics/sra-tools
 ```
 
-[DockerHub]: (https://hub.docker.com/r/gitobioinformatics/sra-tools)
-[Quay]: (https://quay.io/repository/gitobioinformatics/sra-tools)
-[Homepage]: (https://github.com/ncbi/sra-tools)
+[hub]: https://hub.docker.com/r/gitobioinformatics/sra-tools
+[quay]: https://quay.io/repository/gitobioinformatics/sra-tools
+[homepage]: https://github.com/ncbi/sra-tools
 
