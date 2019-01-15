@@ -40,7 +40,7 @@ usage() {
 	exit 0
 }
 
-while getopts "bc:d:hk:o:p:R" opt; do
+while getopts "bcd:hk:o:p:RU:" opt; do
 	case $opt in
 		b) BUILD_IMAGES=1 ;;
 		c) FORCE_RECREATE=1 ;;
