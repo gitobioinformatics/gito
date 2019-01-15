@@ -51,7 +51,6 @@ main() {
 	export GITOBLD_COMMON=gitobld-common
 
 	. gitobld-common
-	. gitobld-env
 
 	[ -z "$1" ] && usage
 

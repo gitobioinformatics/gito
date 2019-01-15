@@ -5,8 +5,6 @@ apk_server_run() {
 		echo "Creating '$GITOBLD_NETWORK' network..."
 
 		gitobld-docker -qct network $GITOBLD_NETWORK
-		export GITOBLD_NETWORK
-		gitobld-env -w
 	fi
 
 	gitobld-docker -be $rebuild_image_opt $APK_SERVER_IMAGE build/apk-server
@@ -26,10 +24,6 @@ apk_server_run() {
 	fi
 
 	gitobld-docker -xe $force_recreate_opt "$APK_SERVER_HOST" $runargs "$APK_SERVER_IMAGE"
-	APK_SERVER_CONTAINER=$(gitobld-docker -it container $APK_SERVER_HOST)
-
-	export APK_SERVER_CONTAINER
-	gitobld-env -w
 }
 
 apk_server_stop() {

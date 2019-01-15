@@ -14,8 +14,6 @@ abuild_run() {
 		echo "Creating '$GITOBLD_VOLUME' volume..."
 
 		gitobld-docker -qct volume "$GITOBLD_VOLUME"
-		export GITOBLD_VOLUME
-		gitobld-env -w
 	fi
 
 	gitobld-docker -be $rebuild_image_opt "$ABUILD_IMAGE" build/abuild
@@ -47,10 +45,6 @@ abuild_run() {
 	fi
 
 	gitobld-docker -xe $force_recreate_opt "$ABUILD_CONTAINER_NAME" $runargs "$ABUILD_IMAGE" $@
-	ABUILD_CONTAINER=$(gitobld-docker -it container "$ABUILD_CONTAINER_NAME")
-
-	export ABUILD_CONTAINER
-	gitobld-env -w
 }
 
 abuild_stop() {
