@@ -51,12 +51,13 @@ usage() {
 		    -p  Set public key url
 		    -P  Set public key path
 		    -u  Set user name for image tags
+		    -U  Set user to run 'abuild' and 'apk-server' images
 	EOF
 
 	exit 0
 }
 
-while getopts "bd:e:hk:KNo:r:RPSu:" opt; do
+while getopts "bd:e:hk:KNo:r:RPSu:U:" opt; do
 	case $opt in
 		b) rebuild_image_opt='-b' ;;
 		d) PKG_DIRECTORY=$OPTARG ;;
@@ -71,6 +72,7 @@ while getopts "bd:e:hk:KNo:r:RPSu:" opt; do
 		p) PKG_PUBKEY_URL=$OPTARG ;;
 		P) PKG_PUBKEY_PATH=$OPTARG ;;
 		u) username_opt='-u '"$OPTARG" ;;
+		U) container_user=$OPTARG ;;
 	esac
 done
 
@@ -95,6 +97,18 @@ if [ -z "$PKG_PUBKEY_URL" -a -n "$RUN_SERVER" ]; then
 fi
 
 GITOBLD_NETWORK=${GITOBLD_NETWORK:-gitobld-network}
+
+if [ -n "$container_user" ]; then
+	if ! id "$container_user" > /dev/null 2>&1; then
+		die "User not found: $container_user"
+	fi
+
+	RUN_AS_USER="$(id -u $container_user):$(id -g $container_user)"
+else
+	RUN_AS_USER="$(id -u):$(id -g)"
+fi
+
+export RUN_AS_USER
 
 if [ -n "$BUILD_APKS" ]; then
 	BUILD_DEPS=1 gitobld-apk-build $@
