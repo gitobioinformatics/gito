@@ -101,7 +101,7 @@ export RUN_AS_USER
 for pkg in $@; do
 	if ! gitobld-ports -e "$pkg"; then
 		error "The package '$pkg' don't exists at ports directory."
-		return 1
+		exit 1
 	fi
 done
 
