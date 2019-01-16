@@ -5,7 +5,7 @@ ARG PKG_PUBKEY_URL
 
 LABEL name="Trimmomatic"
 LABEL version="0.38"
-LABEL homepage=""http://www.usadellab.org/cms/?page"
+LABEL homepage="http://www.usadellab.org/cms/?page=trimmomatic"
 
 RUN wget ${PKG_PUBKEY_URL} -P /etc/apk/keys \
     && apk add --no-cache --repository ${PKG_REPOSITORY} trimmomatic

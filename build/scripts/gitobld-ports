@@ -8,16 +8,30 @@ ports_has() {
 	[ ! -f "ports/$1/APKBUILD" ] && return 1 || true
 }
 
+get_variable_value() {
+	if ! ports_has "$1" || [ -z "$2" ]; then
+		return 1
+	fi
+
+	variable_line=$(grep -s '^'"$2"'=.*' ports/"$1"/APKBUILD)
+
+	if [ -n "$variable_line" ]; then
+		echo ${variable_line#*=} | sed -e 's/^"\(.*\)"$/\1/g'
+	else
+		echo "$3"
+	fi
+}
+
 get_apkbuild_description() {
-	grep -s '^pkgdesc=.*' ports/"$1"/APKBUILD | cut -d= -f2 | sed -e 's/^"\(.*\)"$/\1/g'
+	get_variable_value "$1" 'pkgdesc'
 }
 
 get_apkbuild_url() {
-	grep -s '^url=.*' ports/"$1"/APKBUILD | cut -d= -f2 | sed -e 's/^"\(.*\)"$/\1/g'
+	get_variable_value "$1" 'url'
 }
 
 get_apkbuild_version() {
-	grep -s '^pkgver=.*' ports/"$1"/APKBUILD | cut -d= -f2
+	get_variable_value "$1" 'pkgver'
 }
 
 opt=${1:-'-a'}

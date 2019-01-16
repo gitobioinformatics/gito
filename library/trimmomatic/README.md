@@ -19,5 +19,5 @@ Docker image for Trimmomatic ([Home][homepage]).
 
 [hub]: https://hub.docker.com/r/gitobioinformatics/trimmomatic
 [quay]: https://quay.io/repository/gitobioinformatics/trimmomatic
-[homepage]: "http://www.usadellab.org/cms/?page
+[homepage]: http://www.usadellab.org/cms/?page=trimmomatic
 
