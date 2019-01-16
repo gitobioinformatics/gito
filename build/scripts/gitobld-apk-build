@@ -15,7 +15,7 @@ abuild_run() {
 	gitobld-docker -be $rebuild_image_opt "$ABUILD_IMAGE" build/abuild
 
 	repodest=/app/packages
-	aportsdir=/app/aports
+	aportsdir=/app/"$(basename $PKG_DIRECTORY)"
 
 	runargs="--interactive --tty --rm"
 
@@ -35,6 +35,8 @@ abuild_run() {
 		--mount type=bind,src=$PKG_PRIVKEY_PATH,dst=/app/keys/${PKG_PRIVKEY_PATH##*/},readonly
 		--mount type=bind,src=$PKG_PUBKEY_PATH,dst=/etc/apk/keys/${PKG_PUBKEY_PATH##*/},readonly
 		"
+
+	runargs="$runargs --env APORTSDIR=$aportsdir"
 
 	if [ "$#" -eq 0 ]; then
 		set -- tail -f /dev/null
