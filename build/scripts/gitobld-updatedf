@@ -9,6 +9,11 @@ fi
 apply_patch() {
 	target="$1"
 
+	if [ -n "$ignore_pattern" ] && echo "$target" | grep -qE "$ignore_pattern"; then
+		echo "File '$target' matched pattern, skipping..."
+		return
+	fi
+
 	if [ -f "$target" ]; then
 		tee "$target".new | diff - $target > "$target".diff || true
 
@@ -93,8 +98,9 @@ usage() {
 
 		Options:
 		    -a  Set alpine version
-			-f  Force update
+		    -f  Force update
 		    -h  Show this help
+		    -I  Ignore file where names match pattern
 		    -k  Set public key url for apks
 		    -r  Set apk repository for tools
 	EOF
@@ -104,11 +110,12 @@ usage() {
 
 ALPINE_VERSION=3.8
 
-while getopts "a:fhk:r:" opt; do
+while getopts "a:fhI:k:r:" opt; do
 	case $opt in
 		a) ALPINE_VERSION=$OPTARG ;;
 		f) force_update=1 ;;
 		h) usage ;;
+		I) ignore_pattern=$OPTARG ;;
 		k) PKG_PUBKEY_URL=$OPTARG ;;
 		r) PKG_REPOSITORY=$OPTARG ;;
 	esac
