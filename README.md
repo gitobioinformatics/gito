@@ -141,12 +141,14 @@ Due to the extremely small size, the GITO has a smaller attack surface compared 
 
 ### License
 
-MIT License. See [LICENSE](https://github.com/gitobioinformatics/gito/blob/master/LICENSE) for more information
+MIT License. See [LICENSE](LICENSE) for more information
 
 ---
 
 ### Contributions
-GITO is open-source (see License), and we welcome contributions from anyone who is interested in contributing. To contribute code, please make a pull request on github. The issue tracker for GITO is also available on github.
+GITO is open-source (see [LICENSE](LICENSE)), and we welcome contributions from anyone who is interested in contributing. To contribute code, please make a pull request on github. The issue tracker for GITO is also available on github.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ### Inspirations
