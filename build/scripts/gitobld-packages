@@ -66,13 +66,13 @@ package_tag() {
 	echo "${pkg_tag_user:-gitobioinformatics}/$1:$pkg_version"
 }
 
-while getopts "aAdeLq:Tu:" opt; do
+while getopts "adeLPq:Tu:" opt; do
 	case $opt in
 		a) file_type='apkbuild' ;;
-		A) list_all='ports' ;;
 		d) file_type='dockerfile' ;;
 		e) file_exist=1 ;;
 		L) list_all='library' ;;
+		P) list_all='ports' ;;
 		q) query="$OPTARG" ;;
 		T) package_tag=1 ;;
 		u) pkg_tag_user=$OPTARG ;;

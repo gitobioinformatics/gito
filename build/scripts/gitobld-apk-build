@@ -82,7 +82,7 @@ if [ "$#" -eq 0 ]; then
 	die "No packages passed to '$program' command."
 fi
 
-[ "$1" = all ] && set -- $(gitobld-library -a)
+[ "$1" = all ] && set -- $(gitobld-packages -P)
 
 ABUILD_IMAGE=${APK_SERVER_IMAGE:-gitobioinformatics/abuild}
 ABUILD_CONTAINER_NAME=${ABUILD_CONTAINER_NAME:-gitobld-abuild}
@@ -99,7 +99,7 @@ GITOBLD_VOLUME=${GITOBLD_VOLUME:-gitobld-volume}
 export RUN_AS_USER
 
 for pkg in $@; do
-	if ! gitobld-ports -e "$pkg"; then
+	if ! gitobld-packages -ae "$pkg"; then
 		error "The package '$pkg' don't exists at ports directory."
 		exit 1
 	fi

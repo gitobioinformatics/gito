@@ -8,7 +8,7 @@ fi
 
 push_tool_image() {
 	tool_name=$1
-	tool_tag=$(gitobld-library -t $1)
+	tool_tag=$(gitobld-packages -T $username_opt $1)
 
 	if [ -z "$tool_tag" ]; then
 		error "Invalid tool name '$tool_name'"
@@ -59,7 +59,7 @@ while getopts "hlLr:u:" opt; do
 		l) SEND_LATEST=1 ;;
 		L) ONLY_SEND_LATEST=1 ;;
 		r) REMOTE_REPOSITORY=$OPTARG ;;
-		u) REPOSITORY_USER=$OPTARG ;;
+		u) username_opt='-u '"$OPTARG" ;;
 	esac
 done
 
@@ -69,7 +69,7 @@ if [ "$#" -eq 0 ]; then
 	die "No tools passed to '$program' command."
 fi
 
-[ "$1" = all ] && set -- $(gitobld-library -a)
+[ "$1" = all ] && set -- $(gitobld-packages -L)
 
 REPOSITORY_USER=${REPOSITORY_USER:-gitobioinformatics}
 

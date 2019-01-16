@@ -8,14 +8,14 @@ fi
 
 build_tool_image() {
 	tool_name=$1
-	tool_tag=$(gitobld-library -t $tool_name)
+	tool_tag=$(gitobld-packages -T $username_opt $tool_name)
 
 	if [ -z "$tool_tag" ]; then
 		error "Invalid tool name '$tool_name'"
 		return 1
 	fi
 
-	if ! gitobld-library -e $tool_name; then
+	if ! gitobld-packages -de $tool_name; then
 		error "No tool with '$tool_name' name at library directory."
 		return 1
 	fi
@@ -70,7 +70,7 @@ while getopts "bd:e:hk:KNo:r:RPSu:" opt; do
 		S) RUN_SERVER=1 ;;
 		p) PKG_PUBKEY_URL=$OPTARG ;;
 		P) PKG_PUBKEY_PATH=$OPTARG ;;
-		u) REPOSITORY_USER=$OPTARG ;;
+		u) username_opt='-u '"$OPTARG" ;;
 	esac
 done
 
@@ -80,7 +80,7 @@ if [ "$#" -eq 0 ]; then
 	die "No tools passed to '$program' command."
 fi
 
-[ "$1" = all ] && set -- $(gitobld-library -a)
+[ "$1" = all ] && set -- $(gitobld-packages -L)
 
 APK_SERVER_HOST=${APK_SERVER_HOST:-gitobld-apk-server.local}
 
@@ -93,8 +93,6 @@ PKG_PUBKEY_PATH=${PKG_PUBKEY_PATH:-$PWD/keys/packager_key.rsa.pub}
 if [ -z "$PKG_PUBKEY_URL" -a -n "$RUN_SERVER" ]; then
 	PKG_PUBKEY_URL='http://'"$APK_SERVER_HOST"'/'"${PKG_PUBKEY_PATH##*/}"
 fi
-
-REPOSITORY_USER=${REPOSITORY_USER:-gitobioinformatics}
 
 GITOBLD_NETWORK=${GITOBLD_NETWORK:-gitobld-network}
 

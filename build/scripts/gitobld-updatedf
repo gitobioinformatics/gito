@@ -35,7 +35,7 @@ update_tool_df() {
 
 	tool_id=$1
 
-	if ! gitobld-ports -e $tool_id; then
+	if ! gitobld-packages -ae $tool_id; then
 		error "Missing package for '$tool_id' at ports directory."
 		return 1
 	fi
@@ -46,13 +46,13 @@ update_tool_df() {
 		rm -rf $tool_dir
 	fi
 
-	tool_name=$(gitobld-library -n $tool_id)
-	tool_version=$(gitobld-library -v $tool_id)
-	tool_homepage=$(gitobld-library -w $tool_id)
+	tool_name=$(gitobld-packages -dq 'name' $tool_id)
+	tool_version=$(gitobld-packages -dq 'version' $tool_id)
+	tool_homepage=$(gitobld-packages -dq 'homepage' $tool_id)
 
 	tool_name=${tool_name:-$tool_id}
-	tool_version=${tool_version:-$(gitobld-ports -v $tool_id)}
-	tool_homepage=${tool_homepage:-$(gitobld-ports -u $tool_id)}
+	tool_version=${tool_version:-$(gitobld-packages -aq 'pkgver' $tool_id)}
+	tool_homepage=${tool_homepage:-$(gitobld-packages -aq 'url' $tool_id)}
 
 	msg "Updating '$tool'..."
 
@@ -81,7 +81,6 @@ update_tool_df() {
 		-e 's/"%%TOOL_VERSION%%/'"$tool_version"'/g' \
 		-e 's,%%TOOL_HOMEPAGE%%,'"$tool_homepage"',g' \
 		-e 's,%%TOOL_BADGES%%,'"$badges"',g' \
-		-e 's/%%TOOL_DESCRIPTION%%/'"$(gitobld-library -d $tool_id)"'/g' \
 		build/template/README.md \
 		| apply_patch $tool_dir/README.md
 }
@@ -121,7 +120,7 @@ if [ "$#" -eq 0 ]; then
 	die "No tools passed to '$program' command."
 fi
 
-[ "$1" = all ] && set -- $(gitobld-library -a)
+[ "$1" = all ] && set -- $(gitobld-packages -L)
 
 for tool in $@; do
 	update_tool_df "$tool"
