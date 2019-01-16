@@ -46,7 +46,7 @@ main() {
 
 	export PATH="$PATH:$GITOBLD_SCRIPTS"
 	export GITOBLD_COLOR_CONFIG=${GITOBLD_COLOR_CONFIG:-auto}
-	export GITOBLD_COMMON=gitobld-common
+	export GITOBLD_COMMON="$GITOBLD_SCRIPTS"/gitobld-common
 
 	. gitobld-common
 
