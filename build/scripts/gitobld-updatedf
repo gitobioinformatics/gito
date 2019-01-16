@@ -24,6 +24,7 @@ apply_patch() {
 		rm "$target".diff
 	else
 		cat > $target
+		echo "Added $(basename $target)"
 	fi
 }
 
@@ -38,6 +39,10 @@ update_tool_df() {
 	fi
 
 	tool_dir=library/$tool_id
+
+	if [ -n "$force_update" ]; then
+		rm -rf $tool_dir
+	fi
 
 	tool_name=$(gitobld-library -n $tool_id)
 	tool_version=$(gitobld-library -v $tool_id)
@@ -87,6 +92,7 @@ usage() {
 
 		Options:
 		    -a  Set alpine version
+			-f  Force update
 		    -h  Show this help
 		    -k  Set public key url for apks
 		    -r  Set apk repository for tools
@@ -97,9 +103,10 @@ usage() {
 
 ALPINE_VERSION=3.8
 
-while getopts "hk:r:" opt; do
+while getopts "a:fhk:r:" opt; do
 	case $opt in
 		a) ALPINE_VERSION=$OPTARG ;;
+		f) force_update=1 ;;
 		h) usage ;;
 		k) PKG_PUBKEY_URL=$OPTARG ;;
 		r) PKG_REPOSITORY=$OPTARG ;;
