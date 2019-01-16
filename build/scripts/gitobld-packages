@@ -1,0 +1,102 @@
+#!/bin/sh
+
+package_list_all() {
+	[ -z "$1" ] && return 1
+
+	case "$1" in
+		ports | library) 
+			find "$1" -type d ! -path "$1" -exec basename {} \; ;;
+		*) return 1
+	esac
+}
+
+package_file_find() {
+	if [ -n "$2" ]; then
+		case "$2" in
+			apkbuild) file_path="ports/$1/APKBUILD" ;;
+			dockerfile) file_path="library/$1/Dockerfile" ;;
+			*) return 2 ;;
+		esac
+
+		if [ -f "$file_path" ]; then
+			echo "$file_path"
+		else
+			return 1
+		fi
+	fi
+}
+
+package_query() {
+	file_path=$(package_file_find "$1" "$2")
+
+	if [ "$?" -ne 0 ]; then
+		return 1
+	fi
+
+	if [ -z "$3" ]; then
+		return 1
+	fi
+
+	case "$2" in
+		apkbuild) pattern="^$3=.*" ;;
+		dockerfile) pattern="^LABEL $3=.*" ;;
+		*) return 1 ;;
+	esac
+
+	query_line=$(grep -s "$pattern" "$file_path")
+
+	if [ "$?" -ne 0 ]; then
+		return 1
+	fi
+
+	if [ -n "$query_line" ]; then
+		echo ${query_line#*=} | sed -e 's/^\(["'"'"']\)\(.*\)\1$/\2/g'
+	else
+		echo "$3"
+	fi
+}
+
+package_tag() {
+	[ -z "$1" ] && return 1
+
+	pkg_version=$(package_query "$1" apkbuild pkgver)
+
+	[ "$?" -ne 0 ] && return
+
+	echo "${pkg_tag_user:-gitobioinformatics}/$1:$pkg_version"
+}
+
+while getopts "aAdeLq:Tu:" opt; do
+	case $opt in
+		a) file_type='apkbuild' ;;
+		A) list_all='ports' ;;
+		d) file_type='dockerfile' ;;
+		e) file_exist=1 ;;
+		L) list_all='library' ;;
+		q) query="$OPTARG" ;;
+		T) package_tag=1 ;;
+		u) pkg_tag_user=$OPTARG ;;
+	esac
+done
+
+shift $((OPTIND-1))
+
+file_type=${file_type:-'dockerfile'}
+
+if [ -n "$list_all" ]; then
+	package_list_all "$list_all"
+else
+	if [ "$#" -eq 0 ]; then
+		echo "Error: Missing package name operand."
+		exit 1
+	fi
+
+	if [ -n "$file_exist" ]; then
+		package_file_find "$1" "$file_type" > /dev/null 2>&1
+	elif [ -n "$query" ]; then
+		package_query "$1" "$file_type" "$query"
+	elif [ -n "$package_tag" ]; then
+		package_tag "$1"
+	fi
+fi
+
