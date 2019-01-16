@@ -9,8 +9,13 @@ ports_has() {
 }
 
 get_variable_value() {
-	if ! ports_has "$1" || [ -z "$2" ]; then
+	if ! ports_has "$1"; then
+		echo "Error: Package not found: $1" >&2
 		return 1
+	fi
+
+	if [ -z "$2" ]; then
+		echo "Error: Missing variable operand." >&2
 	fi
 
 	variable_line=$(grep -s '^'"$2"'=.*' ports/"$1"/APKBUILD)

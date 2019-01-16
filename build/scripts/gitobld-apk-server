@@ -3,7 +3,6 @@
 apk_server_run() {
 	if ! gitobld-docker -qet network $GITOBLD_NETWORK; then
 		echo "Creating '$GITOBLD_NETWORK' network..."
-
 		gitobld-docker -qct network $GITOBLD_NETWORK
 	fi
 

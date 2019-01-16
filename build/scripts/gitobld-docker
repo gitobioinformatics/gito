@@ -12,6 +12,7 @@ container_set_state() {
 			[ "$_state_cond" = true ] && _rev_state_cond=false || _rev_state_cond=true
 
 			if ! docker_obj_exists "$_container_id"; then
+				echo "Error: Container not found: $_container_id" >&2
 				return 1
 			fi
 
@@ -32,7 +33,12 @@ container_set_state() {
 
 			_is_running=$(docker inspect -f '{{.State.Running}}' $_container_id 2>&1)
 
-			[ "$_is_running" = "$_state_cond" ] && return 0 || return 1
+			if [ "$_is_running" = "$_state_cond" ]; then
+				return 0
+			else
+				echo "Error: Failed to set state '$state' for container '$_container_id'" >&2
+				return 1
+			fi
 			;;
 
 		*) return 1 ;;
@@ -54,17 +60,17 @@ container_run() {
 			container_id=$(docker_find_id "$container_name")
 
 			if [ -n "$container_id" ]; then
-				echo "Starting '$container_name' container..."
+				echo "Starting '$container_name' container..." >&2
 				container_set_state "$container_id" running
 
 				if [ "$?" -ne 0 ]; then
-					echo "Failed to start container '$container_name'"
+					echo "Warning: Failed to start container '$container_name'" >&2
 				else
 					return 0
 				fi
 			fi
 		else
-			echo "Container '$container_name' already exists"
+			echo "Container '$container_name' already exists" >&2
 			return 1
 		fi
 	fi
@@ -75,19 +81,19 @@ container_run() {
 		docker_args="--user $RUN_AS_USER $docker_args"
 	fi
 
-	echo "Creating '$container_name' container..."
+	echo "Creating '$container_name' container" >&2
 
 	docker run --name "$container_name" $docker_args
 
 	if [ "$?" -ne 0 ]; then
-		echo "Failed to run container '$container_name"
+		echo "Errror: Failed to run container '$container_name" >&2
 		return 1
 	fi
 }
 
 image_build() {
 	if [ "$#" -lt 2 ]; then
-		echo "Missing image tag and build context."
+		echo "Error: Missing image tag and build context." >&2
 		return 1
 	fi
 
@@ -106,7 +112,7 @@ image_build() {
 
 image_push() {
 	if [ "$#" -eq 0 ]; then
-		echo "Missing image tags to push."
+		echo "Error: Missing image tags to push." >&2
 		return 1
 	fi
 
@@ -117,7 +123,7 @@ image_push() {
 
 image_tag() {
 	if [ "$#" -lt 2 ]; then
-		echo "At least two parameters are need to tag a image."
+		echo "Error: At least two parameters are need to tag a image." >&2
 		return 1
 	fi
 
