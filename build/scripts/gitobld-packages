@@ -56,6 +56,26 @@ package_query() {
 	fi
 }
 
+package_set() {
+	file_path=$(package_file_find "$1" "$2")
+
+	if [ "$?" -ne 0 ]; then
+		return 1
+	fi
+
+	if [ -z "$3" ] || [ -z "$4" ]; then
+		return 1
+	fi
+
+	case "$2" in
+		apkbuild) pattern='\(^'"$3"'\)=.*' ;;
+		dockerfile) pattern='\(^LABEL '"$3"'\)=.*' ;;
+		*) return 1 ;;
+	esac
+
+	sed -i 's/'"$pattern"'/\1="'"$4"'"/g' "$file_path"
+}
+
 package_tag() {
 	[ -z "$1" ] && return 1
 
@@ -66,7 +86,7 @@ package_tag() {
 	echo "${pkg_tag_user:-gitobioinformatics}/$1:$pkg_version"
 }
 
-while getopts "adeLPq:Tu:" opt; do
+while getopts "adeLPq:s:Tv:u:" opt; do
 	case $opt in
 		a) file_type='apkbuild' ;;
 		d) file_type='dockerfile' ;;
@@ -74,7 +94,9 @@ while getopts "adeLPq:Tu:" opt; do
 		L) list_all='library' ;;
 		P) list_all='ports' ;;
 		q) query="$OPTARG" ;;
+		s) change_key="$OPTARG" ;;
 		T) package_tag=1 ;;
+		v) change_value="$OPTARG" ;;
 		u) pkg_tag_user=$OPTARG ;;
 	esac
 done
@@ -87,7 +109,7 @@ if [ -n "$list_all" ]; then
 	package_list_all "$list_all"
 else
 	if [ "$#" -eq 0 ]; then
-		echo "Error: Missing package name operand."
+		echo "Error: Missing package name operand." >&2
 		exit 1
 	fi
 
@@ -95,6 +117,8 @@ else
 		package_file_find "$1" "$file_type" > /dev/null 2>&1
 	elif [ -n "$query" ]; then
 		package_query "$1" "$file_type" "$query"
+	elif [ -n "$change_key" ]; then
+		package_set "$1" "$file_type" "$change_key" "$change_value"
 	elif [ -n "$package_tag" ]; then
 		package_tag "$1"
 	fi

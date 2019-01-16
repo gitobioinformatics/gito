@@ -52,8 +52,6 @@ update_tool_df() {
 	fi
 
 	tool_name=$(gitobld-packages -dq 'name' $tool_id)
-	tool_version=$(gitobld-packages -dq 'version' $tool_id)
-	tool_homepage=$(gitobld-packages -dq 'homepage' $tool_id)
 
 	tool_name=${tool_name:-$tool_id}
 	tool_version=${tool_version:-$(gitobld-packages -aq 'pkgver' $tool_id)}
@@ -74,6 +72,7 @@ update_tool_df() {
 		build/template/Dockerfile.template \
 		| apply_patch $tool_dir/Dockerfile
 
+	gitobld-packages -ds 'version' -v "$tool_version" "$tool_id"
 
 	cat build/template/docker-entrypoint.sh | apply_patch "$tool_dir"/docker-entrypoint.sh
 	chmod +x "$tool_dir"/docker-entrypoint.sh
