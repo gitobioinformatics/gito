@@ -47,25 +47,25 @@ The image can be downloaded and executed through the Docker's CLI with the follo
        > Run FastQC
        
         ```
-         $ docker run -v $PWD:$PWD --rm gitobioinformatics/fastqc
+         $ docker run -u $(id -u):$(id -g) -v $PWD:/data -w /data --rm gitobioinformatics/fastqc
         ```
 
        > Run Trimmomatic
        
         ```
-         $ docker run -v $PWD:$PWD --rm gitobioinformatics/trimmomatic
+         $ docker run -u $(id -u):$(id -g) -v $PWD:/data -w /data --rm gitobioinformatics/trimmomatic
         ```
 
        > Run Trinity
        
         ```
-         $ docker run -v $PWD:$PWD --rm gitobioinformatics/trinity
+         $ docker run -u $(id -u):$(id -g) -v $PWD:/data -w /data --rm gitobioinformatics/trinity
         ```
 
        > Run Bowtie2
        
         ```
-         $ docker run -v $PWD:$PWD --rm gitobioinformatics/bowtie2
+         $ docker run -u $(id -u):$(id -g) -v $PWD:/data -w /data --rm gitobioinformatics/bowtie2
         ```
 
 
