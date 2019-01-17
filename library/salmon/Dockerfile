@@ -1,14 +1,10 @@
-FROM alpine:3.8
-
-ARG PKG_REPOSITORY 
-ARG PKG_PUBKEY_URL 
+FROM gitobioinformatics/gito:3.8
 
 LABEL name="Salmon"
 LABEL version="0.11.3"
 LABEL homepage="https://combine-lab.github.io/salmon"
 
-RUN wget ${PKG_PUBKEY_URL} -P /etc/apk/keys \
-    && apk add --no-cache --repository ${PKG_REPOSITORY} salmon
+RUN apk add --no-cache salmon=0.11.3-r0
 
 COPY docker-entrypoint.sh /usr/local/bin
 ENTRYPOINT ["docker-entrypoint.sh"]
