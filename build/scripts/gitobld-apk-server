@@ -1,5 +1,11 @@
 #!/bin/sh
 
+set -e
+
+if [ -f "$GITOBLD_COMMON" ]; then
+	. "$GITOBLD_COMMON"
+fi
+
 apk_server_run() {
 	if ! gitobld-docker -qet network $GITOBLD_NETWORK; then
 		echo "Creating '$GITOBLD_NETWORK' network..."
@@ -8,16 +14,16 @@ apk_server_run() {
 
 	gitobld-docker -be $rebuild_image_opt $APK_SERVER_IMAGE build/apk-server
 
-	runargs="--detach"
+	runargs="--detach --rm"
 	http_root=/app/apk_server
+
+	runargs="$runargs --network $GITOBLD_NETWORK"
 
 	[ -n "$PKG_PUBKEY_PATH" ] &&
 		runargs="$runargs --mount type=bind,src=$PKG_PUBKEY_PATH,dst=$http_root/${PKG_PUBKEY_PATH##*/},readonly"
 
-	[ -n "$GITOBLD_NETWORK" ] && runargs="$runargs --network $GITOBLD_NETWORK"
-
-	if [ -n "$REPOSITORY_PATH" ]; then
-		runargs="$runargs --mount type=bind,src=$REPOSITORY_PATH,dst=$http_root/packages,readonly"
+	if [ -n "$repository_path" ]; then
+		runargs="$runargs --mount type=bind,src=$repository_path,dst=$http_root/packages,readonly"
 	else
 		runargs="$runargs --mount src=$GITOBLD_VOLUME,dst=$http_root/packages,readonly"
 	fi
@@ -42,20 +48,13 @@ apk_server_delete() {
 	fi
 }
 
-APK_SERVER_IMAGE=${APK_SERVER_IMAGE:-gitobioinformatics/apk-server}
-APK_SERVER_HOST=${APK_SERVER_HOST:-gitobld-apk-server.local}
-
-PKG_PUBKEY_PATH=${PKG_PUBKEY_PATH:-$PWD/keys/packager_key.rsa.pub}
-
-GITOBLD_VOLUME=${GITOBLD_VOLUME:-gitobld-volume}
-GITOBLD_NETWORK=${GITOBLD_NETWORK:-gitobld-network}
-
-while getopts "bcdrs" opt; do
+while getopts "bcdrR:s" opt; do
 	case $opt in
 		b) rebuild_image_opt='-f' ;;
 		c) force_recreate_opt='-f' ;;
 		d) command_opt='-d' ;;
 		r) command_opt='-r' ;;
+		R) repository_path=$OPTARG ;;
 		s) command_opt='-s' ;;
 	esac
 done

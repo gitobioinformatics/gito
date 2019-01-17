@@ -6,39 +6,43 @@ if [ -f "$GITOBLD_COMMON" ]; then
 	. "$GITOBLD_COMMON"
 fi
 
-push_tool_image() {
-	tool_name=$1
-	tool_tag=$(gitobld-packages -T $username_opt $1)
+push_image() {
+	image_id="$1"
 
-	if [ -z "$tool_tag" ]; then
-		error "Invalid tool name '$tool_name'"
+	if [ "$image_id" = base ]; then
+		image_tag="$BASE_IMAGE_TAG"
+	else
+		image_tag=$(gitobld-packages -T $username_opt "$image_id")
+
+		if [ -z "$image_tag" ]; then
+			error "Invalid tool name '$image_id'"
+			return 1
+		fi
+	fi
+
+	if ! gitobld-docker -qet image "$image_tag"; then
+		error "Image '$image_id' don't exists."
 		return 1
 	fi
 
-	if ! gitobld-docker -qet image $tool_tag; then
-		error "Image for '$tool_name' don't exists."
-		return 1
-	fi
-
-	[ -z "$ONLY_SEND_LATEST" ] && tags="$tool_tag"
+	[ -z "$ONLY_SEND_LATEST" ] && tags="$image_tag"
 
 	if [ -n "$SEND_LATEST" -o -n "$ONLY_SEND_LATEST" ]; then
-		tags="$tags ${tool_tag%:*}:latest"
+		tags="$tags ${image_tag%:*}:latest"
 	fi
 
 	if [ -n "$REMOTE_REPOSITORY" ]; then
 		tags=$(echo $tags | sed -e 's,[^ ]* *,'"$REMOTE_REPOSITORY"'/&,g')
 	fi
 
-	msg "Pushing '$tool' to '${REMOTE_REPOSITORY:-docker.io}'..."
-
-	gitobld-docker -T "$tool_tag" $tags
+	msg "Pushing '$image_id' to '${REMOTE_REPOSITORY:-docker.io}'..."
+	gitobld-docker -T "$image_tag" $tags
 	gitobld-docker -p $tags
 }
 
 usage() {
 	cat <<-EOF
-		Usage: $program [OPTION]... all | TOOL...
+		Usage: $program [OPTION]... all | base | TOOL...
 
 		Send images to remote repository
 
@@ -69,11 +73,11 @@ if [ "$#" -eq 0 ]; then
 	die "No tools passed to '$program' command."
 fi
 
-[ "$1" = all ] && set -- $(gitobld-packages -L)
+[ "$1" = all ] && set -- base $(gitobld-packages -L)
 
 REPOSITORY_USER=${REPOSITORY_USER:-gitobioinformatics}
 
-for tool in $@; do
-	push_tool_image $tool
+for image in $@; do
+	push_image "$image"
 done
 

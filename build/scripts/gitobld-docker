@@ -97,17 +97,21 @@ image_build() {
 		return 1
 	fi
 
-	image_tag=$1
-	build_context=$2
+	image_tag="$1"
+	build_context="$2"
 
 	shift 2
 
-	if [ -n "$CHECK_IF_EXISTS" ] && docker_obj_exists $image_tag image; then
-		return 0
+	if docker_obj_exists $image_tag image && [ -z "$FORCE_OPERATION" ]; then
+		if [ -n "$CHECK_IF_EXISTS" ]; then
+			return 0
+		else
+			return 1
+		fi
 	fi
 
 	echo "Building '$image_tag' at $build_context..."
-	docker build --tag $image_tag $@ $no_cache_opt $build_context
+	docker build --tag "$image_tag" $@ $no_cache_opt "$build_context"
 }
 
 image_push() {

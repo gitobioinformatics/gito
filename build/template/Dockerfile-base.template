@@ -1,0 +1,8 @@
+FROM alpine:%%ALPINE_VERSION%%
+
+ARG PKG_REPOSITORY=%%PKG_REPOSITORY%%
+ARG PKG_PUBKEY_URL=%%PKG_PUBKEY_URL%%
+
+RUN echo ${PKG_REPOSITORY} >> /etc/apk/repositories \
+    && wget ${PKG_PUBKEY_URL} -P /etc/apk/keys
+

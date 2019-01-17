@@ -1,0 +1,11 @@
+FROM gitobioinformatics/gito:%%ALPINE_VERSION%%
+
+LABEL name="%%TOOL_NAME%%"
+LABEL version="%%TOOL_VERSION%%"
+LABEL homepage="%%TOOL_HOMEPAGE%%"
+
+RUN apk add --no-cache %%TOOL_ID%%=%%TOOL_VERSION%%-r%%TOOL_REL%%
+
+COPY docker-entrypoint.sh /usr/local/bin
+ENTRYPOINT ["docker-entrypoint.sh"]
+

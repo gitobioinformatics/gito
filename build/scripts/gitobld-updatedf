@@ -35,10 +35,40 @@ apply_patch() {
 	fi
 }
 
+update_base_df() {
+	if [ -z "$PKG_REPOSITORY" ]; then
+		error "Missing package repository for base image."
+		return 1
+	else
+		PKG_REPOSITORY='"'"$PKG_REPOSITORY"'"'
+	fi
+
+	if [ -z "$PKG_PUBKEY_URL" ]; then
+		error "Missing public key url for base image."
+		return 1
+	else
+		PKG_PUBKEY_URL='"'"$PKG_PUBKEY_URL"'"'
+	fi
+
+	if [ -n "$force_update" ]; then
+		rm -rf base
+	fi
+
+	msg "Updating 'base'..."
+
+	mkdir -p base
+	sed \
+		-e 's/%%ALPINE_VERSION%%/'"$ALPINE_VERSION"'/g' \
+		-e 's,%%PKG_REPOSITORY%%,'"$PKG_REPOSITORY"',g' \
+		-e 's,%%PKG_PUBKEY_URL%%,'"$PKG_PUBKEY_URL"',g' \
+		build/template/Dockerfile-base.template \
+		| apply_patch base/Dockerfile
+}
+
 update_tool_df() {
 	[ -z "$1" ] && return 1
 
-	tool_id=$1
+	tool_id="$1"
 
 	if ! gitobld-packages -ae $tool_id; then
 		error "Missing package for '$tool_id' at ports directory."
@@ -51,13 +81,16 @@ update_tool_df() {
 		rm -rf $tool_dir
 	fi
 
-	tool_name=$(gitobld-packages -dq 'name' $tool_id)
+	if gitobld-packages -de "$tool_id"; then
+		tool_name=$(gitobld-packages -dq 'name' $tool_id)
+	fi
 
 	tool_name=${tool_name:-$tool_id}
-	tool_version=${tool_version:-$(gitobld-packages -aq 'pkgver' $tool_id)}
-	tool_homepage=${tool_homepage:-$(gitobld-packages -aq 'url' $tool_id)}
+	tool_version=$(gitobld-packages -aq 'pkgver' $tool_id)
+	tool_rel=$(gitobld-packages -aq 'pkgrel' $tool_id)
+	tool_homepage=$(gitobld-packages -aq 'url' $tool_id)
 
-	msg "Updating '$tool'..."
+	msg "Updating '$tool_id'..."
 
 	mkdir -p $tool_dir
 	sed \
@@ -65,11 +98,12 @@ update_tool_df() {
 		-e 's/%%TOOL_NAME%%/'"$tool_name"'/g' \
 		-e 's/%%ALPINE_VERSION%%/'"$ALPINE_VERSION"'/g' \
 		-e 's/%%TOOL_VERSION%%/'"$tool_version"'/g' \
+		-e 's/%%TOOL_REL%%/'"$tool_rel"'/g' \
 		-e 's,%%TOOL_HOMEPAGE%%,'"$tool_homepage"',g' \
 		-e 's,%%PKG_PUBKEY_URL%%,'"$PKG_PUBKEY_URL"',g' \
 		-e 's,%%PKG_PUBKEY%%,'"$PKG_PUBKEY"',g' \
 		-e 's,%%PKG_REPOSITORY%%,'"$PKG_REPOSITORY"',g' \
-		build/template/Dockerfile.template \
+		build/template/Dockerfile-tool.template \
 		| apply_patch $tool_dir/Dockerfile
 
 	gitobld-packages -ds 'version' -v "$tool_version" "$tool_id"
@@ -87,11 +121,13 @@ update_tool_df() {
 		-e 's,%%TOOL_BADGES%%,'"$badges"',g' \
 		build/template/README.md \
 		| apply_patch $tool_dir/README.md
+
+	unset tool_name
 }
 
 usage() {
 	cat <<-EOF
-		Usage: $program [OPTION]... all | TOOL...
+		Usage: $program [OPTION]... all | base | TOOL...
 
 		Update dockerfiles using a template
 
@@ -100,8 +136,10 @@ usage() {
 		    -f  Force update
 		    -h  Show this help
 		    -I  Ignore file where names match pattern
-		    -k  Set public key url for apks
-		    -r  Set apk repository for tools
+		    -k  Set public key url to verfiy apk signature.
+			    Used when building the base image
+		    -r  Set apk repository for tools.
+			    Used when building the base image
 	EOF
 
 	exit 0
@@ -122,13 +160,20 @@ done
 
 shift $((OPTIND-1))
 
+PKG_PUBKEY_URL='http://'"$APK_SERVER_HOST"'/'"${PKG_PUBKEY_PATH##*/}"
+PKG_REPOSITORY=${PKG_REPOSITORY:-'http://'"$APK_SERVER_HOST"'/packages/'"$(basename $PKG_DIRECTORY)"}
+
 if [ "$#" -eq 0 ]; then
 	die "No tools passed to '$program' command."
 fi
 
-[ "$1" = all ] && set -- $(gitobld-packages -L)
+[ "$1" = all ] && set -- base $(gitobld-packages -L)
 
-for tool in $@; do
-	update_tool_df "$tool"
+for image in $@; do
+	if [ "$image" = base ]; then
+		update_base_df
+	else
+		update_tool_df "$image"
+	fi
 done
 

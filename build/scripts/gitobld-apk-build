@@ -58,14 +58,14 @@ usage() {
 		    -k  Set path to packager private key
 		    -o  Set output directory
 		    -p  Set path to packager public key
-		    -R  Build APKBUILD depencies
+		    -r  Build APKBUILD dependencies
 		    -U  Set user to run 'abuild' image
 	EOF
 
 	exit 0
 }
 
-while getopts "bd:hk:o:p:RU:" opt; do
+while getopts "bd:hk:o:p:rU:" opt; do
 	case $opt in
 		b) rebuild_image_opt='-f' ;;
 		d) PKG_DIRECTORY=$OPTARG ;;
@@ -73,7 +73,7 @@ while getopts "bd:hk:o:p:RU:" opt; do
 		k) PKG_PRIVKEY_PATH=$OPTARG ;;
 		o) BUILD_OUTPUT_DIR=$OPTARG ;;
 		p) PKG_PUBKEY_PATH=$OPTARG ;;
-		R) build_deps_opt='-R' ;;
+		r) build_deps_opt='-R' ;;
 		U) container_user=$OPTARG ;;
 	esac
 done
@@ -86,15 +86,12 @@ fi
 
 [ "$1" = all ] && set -- $(gitobld-packages -P)
 
-ABUILD_IMAGE=${APK_SERVER_IMAGE:-gitobioinformatics/abuild}
-ABUILD_CONTAINER_NAME=${ABUILD_CONTAINER_NAME:-gitobld-abuild}
-
-PKG_DIRECTORY=${PKG_DIRECTORY:-$PWD/ports}
-
-PKG_PRIVKEY_PATH=${PKG_PRIVKEY_PATH:-$PWD/keys/packager_key.rsa}
-PKG_PUBKEY_PATH=${PKG_PUBKEY_PATH:-$PKG_PRIVKEY_PATH.pub}
-
-GITOBLD_VOLUME=${GITOBLD_VOLUME:-gitobld-volume}
+for pkg in $@; do
+	if ! gitobld-packages -ae "$pkg"; then
+		error "The package '$pkg' don't exists at ports directory."
+		exit 1
+	fi
+done
 
 if [ -n "$container_user" ]; then
 	if ! id "$container_user" > /dev/null 2>&1; then
@@ -107,13 +104,6 @@ else
 fi
 
 export RUN_AS_USER
-
-for pkg in $@; do
-	if ! gitobld-packages -ae "$pkg"; then
-		error "The package '$pkg' don't exists at ports directory."
-		exit 1
-	fi
-done
 
 msg "Building packages..."
 abuild_run apk-build -t $build_deps_opt $@
