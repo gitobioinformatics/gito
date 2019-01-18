@@ -1,6 +1,6 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2529383.svg)](https://doi.org/10.5281/zenodo.2529383)
 
-![Gito](https://raw.githubusercontent.com/gitobioinformatics/gito/master/gito.png)
+![Gito](https://raw.githubusercontent.com/gitobioinformatics/gito/master/images/gito.png)
 
 # GITO - A lightweight and safe container for bioinformatics
 
