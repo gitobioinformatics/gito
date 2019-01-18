@@ -9,7 +9,7 @@ fi
 build_image() {
 	image_id="$1"
 
-	build_args="$build_args --network $GITOBLD_NETWORK"
+	build_args="--network $GITOBLD_NETWORK"
 
 	if [ "$image_id" = base ]; then
 		[ -n "$REPOSITORY" ] && build_args="$build_args --build-arg REPOSITORY=$REPOSITORY"
