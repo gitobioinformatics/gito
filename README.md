@@ -103,10 +103,16 @@ To build GITO images from source, you can use the following process:
 
 4. Run the helper script to build the images:
    ```
-    $ ./gitobld build -SR all
+    $ ./gitobld build -rS all
+   ```
+
+   If you are using `sudo` to execute, use the following command:
+   ```
+    $ sudo ./gitobld build -U $(id -un) -rS all
    ```
 
    You can build individual images by using the tool name instead of _all_.
+
 
 ---
 
