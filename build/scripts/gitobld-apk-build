@@ -7,7 +7,7 @@ if [ -f "$GITOBLD_COMMON" ]; then
 fi
 
 abuild_run() {
-	if [ -z "$BUILD_OUTPUT_DIR" ] && ! gitobld-docker -qet volume "$GITOBLD_VOLUME"; then
+	if [ -z "$build_output" ] && ! gitobld-docker -qet volume "$GITOBLD_VOLUME"; then
 		msg "Creating '$GITOBLD_VOLUME' volume..."
 		gitobld-docker -qct volume "$GITOBLD_VOLUME"
 	fi
@@ -15,39 +15,43 @@ abuild_run() {
 	gitobld-docker -be $rebuild_image_opt "$ABUILD_IMAGE" build/abuild
 
 	repodest=/app/packages
-	aportsdir=/app/"$(basename $PKG_DIRECTORY)"
+	aportsdir=/app/"$(basename $PORTS_DIRECTORY)"
+	packager_privkey=/app/keys/"${PRIVKEY_PATH##*/}"
 
-	runargs="--interactive --tty --rm"
-
-	if [ -n "$RUN_AS_USER" ] && [ "$RUN_AS_USER" != 'abuild' ]; then
-		runargs="$runargs --group-add abuild"
-	fi
-
-	if [ -n "$BUILD_OUTPUT_DIR" ]; then
-		runargs="$runargs --mount type=bind,src=$BUILD_OUTPUT_DIR,dst=$repodest"
-	else
-		runargs="$runargs --mount src=$GITOBLD_VOLUME,dst=$repodest"
-	fi
-
-	runargs="
-		$runargs
-		--mount type=bind,src=$PKG_DIRECTORY,dst=$aportsdir,readonly
-		--mount type=bind,src=$PKG_PRIVKEY_PATH,dst=/app/keys/${PKG_PRIVKEY_PATH##*/},readonly
-		--mount type=bind,src=$PKG_PUBKEY_PATH,dst=/etc/apk/keys/${PKG_PUBKEY_PATH##*/},readonly
+	run_args="
+		--interactive --tty --rm
+		--env APORTSDIR=$aportsdir 
+		--env PACKAGER_PRIVKEY=$packager_privkey
 		"
 
-	runargs="$runargs --env APORTSDIR=$aportsdir"
+	if [ -n "$RUN_AS_USER" ] && [ "$RUN_AS_USER" != 'abuild' ]; then
+		run_args="$run_args --group-add abuild"
+	fi
+
+	if [ -n "$build_output" ]; then
+		run_args="$run_args --mount type=bind,src=$build_output,dst=$repodest"
+	else
+		run_args="$run_args --mount src=$GITOBLD_VOLUME,dst=$repodest"
+	fi
+
+	run_args="
+		$run_args
+		--mount type=bind,src=$PORTS_DIRECTORY,dst=$aportsdir,readonly
+		--mount type=bind,src=$PRIVKEY_PATH,dst=$packager_privkey,readonly
+		--mount type=bind,src=$PUBKEY_PATH,dst=/etc/apk/keys/${PUBKEY_PATH##*/},readonly
+		"
 
 	if [ "$#" -eq 0 ]; then
 		set -- tail -f /dev/null
 	fi
 
-	gitobld-docker -xe "$ABUILD_CONTAINER_NAME" $runargs "$ABUILD_IMAGE" $@
+	msg "Building packages..."
+	gitobld-docker -xe "$ABUILD_CONTAINER_NAME" $run_args "$ABUILD_IMAGE" $@
 }
 
 usage() {
 	cat <<-EOF
-		Usage: $program [-d PKG_DIRECTORY] PACKAGE...
+		Usage: $program [-d PORTS_DIRECTORY] PACKAGE...
 		
 		Build a Alpine package
 
@@ -68,17 +72,19 @@ usage() {
 while getopts "bd:hk:o:p:rU:" opt; do
 	case $opt in
 		b) rebuild_image_opt='-f' ;;
-		d) PKG_DIRECTORY=$OPTARG ;;
+		d) PORTS_DIRECTORY=$OPTARG ;;
 		h) usage ;;
-		k) PKG_PRIVKEY_PATH=$OPTARG ;;
-		o) BUILD_OUTPUT_DIR=$OPTARG ;;
-		p) PKG_PUBKEY_PATH=$OPTARG ;;
+		k) PRIVKEY_PATH=$OPTARG ;;
+		o) build_output=$OPTARG ;;
+		p) PUBKEY_PATH=$OPTARG ;;
 		r) build_deps_opt='-R' ;;
 		U) container_user=$OPTARG ;;
 	esac
 done
 
 shift $((OPTIND-1))
+
+export PORTS_DIRECTORY
 
 if [ "$#" -eq 0 ]; then
 	die "No packages passed to '$program' command."
@@ -88,7 +94,7 @@ fi
 
 for pkg in $@; do
 	if ! gitobld-packages -ae "$pkg"; then
-		error "The package '$pkg' don't exists at ports directory."
+		error "The package '$pkg' don't exists at '$PORTS_DIRECTORY' directory."
 		exit 1
 	fi
 done
@@ -105,6 +111,5 @@ fi
 
 export RUN_AS_USER
 
-msg "Building packages..."
 abuild_run apk-build -t $build_deps_opt $@
 

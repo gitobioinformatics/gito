@@ -25,17 +25,17 @@ push_image() {
 		return 1
 	fi
 
-	[ -z "$ONLY_SEND_LATEST" ] && tags="$image_tag"
+	[ -z "$only_send_latest" ] && tags="$image_tag"
 
-	if [ -n "$SEND_LATEST" -o -n "$ONLY_SEND_LATEST" ]; then
+	if [ -n "$send_latest" -o -n "$only_send_latest" ]; then
 		tags="$tags ${image_tag%:*}:latest"
 	fi
 
-	if [ -n "$REMOTE_REPOSITORY" ]; then
-		tags=$(echo $tags | sed -e 's,[^ ]* *,'"$REMOTE_REPOSITORY"'/&,g')
+	if [ -n "$remote_repository" ]; then
+		tags=$(echo $tags | sed -e 's,[^ ]* *,'"$remote_repository"'/&,g')
 	fi
 
-	msg "Pushing '$image_id' to '${REMOTE_REPOSITORY:-docker.io}'..."
+	msg "Pushing '$image_id' to '${remote_repository:-docker.io}'..."
 	gitobld-docker -T "$image_tag" $tags
 	gitobld-docker -p $tags
 }
@@ -60,9 +60,9 @@ usage() {
 while getopts "hlLr:u:" opt; do
 	case $opt in
 		h) usage ;;
-		l) SEND_LATEST=1 ;;
-		L) ONLY_SEND_LATEST=1 ;;
-		r) REMOTE_REPOSITORY=$OPTARG ;;
+		l) send_latest=1 ;;
+		L) only_send_latest=1 ;;
+		r) remote_repository=$OPTARG ;;
 		u) username_opt='-u '"$OPTARG" ;;
 	esac
 done
@@ -74,8 +74,6 @@ if [ "$#" -eq 0 ]; then
 fi
 
 [ "$1" = all ] && set -- base $(gitobld-packages -L)
-
-REPOSITORY_USER=${REPOSITORY_USER:-gitobioinformatics}
 
 for image in $@; do
 	push_image "$image"

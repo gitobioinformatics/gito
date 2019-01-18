@@ -58,7 +58,7 @@ main() {
 
 	export COMMAND="$program $subcommand"
 
-	case $subcommand in
+	case "$subcommand" in
 		apk-build) gitobld-apk-build $@ ;;
 		build) gitobld-build $@ ;;
 		push) gitobld-push $@ ;;

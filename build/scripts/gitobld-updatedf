@@ -14,8 +14,12 @@ apply_patch() {
 		return
 	fi
 
+	if [ -n "$force_update" ]; then
+		rm "$target"
+	fi
+
 	if [ -f "$target" ]; then
-		tee "$target".new | diff - $target > "$target".diff || true
+		tee "$target".new | diff - "$target" > "$target".diff || true
 
 		if [ -s "$target".diff ]; then
 			patch -i "$target".diff "$target".new
@@ -23,35 +27,31 @@ apply_patch() {
 			rm "$target"
 			mv "$target".new $target
 
-			echo "Added $(basename $target)"
+			echo 'Added '"$(basename $target)"
 		else
 			rm "$target".new
 		fi
 
 		rm "$target".diff
 	else
-		cat > $target
-		echo "Added $(basename $target)"
+		cat > "$target"
+		echo 'Added '"$(basename $target)"
 	fi
 }
 
 update_base_df() {
-	if [ -z "$PKG_REPOSITORY" ]; then
+	if [ -z "$REPOSITORY" ]; then
 		error "Missing package repository for base image."
 		return 1
 	else
-		PKG_REPOSITORY='"'"$PKG_REPOSITORY"'"'
+		REPOSITORY='"'"$REPOSITORY"'"'
 	fi
 
-	if [ -z "$PKG_PUBKEY_URL" ]; then
+	if [ -z "$PUBKEY_URL" ]; then
 		error "Missing public key url for base image."
 		return 1
 	else
-		PKG_PUBKEY_URL='"'"$PKG_PUBKEY_URL"'"'
-	fi
-
-	if [ -n "$force_update" ]; then
-		rm -rf base
+		PUBKEY_URL='"'"$PUBKEY_URL"'"'
 	fi
 
 	msg "Updating 'base'..."
@@ -59,8 +59,8 @@ update_base_df() {
 	mkdir -p base
 	sed \
 		-e 's/%%ALPINE_VERSION%%/'"$ALPINE_VERSION"'/g' \
-		-e 's,%%PKG_REPOSITORY%%,'"$PKG_REPOSITORY"',g' \
-		-e 's,%%PKG_PUBKEY_URL%%,'"$PKG_PUBKEY_URL"',g' \
+		-e 's,%%REPOSITORY%%,'"$REPOSITORY"',g' \
+		-e 's,%%PUBKEY_URL%%,'"$PUBKEY_URL"',g' \
 		build/template/Dockerfile-base.template \
 		| apply_patch base/Dockerfile
 }
@@ -71,15 +71,11 @@ update_tool_df() {
 	tool_id="$1"
 
 	if ! gitobld-packages -ae $tool_id; then
-		error "Missing package for '$tool_id' at ports directory."
+		error "Missing package for '$tool_id' at '$PORTS_DIRECTORY' directory."
 		return 1
 	fi
 
-	tool_dir=library/$tool_id
-
-	if [ -n "$force_update" ]; then
-		rm -rf $tool_dir
-	fi
+	tool_dir="$LIBRARY_DIRECTORY"/"$tool_id"
 
 	if gitobld-packages -de "$tool_id"; then
 		tool_name=$(gitobld-packages -dq 'name' $tool_id)
@@ -100,9 +96,6 @@ update_tool_df() {
 		-e 's/%%TOOL_VERSION%%/'"$tool_version"'/g' \
 		-e 's/%%TOOL_REL%%/'"$tool_rel"'/g' \
 		-e 's,%%TOOL_HOMEPAGE%%,'"$tool_homepage"',g' \
-		-e 's,%%PKG_PUBKEY_URL%%,'"$PKG_PUBKEY_URL"',g' \
-		-e 's,%%PKG_PUBKEY%%,'"$PKG_PUBKEY"',g' \
-		-e 's,%%PKG_REPOSITORY%%,'"$PKG_REPOSITORY"',g' \
 		build/template/Dockerfile-tool.template \
 		| apply_patch $tool_dir/Dockerfile
 
@@ -133,35 +126,40 @@ usage() {
 
 		Options:
 		    -a  Set alpine version
+		    -d  Search for apks on this directory
 		    -f  Force update
 		    -h  Show this help
 		    -I  Ignore file where names match pattern
-		    -k  Set public key url to verfiy apk signature.
-			    Used when building the base image
-		    -r  Set apk repository for tools.
-			    Used when building the base image
+		    -k  Set public key url to verfiy apk signature
+		        Used when building the base image
+		    -l  Set directory with tools
+		    -r  Set apk repository for tools
+		        Used when building the base image
 	EOF
 
 	exit 0
 }
 
-ALPINE_VERSION=3.8
-
-while getopts "a:fhI:k:r:" opt; do
+while getopts "a:d:fhI:k:l:r:" opt; do
 	case $opt in
 		a) ALPINE_VERSION=$OPTARG ;;
+		d) PORTS_DIRECTORY=$OPTARG ;;
 		f) force_update=1 ;;
 		h) usage ;;
 		I) ignore_pattern=$OPTARG ;;
-		k) PKG_PUBKEY_URL=$OPTARG ;;
-		r) PKG_REPOSITORY=$OPTARG ;;
+		k) PUBKEY_URL=$OPTARG ;;
+		l) LIBRARY_DIRECTORY=$OPTARG ;;
+		r) REPOSITORY=$OPTARG ;;
 	esac
 done
 
 shift $((OPTIND-1))
 
-PKG_PUBKEY_URL='http://'"$APK_SERVER_HOST"'/'"${PKG_PUBKEY_PATH##*/}"
-PKG_REPOSITORY=${PKG_REPOSITORY:-'http://'"$APK_SERVER_HOST"'/packages/'"$(basename $PKG_DIRECTORY)"}
+export PORTS_DIRECTORY
+export LIBRARY_DIRECTORY
+
+PUBKEY_URL=${PUBKEY_URL:-'http://'"$APK_SERVER_HOST"'/'"${PUBKEY_PATH##*/}"}
+REPOSITORY=${REPOSITORY:-'http://'"$APK_SERVER_HOST"'/packages/'"$(basename $PORTS_DIRECTORY)"}
 
 if [ "$#" -eq 0 ]; then
 	die "No tools passed to '$program' command."

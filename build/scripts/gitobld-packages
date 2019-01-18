@@ -4,8 +4,12 @@ package_list_all() {
 	[ -z "$1" ] && return 1
 
 	case "$1" in
-		ports | library) 
-			find "$1" -type d ! -path "$1" -exec basename {} \; ;;
+		ports)
+			find "$PORTS_DIRECTORY" -type d ! -path "$PORTS_DIRECTORY" \
+				-exec basename {} \; ;;
+		library)
+			find "$LIBRARY_DIRECTORY" -type d ! -path "$LIBRARY_DIRECTORY" \
+				-exec basename {} \; ;;
 		*) return 1
 	esac
 }
@@ -13,8 +17,8 @@ package_list_all() {
 package_file_find() {
 	if [ -n "$2" ]; then
 		case "$2" in
-			apkbuild) file_path="ports/$1/APKBUILD" ;;
-			dockerfile) file_path="library/$1/Dockerfile" ;;
+			apkbuild) file_path="$PORTS_DIRECTORY/$1/APKBUILD" ;;
+			dockerfile) file_path="$LIBRARY_DIRECTORY/$1/Dockerfile" ;;
 			*) return 2 ;;
 		esac
 
@@ -102,6 +106,9 @@ while getopts "adeLPq:s:Tv:u:" opt; do
 done
 
 shift $((OPTIND-1))
+
+PORTS_DIRECTORY=${PORTS_DIRECTORY:-$PWD/ports}
+LIBRARY_DIRECTORY=${LIBRARY_DIRECTORY:-$PWD/library}
 
 file_type=${file_type:-'dockerfile'}
 

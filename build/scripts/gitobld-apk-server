@@ -7,28 +7,28 @@ if [ -f "$GITOBLD_COMMON" ]; then
 fi
 
 apk_server_run() {
-	if ! gitobld-docker -qet network $GITOBLD_NETWORK; then
+	if ! gitobld-docker -qet network "$GITOBLD_NETWORK"; then
 		echo "Creating '$GITOBLD_NETWORK' network..."
-		gitobld-docker -qct network $GITOBLD_NETWORK
+		gitobld-docker -qct network "$GITOBLD_NETWORK"
 	fi
 
-	gitobld-docker -be $rebuild_image_opt $APK_SERVER_IMAGE build/apk-server
+	gitobld-docker -be $rebuild_image_opt "$APK_SERVER_IMAGE" build/apk-server
 
-	runargs="--detach --rm"
+	run_args="--detach --rm"
 	http_root=/app/apk_server
 
-	runargs="$runargs --network $GITOBLD_NETWORK"
+	run_args="$run_args --network $GITOBLD_NETWORK"
 
-	[ -n "$PKG_PUBKEY_PATH" ] &&
-		runargs="$runargs --mount type=bind,src=$PKG_PUBKEY_PATH,dst=$http_root/${PKG_PUBKEY_PATH##*/},readonly"
+	[ -n "$PUBKEY_PATH" ] &&
+		run_args="$run_args --mount type=bind,src=$PUBKEY_PATH,dst=$http_root/${PUBKEY_PATH##*/},readonly"
 
 	if [ -n "$repository_path" ]; then
-		runargs="$runargs --mount type=bind,src=$repository_path,dst=$http_root/packages,readonly"
+		run_args="$run_args --mount type=bind,src=$repository_path,dst=$http_root/packages,readonly"
 	else
-		runargs="$runargs --mount src=$GITOBLD_VOLUME,dst=$http_root/packages,readonly"
+		run_args="$run_args --mount src=$GITOBLD_VOLUME,dst=$http_root/packages,readonly"
 	fi
 
-	gitobld-docker -xe $force_recreate_opt "$APK_SERVER_HOST" $runargs "$APK_SERVER_IMAGE"
+	gitobld-docker -xe $force_recreate_opt "$APK_SERVER_HOST" $run_args "$APK_SERVER_IMAGE"
 }
 
 apk_server_stop() {
@@ -44,7 +44,7 @@ apk_server_delete() {
 	container_id=$(gitobld-docker -it container "$APK_SERVER_HOST")
 
 	if [ -n "$container_id" ]; then
-		gitobld-docker -def $container_id
+		gitobld-docker -def "$container_id"
 	fi
 }
 
@@ -63,7 +63,7 @@ shift $((OPTIND-1))
 
 command_opt=${command_opt:-'-r'}
 
-case $command_opt in
+case "$command_opt" in
 	'-d') apk_server_delete ;;
 	'-r') apk_server_run ;;
 	'-s') apk_server_stop ;;

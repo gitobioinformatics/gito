@@ -53,21 +53,24 @@ update_color_config() {
 	esac
 }
 
-APK_SERVER_HOST=${APK_SERVER_HOST:-gitobld-apk-server.local}
-APK_SERVER_IMAGE=${APK_SERVER_IMAGE:-gitobioinformatics/apk-server}
+export ALPINE_VERSION=${ALPINE_VERSION:-3.8}
 
-ABUILD_IMAGE=${ABUILD_IMAGE:-gitobioinformatics/abuild}
-ABUILD_CONTAINER_NAME=${ABUILD_CONTAINER_NAME:-gitobld-abuild}
+export APK_SERVER_HOST=${APK_SERVER_HOST:-gitobld-apk-server.local}
+export APK_SERVER_IMAGE=${APK_SERVER_IMAGE:-gitobioinformatics/apk-server}
 
-BASE_IMAGE_TAG=${BASE_IMAGE_TAG:-gitobioinformatics/gito:3.8}
+export ABUILD_IMAGE=${ABUILD_IMAGE:-gitobioinformatics/abuild}
+export ABUILD_CONTAINER_NAME=${ABUILD_CONTAINER_NAME:-gitobld-abuild}
 
-PKG_DIRECTORY=${PKG_DIRECTORY:-$PWD/ports}
+export BASE_IMAGE_TAG=${BASE_IMAGE_TAG:-gitobioinformatics/gito:3.8}
 
-PKG_PRIVKEY_PATH=${PKG_PRIVKEY_PATH:-$PWD/keys/packager_key.rsa}
-PKG_PUBKEY_PATH=${PKG_PUBKEY_PATH:-$PKG_PRIVKEY_PATH.pub}
+export PORTS_DIRECTORY=${PORTS_DIRECTORY:-$PWD/ports}
+export LIBRARY_DIRECTORY=${LIBRARY_DIRECTORY:-$PWD/library}
 
-GITOBLD_NETWORK=${GITOBLD_NETWORK:-gitobld-network}
-GITOBLD_VOLUME=${GITOBLD_VOLUME:-gitobld-volume}
+export PRIVKEY_PATH=${PRIVKEY_PATH:-$PWD/keys/packager_key.rsa}
+export PUBKEY_PATH=${PUBKEY_PATH:-$PRIVKEY_PATH.pub}
+
+export GITOBLD_NETWORK=${GITOBLD_NETWORK:-gitobld-network}
+export GITOBLD_VOLUME=${GITOBLD_VOLUME:-gitobld-volume}
 
 update_color_config
 
