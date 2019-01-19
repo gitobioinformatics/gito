@@ -2,6 +2,16 @@
 
 set -e
 
+cleanup() {
+	for container_name in "$APK_SERVER_HOST" "$ABUILD_CONTAINER_NAME"; do
+		container_id=$(gitobld-docker -it container "$container_name")
+
+		if [ -n "$container_id" ] ; then
+			gitobld-docker -def "$container_id"
+		fi
+	done
+}
+
 usage() {
 	cat <<-EOF
 		Usage: gitobld [OPTIONS]... COMMAND [COMMAND OPTIONS]...
@@ -49,6 +59,8 @@ main() {
 	export GITOBLD_COMMON="$GITOBLD_SCRIPTS"/gitobld-common
 
 	. gitobld-common
+
+	trap 'cleanup; die "Aborted"' INT
 
 	[ -z "$1" ] && usage
 
