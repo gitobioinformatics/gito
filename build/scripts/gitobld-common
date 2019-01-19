@@ -61,7 +61,7 @@ export APK_SERVER_IMAGE=${APK_SERVER_IMAGE:-gitobioinformatics/apk-server}
 export ABUILD_IMAGE=${ABUILD_IMAGE:-gitobioinformatics/abuild}
 export ABUILD_CONTAINER_NAME=${ABUILD_CONTAINER_NAME:-gitobld-abuild}
 
-export BASE_IMAGE_TAG=${BASE_IMAGE_TAG:-gitobioinformatics/gito:3.8}
+export BASE_IMAGE_TAG=${BASE_IMAGE_TAG:-gitobioinformatics/gito:$ALPINE_VERSION}
 
 export PORTS_DIRECTORY=${PORTS_DIRECTORY:-$PWD/ports}
 export LIBRARY_DIRECTORY=${LIBRARY_DIRECTORY:-$PWD/library}
