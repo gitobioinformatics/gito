@@ -94,8 +94,7 @@ fi
 
 for pkg in $@; do
 	if ! gitobld-packages -ae "$pkg"; then
-		error "The package '$pkg' don't exists at '$PORTS_DIRECTORY' directory."
-		exit 1
+		die "The package '$pkg' don't exists at '$PORTS_DIRECTORY' directory."
 	fi
 done
 
