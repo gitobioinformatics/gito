@@ -34,7 +34,6 @@ usage() {
 
 		Run 'gitobld COMMAND -h' for more information on a command.
 	EOF
-
 	exit 0
 }
 
