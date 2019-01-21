@@ -24,5 +24,13 @@ $ ./bin/run_pipeline.sh -w work/
 ```
 
 ## The mean pipeline execution time
-To demonstrate the functionality, containers were created with GITO image in the DigitalOcean cloud, with a virtual server of 16 GB RAM and 8 cores, using CoreOS 1800.7.0 operating system.The pipeline was run 10 times using the same dataset(5.7 Gb raw sequence data with 47,555,108 raw reads), with the average execution time of the complete pipeline and of each tool calculated for each run. The tools used were [Fastqc 0.11.7](http://www.bioinformatics.babraham.ac.uk/projects/fastqc), [Trimmomatic 0.38](http://www.usadellab.org/cms/?page=trimmomatic), [Trinity 2.8.4](https://github.com/trinityrnaseq/trinityrnaseq/releases) and [Bowtie 1.2.2](http://bowtie-bio.sourceforge.net/index.shtml). Average run times for complete pipeline and its components are presented in table below.
-![Average](https://raw.githubusercontent.com/gitobioinformatics/gito/master/average2.jpg)
+To demonstrate the functionality, containers were created with GITO image in the DigitalOcean cloud, with a virtual server of 16 GB RAM and 8 cores, using Container Linux 1800.7.0 operating system.The pipeline was run 10 times using the same dataset(5.7 Gb raw sequence data with 47,555,108 raw reads), with the average execution time of the complete pipeline and of each tool calculated for each run. The tools used were [Fastqc 0.11.7](http://www.bioinformatics.babraham.ac.uk/projects/fastqc), [Trimmomatic 0.38](http://www.usadellab.org/cms/?page=trimmomatic), [Trinity 2.8.4](https://github.com/trinityrnaseq/trinityrnaseq/releases) and [Bowtie 1.2.2](http://bowtie-bio.sourceforge.net/index.shtml). Average run times for complete pipeline and its components are presented in table below.
+
+| Step | Average execution time |
+| --- | --- |
+| FastQC | 2m 47s |
+| Trimmomatic | 1m 41s |
+| Trinity | 10h 4m 0s |
+| Bowtie2 | 51m 26s |
+| Complete pipeline | 10h 59m 54s |
+

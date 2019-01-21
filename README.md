@@ -1,6 +1,6 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2529383.svg)](https://doi.org/10.5281/zenodo.2529383)
 
-![Gito](https://raw.githubusercontent.com/gitobioinformatics/gito/master/gito.png)
+![Gito](https://raw.githubusercontent.com/gitobioinformatics/gito/master/images/gito.png)
 
 # GITO - A lightweight and safe container for bioinformatics
 
@@ -41,25 +41,25 @@ The image can be downloaded and executed through the Docker's CLI with the follo
    - FastQC
    
         ```
-         $ docker run -v $PWD:$PWD --rm gitobioinformatics/fastqc
+         $ docker run -u $(id -u):$(id -g) -v $PWD:/data -w /data --rm gitobioinformatics/fastqc
         ```
        
    - Trimmomatic
        
         ```
-         $ docker run -v $PWD:$PWD --rm gitobioinformatics/trimmomatic
+         $ docker run -u $(id -u):$(id -g) -v $PWD:/data -w /data --rm gitobioinformatics/trimmomatic
         ```
         
    - Trinity
        
         ```
-         $ docker run -v $PWD:$PWD --rm gitobioinformatics/trinity
+         $ docker run -u $(id -u):$(id -g) -v $PWD:/data -w /data --rm gitobioinformatics/trinity
         ```
        
    - Bowtie2
        
         ```
-         $ docker run -v $PWD:$PWD --rm gitobioinformatics/bowtie2
+         $ docker run -u $(id -u):$(id -g) -v $PWD:/data -w /data --rm gitobioinformatics/bowtie2
         ```
 
 ### Deploy this Docker image onto your cloud
@@ -106,7 +106,8 @@ To build GITO images from source, you can use the following process:
 |-----------|----------------------------------------------------------------------------------------|
 | base      | Contains Dockerfile used to build GITO base image.                                     |
 | build     | Utilities to create Docker images using GITO as base.                                  |
-| examples  | Contains examples of bioinformatics pipelines using GITO images.                        |
+| examples  | Contains examples of bioinformatics pipelines using GITO images.                       |
+| images    | Contains images used by this README.                                                   |
 | library   | Dockerfiles used to build several tools, using Alpine packages from `ports` directory. |
 | ports     | Contains APKBUILD files for bioinformatic tools.                                       |
 
