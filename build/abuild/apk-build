@@ -49,7 +49,9 @@ main() {
 		build_pkg $pkg
 	done
 
-	[ -n "$USE_TEMP_DIR" ] && rm -rf $TEMP_DIR
+	if [ -n "$USE_TEMP_DIR" ]; then
+		rm -rf $TEMP_DIR
+	fi
 }
 
 main $@
