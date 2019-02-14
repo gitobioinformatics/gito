@@ -1,0 +1,43 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=bwa
+pkgver=0.7.17
+pkgrel=0
+pkgdesc="Burrow-Wheeler Aligner for short-read alignment"
+url="https://github.com/lh3/bwa"
+arch="x86_64"
+license="GPLv3"
+depends="perl"
+makedepends="zlib-dev"
+subpackages="$pkgname-dev"
+source="https://github.com/lh3/bwa/archive/v$pkgver.tar.gz#/$pkgname-$pkgver.tar.gz"
+
+builddir="$srcdir"/$pkgname-$pkgver
+
+build() {
+	make
+}
+
+package() {
+	cd "$builddir"
+
+	_bindir="$pkgdir"/usr/bin
+	_incdir="$pkgdir"/usr/include
+	_libdir="$pkgdir"/usr/lib
+
+	mkdir -p "$_bindir" "$_incdir" "$_libdir"
+
+	cp bwa "$_bindir"
+	cp qualfa2fq.pl "$_bindir"
+	cp qualfa2fq.pl "$_bindir"
+
+	find . -name '*.h' -exec cp {} "$_incdir" \;
+	cp libbwa.a "$_libdir"
+}
+
+check() {
+	:
+}
+
+sha512sums="114e61b7cc5edcb67172d1eca7be1fa670ea33dd48b5c02c98318e254871363775c0dab327fd7ee7023200a5fedc745fa01cbe0fd9550d783f091d4df6926f48  bwa-0.7.17.tar.gz"
