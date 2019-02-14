@@ -1,0 +1,11 @@
+diff --git a/assembler/ext/src/bamtools/api/internal/io/pbgzf/util.c b/assembler/ext/src/bamtools/api/internal/io/pbgzf/util.c
+index 2470579ed..b6166174c 100644
+--- a/ext/src/bamtools/api/internal/io/pbgzf/util.c
++++ b/ext/src/bamtools/api/internal/io/pbgzf/util.c
+@@ -1,5 +1,6 @@
+ #include <stdlib.h>
+ #include <stdio.h>
++#include <stdint.h>
+ #include <pthread.h>
+ #include <sys/stat.h>
+ #include <unistd.h>

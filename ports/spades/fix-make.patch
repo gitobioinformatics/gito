@@ -1,0 +1,112 @@
+diff --git a/assembler/src/cmake/deps.cmake b/assembler/src/cmake/deps.cmake
+index 118510856..ec9273a16 100644
+--- a/src/cmake/deps.cmake
++++ b/src/cmake/deps.cmake
+@@ -16,6 +16,8 @@ endif()
+ find_package(OpenMP)
+ find_package(ZLIB REQUIRED)
+ find_package(BZip2 REQUIRED)
++find_package(Fmt REQUIRED)
++find_package(Bwa REQUIRED)
+ find_package(Readline QUIET)
+ set(CURSES_NEED_NCURSES TRUE)
+ find_package(Curses QUIET)
+diff --git a/assembler/src/cmake/libs.cmake b/assembler/src/cmake/libs.cmake
+index 8a27dc590..15ddde492 100644
+--- a/src/cmake/libs.cmake
++++ b/src/cmake/libs.cmake
+@@ -17,4 +17,7 @@ if (SPADES_USE_TCMALLOC)
+ endif()
+ 
+ # Add format library
+-set(COMMON_LIBRARIES format ${COMMON_LIBRARIES})
++set(COMMON_LIBRARIES ${FMT_LIBRARY} ${COMMON_LIBRARIES})
++
++# Add ExecInfo
++set(COMMON_LIBRARIES execinfo ${COMMON_LIBRARIES})
+diff --git a/assembler/src/common/utils/logger/logger_impl.cpp b/assembler/src/common/utils/logger/logger_impl.cpp
+index 67d693757..03a8c380d 100644
+--- a/src/common/utils/logger/logger_impl.cpp
++++ b/src/common/utils/logger/logger_impl.cpp
+@@ -5,7 +5,7 @@
+ //***************************************************************************
+ 
+ #include <boost/algorithm/string.hpp>
+-#include <cppformat/format.h>
++#include <fmt/format.h>
+ 
+ #include <string>
+ #include <map>
+@@ -19,6 +19,8 @@
+ 
+ #ifdef SPADES_USE_JEMALLOC
+ # include <jemalloc/jemalloc.h>
++#else
++# include "utils/memory_limit.hpp"
+ #endif
+ 
+ namespace logging {
+@@ -113,7 +115,7 @@ void logger::log(level desired_level, const char* file, size_t line_num, const c
+   mem = (*cmem) / 1024;
+   max_rss = (*cmem_max) / 1024;
+ #else
+-  max_rss = get_max_rss();
++  max_rss = utils::get_max_rss();
+ #endif
+ 
+   for (auto it = writers_.begin(); it != writers_.end(); ++it)
+diff --git a/assembler/src/common/utils/perf/perfcounter.hpp b/assembler/src/common/utils/perf/perfcounter.hpp
+index 660ad5374..0bda232b4 100644
+--- a/src/common/utils/perf/perfcounter.hpp
++++ b/src/common/utils/perf/perfcounter.hpp
+@@ -8,7 +8,7 @@
+ #pragma once
+ #include <sys/time.h>
+ #include <string>
+-#include <cppformat/format.h>
++#include <fmt/format.h>
+ 
+ namespace utils {
+ struct perf_counter {
+diff --git a/assembler/src/projects/hammer/CMakeLists.txt b/assembler/src/projects/hammer/CMakeLists.txt
+index 4025b96e0..01c8ca0cb 100644
+--- a/src/projects/hammer/CMakeLists.txt
++++ b/src/projects/hammer/CMakeLists.txt
+@@ -22,7 +22,7 @@ add_executable(spades-hammer
+ #  add_subdirectory(quake_count)
+ #  add_subdirectory(gen_test_data)
+ 
+-target_link_libraries(spades-hammer input utils mph_index pipeline BamTools format gqf ${COMMON_LIBRARIES})
++target_link_libraries(spades-hammer input utils mph_index pipeline BamTools gqf ${COMMON_LIBRARIES})
+ 
+ if (SPADES_STATIC_BUILD)
+   set_target_properties(spades-hammer PROPERTIES LINK_SEARCH_END_STATIC 1)
+diff --git a/assembler/src/projects/online_vis/CMakeLists.txt b/assembler/src/projects/online_vis/CMakeLists.txt
+index f662879d8..cfce26a6d 100644
+--- a/src/projects/online_vis/CMakeLists.txt
++++ b/src/projects/online_vis/CMakeLists.txt
+@@ -24,11 +24,11 @@ include_directories(./drawing_commands)
+ include_directories(${CMAKE_SOURCE_DIR}/debruijn)
+ 
+ if (READLINE_FOUND AND CURSES_FOUND)
+-  target_link_libraries(online_vis common_modules nlopt format ${COMMON_LIBRARIES} ${READLINE_LIBRARY} ${CURSES_NCURSES_LIBRARY})
++  target_link_libraries(online_vis common_modules nlopt ${COMMON_LIBRARIES} ${READLINE_LIBRARY} ${CURSES_NCURSES_LIBRARY})
+ elseif (READLINE_FOUND)
+-  target_link_libraries(online_vis common_modules nlopt format ${COMMON_LIBRARIES} ${READLINE_LIBRARY})
++  target_link_libraries(online_vis common_modules nlopt ${COMMON_LIBRARIES} ${READLINE_LIBRARY})
+ else()
+-  target_link_libraries(online_vis common_modules nlopt format ${COMMON_LIBRARIES})
++  target_link_libraries(online_vis common_modules nlopt ${COMMON_LIBRARIES})
+ endif()
+ 
+ if (DEFINED static_build)
+diff --git a/assembler/src/common/modules/CMakeLists.txt b/assembler/src/common/modules/CMakeLists.txt
+index 95628d94e..4bd12f9ed 100644
+--- a/src/common/modules/CMakeLists.txt
++++ b/src/common/modules/CMakeLists.txt
+@@ -12,4 +12,4 @@ add_library(modules STATIC
+             alignment/gap_info.cpp
+             alignment/bwa_index.cpp)
+ 
+-target_link_libraries(modules bwa)
++target_link_libraries(modules ${BWA_LIBRARY})
