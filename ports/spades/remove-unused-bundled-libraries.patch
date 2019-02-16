@@ -1,0 +1,37 @@
+diff --git a/assembler/ext/src/CMakeLists.txt b/assembler/ext/src/CMakeLists.txt
+index c18d0dd84..5ab65a8cb 100644
+--- a/ext/src/CMakeLists.txt
++++ b/ext/src/CMakeLists.txt
+@@ -1,6 +1,5 @@
+ # -*- cmake -*-
+ 
+-add_subdirectory(jemalloc)
+ add_subdirectory(nlopt)
+ add_subdirectory(python_libs/joblib2)
+ add_subdirectory(python_libs/joblib3)
+@@ -9,13 +8,11 @@ add_subdirectory(python_libs/pyyaml3)
+ add_subdirectory(ConsensusCore)
+ add_subdirectory(bamtools)
+ add_subdirectory(samtools)
+-add_subdirectory(cppformat)
+ add_subdirectory(ssw)
+ add_subdirectory(cityhash)
+ add_subdirectory(getopt_pp)
+ add_subdirectory(llvm)
+ add_subdirectory(htrie)
+-add_subdirectory(bwa)
+ add_subdirectory(gqf)
+ add_subdirectory(edlib)
+ add_subdirectory(gfa1)
+diff --git a/assembler/src/CMakeLists.txt b/assembler/src/CMakeLists.txt
+index 069873400..e83bba758 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -78,7 +78,6 @@ configure_file("${SPADES_MAIN_INCLUDE_DIR}/version.hpp.in"
+ 
+ # Build external dependencies (if any)
+ add_subdirectory("${EXT_DIR}/src" "${Project_BINARY_DIR}/ext")
+-add_subdirectory("${EXT_DIR}/tools" "${Project_BINARY_DIR}/ext_tools")
+ 
+ # Setup warnings
+ add_compile_options(-Wall -Wextra -Wconversion -Wno-sign-conversion -Wno-long-long -Wwrite-strings)

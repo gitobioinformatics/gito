@@ -1,0 +1,13 @@
+diff --git a/assembler/src/common/sequence/seq_common.hpp b/assembler/src/common/sequence/seq_common.hpp
+index 51ceb4258..edf5f12a2 100644
+--- a/src/common/sequence/seq_common.hpp
++++ b/src/common/sequence/seq_common.hpp
+@@ -17,7 +17,7 @@
+ 
+ #include "k_range.hpp"
+ 
+-typedef u_int64_t seq_element_type;
++typedef uint64_t seq_element_type;
+ 
+ constexpr size_t t_size(void) {
+     return sizeof(seq_element_type);
