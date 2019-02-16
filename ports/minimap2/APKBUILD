@@ -1,0 +1,33 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=minimap2
+pkgver=2.15
+pkgrel=0
+pkgdesc="A versatile pairwise aligner for genomic and spliced nucleotide sequences"
+url="https://lh3.github.io/minimap2"
+arch="x86_64"
+license="MIT"
+depends="zlib"
+makedepends="zlib-dev"
+source="https://github.com/lh3/minimap2/archive/v$pkgver.tar.gz#/$pkgname-$pkgver.tar.gz"
+
+builddir="$srcdir"/$pkgname-$pkgver
+
+build() {
+	cd "$builddir"
+	make
+}
+
+package() {
+	cd "$builddir"
+
+	mkdir -p "$pkgdir"/usr/bin
+	cp minimap2 "$pkgdir"/usr/bin
+}
+
+check() {
+	:
+}
+
+sha512sums="2963eba58a384b9f5e763ef5c8f3b76ef001be387b35ec383a3c54faccc057ecfcc55a5f0e9ecb153ffdc62fde0dc11057c85d30c615605085d1e28cff5dbccc  minimap2-2.15.tar.gz"
