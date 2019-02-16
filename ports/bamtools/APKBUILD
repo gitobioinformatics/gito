@@ -1,0 +1,39 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=bamtools
+pkgver=2.5.1
+pkgrel=0
+pkgdesc="C++ API & command-line toolkit for working with BAM data"
+url="https://github.com/pezmaster31/bamtools/wiki"
+arch="x86_64"
+license="MIT"
+depends="jsoncpp zlib"
+makedepends="cmake jsoncpp-dev zlib-dev"
+install=
+subpackages="$pkgname-dev"
+source="https://github.com/pezmaster31/bamtools/archive/v$pkgver.tar.gz#/$pkgname-$pkgver.tar.gz"
+
+builddir="$srcdir"/$pkgname-$pkgver
+
+build() {
+	cd "$builddir"
+
+	mkdir build
+	cd build
+	cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+	make
+}
+
+package() {
+	cd "$builddir"
+
+	cd build
+	make DESTDIR="$pkgdir" install
+}
+
+check() {
+	:
+}
+
+sha512sums="f2c761c5bf923cf2f3db3dc54e40b4781307106b9177784f930aab619bd11fae3b343f3cfd232524580d39f0526a2a2f18efcf820fe4d9c951406bdb6b953afb  bamtools-2.5.1.tar.gz"
