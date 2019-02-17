@@ -1,0 +1,196 @@
+#!/bin/sh
+
+do_convert() {
+	if [ -z "$1" ]; then
+		echo 'Missing archive path'
+		return 1
+	fi
+
+	local archive="$1"
+
+	if [ ! -f "$archive" ]; then
+		echo "Archive don't exists: $archive"
+		return 1
+	fi
+
+	if [ -z "$name" ]; then
+		echo 'Missing package name'
+		return 1
+	fi
+
+	if [ -z "$repository_name" ]; then
+		repository_name='aports'
+	fi
+
+	if [ -z "$version" ]; then
+		echo 'Missing package version'
+		return 1
+	fi
+
+	if [ -z "$release" ]; then
+		release=0
+	fi
+
+	if [ -z "$description" ]; then
+		echo 'Missing package description'
+		exit 1
+	fi
+
+	if [ -z "$url" ]; then
+		echo 'Missing package url'
+		exit 1
+	fi
+
+	if [ -z "$arch" ]; then
+		arch='noarch'
+	fi
+
+	if [ -z "$license" ]; then
+		license='Unknown'
+	fi
+
+	local tmpdir=$(mktemp -d)
+	local workdir="$tmpdir"/"$repository_name"/"$name"
+	local srcdir="$workdir"/src
+
+	mkdir -p "$workdir" "$srcdir"
+	cp "$archive" "$srcdir"/$(basename $archive)
+
+	local exclude_opt
+
+	for pattern in $exclude; do
+		exclude_opt='--exclude '"'$pattern'"' '"$exclude_opt"
+	done
+
+	cat <<-EOF > "$workdir"/APKBUILD
+		pkgname="$name"
+		pkgver="$version"
+		pkgrel="$release"
+		pkgdesc="$description"
+		url="$url"
+		arch="$arch"
+		license="$license"
+		depends="$depends"
+		subpackages="$subpackages"
+		options="$options"
+
+		package() {
+		    mkdir -p "\$pkgdir"
+		    tar -C \$pkgdir $exclude_opt -xf \$srcdir/$(basename "$archive")
+		}
+	EOF
+
+	cd "$workdir"
+	abuild rootpkg index
+
+	rm -rf "$tmpdir"
+}
+
+usage() {
+	cat <<-EOF
+		Usage: apk-convert [OPTIONS] tar
+
+		Options:
+		  -a, --arch        Set package machine architecture
+		  -d, --desc        Set package description
+		  -D, --dependency  Add dependency to package
+		  -h, --help        Show this help
+		  -l, --license     Set package license
+		  -n, --name        Set package name
+		  -o, --option      Add option to package
+		  -r, --rel         Set package release
+		  -R, --repository  Set package repository (default: aports)
+		  -s, --subpackage  Add subpackage
+		  -u, --url         Set package url
+		  -v, --version     Set package version
+		  -x, --exclude     Ignore this pattern on archive
+	EOF
+}
+
+options() {
+	getopt \
+		-o a:d:D:h:l:n:o:r:R:s:u:v:x: \
+		-l arch: \
+		-l desc: \
+		-l dependency: \
+		-l help: \
+		-l license: \
+		-l name: \
+		-l option: \
+		-l rel: \
+		-l repository: \
+		-l subpackage: \
+		-l url: \
+		-l version: \
+		-l exclude: \
+		-n 'apk-convert' -- "$@"
+}
+
+opts=$(options "$@")
+
+if [ "$?" -ne 0 ]; then
+	usage
+	exit 1
+fi
+
+eval set -- "$opts"
+
+while true; do
+	case $1 in
+		-a|--arch)
+			arch="$2"
+			shift
+			;;
+		-d|--description)
+			description="$2"
+			shift
+			;;
+		-D|--depends)
+			depends="$2 $depends"
+			shift
+			;;
+		-h|--help) usage; exit ;;
+		-l|--license)
+			license="$2"
+			shift
+			;;
+		-n|--name)
+			name="$2"
+			shift
+			;;
+		-o|--option)
+			options="$2 $options"
+			shift
+			;;
+		-r|--release)
+			release="$2"
+			shift
+			;;
+		-R|--repository-name)
+			repository_name=$2
+			shift
+			;;
+		-s|--subpackages)
+			subpackages="$2 $subpackages"
+			shift
+			;;
+		-u|--url)
+			url="$2"
+			shift
+			;;
+		-v|--version)
+			version="$2"
+			shift
+			;;
+		-x|--exclude)
+			exclude="$exclude $2"
+			shift
+			;;
+		--) shift; break ;;
+		*) exit 1 ;;
+	esac
+
+	shift
+done
+
+do_convert "$1"
