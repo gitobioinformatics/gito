@@ -1,0 +1,46 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=minced
+pkgver=0.3.2
+pkgrel=0
+pkgdesc="Mining CRISPRs in Environmental Datasets"
+url="https://github.com/ctSkennerton/minced"
+arch="noarch"
+license="GPL-3.0"
+depends="openjdk8-jre bash"
+makedepends="openjdk8"
+source="https://github.com/ctSkennerton/minced/archive/$pkgver.tar.gz#/$pkgname-$pkgver.tar.gz"
+
+builddir="$srcdir"/$pkgname-$pkgver
+
+prepare() {
+	cd "$builddir"
+}
+
+build() {
+	cd "$builddir"
+
+    _java_home=$(readlink -f "$(which java)" | sed -e 's,\(.*/*-openjdk\)/.*,\1,g')
+    export PATH="$_java_home"/bin:$PATH
+	make
+}
+
+package() {
+	cd "$builddir"
+
+    _bindir="$pkgdir"/usr/bin
+    _sharedir="$pkgdir"/usr/share/minced
+
+    mkdir -p "$_bindir" "$_sharedir"
+    install -m0644 minced.jar "$_sharedir"
+    install -m0755 minced "$_sharedir"
+
+    ln -s "$_sharedir"/minced "$_bindir"
+}
+
+check() {
+	cd "$builddir"
+	make test
+}
+sha512sums="e80cad3f04064741f32ebeb27bf09d73a5c5e075a854959f4d0ad77162183dd7f9c3b56ba30d7dba4de2106e7a6bb0a3704451225d78fc5d4989840005b1c77a  minced-0.3.2.tar.gz"
