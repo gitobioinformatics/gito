@@ -1,0 +1,30 @@
+diff -ur b/src/algo/blast/core/blast_kappa.c a/src/algo/blast/core/blast_kappa.c
+--- b/src/algo/blast/core/blast_kappa.c	2019-02-24 14:50:01.250853168 +0000
++++ a/src/algo/blast/core/blast_kappa.c	2019-02-24 14:55:01.377075137 +0000
+@@ -57,7 +57,12 @@
+  * shared(...) list. */
+ #    define STDERR_COMMA
+ #  else
+-#    define STDERR_COMMA stderr,
++/*
++ * stderr expands to (stderr) on musl, which causes problem with OpenMP
++ * shared(...), redefining the macro to remove the parenthesis shows that
++ * stderr is shared by default
++ */
++#    define STDERR_COMMA
+ #  endif
+ #endif
+ 
+diff -ur b/src/app/blast/blast_app_util.cpp a/src/app/blast/blast_app_util.cpp
+--- b/src/app/blast/blast_app_util.cpp	2019-02-24 14:50:01.258853104 +0000
++++ a/src/app/blast/blast_app_util.cpp	2019-02-24 14:51:56.758041238 +0000
+@@ -948,7 +948,8 @@
+ 
+ void QueryBatchCleanup()
+ {
+-#if defined(NCBI_OS_LINUX) && HAVE_MALLOC_H
++// malloc_trim function is not available on musl libc
++#if defined(NCBI_OS_LINUX) && HAVE_MALLOC_H && __GLIBC__
+ 	malloc_trim(0);
+ #endif
+     return;

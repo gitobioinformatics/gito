@@ -1,0 +1,46 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=blast
+pkgver=2.8.1
+pkgrel=0
+pkgdesc="BLAST+ is a set of BLAST tools that utilizes the NCBI C++ Toolkit"
+url="https://blast.ncbi.nlm.nih.gov/Blast.cgi"
+arch="x86_64"
+license="Public Domain"
+depends="libexecinfo gnutls"
+makedepends="libexecinfo-dev gnutls-dev"
+subpackages="$pkgname-dev"
+source="
+	ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/$pkgver/ncbi-blast-$pkgver+-src.tar.gz
+	musl-compat.patch
+	"
+
+builddir="$srcdir"/"ncbi-$pkgname-$pkgver+-src/c++"
+
+build() {
+	cd "$builddir"
+	./configure \
+		LIBS='-lexecinfo' \
+		--build=$CBUILD \
+		--host=$CHOST \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--localstatedir=/var
+	make
+}
+
+package() {
+	cd "$builddir"
+
+	mkdir -p "$pkgdir"/usr
+	make prefix="$pkgdir"/usr install
+}
+
+check() {
+	:
+}
+
+sha512sum="3f408c5f76704183578828df3272bab7d59dd6052364e73e1831cd005b87d87dcc086bb1799b316b09e639e4af0edea6404b93a4b3e3c159d27cef34fff93d6f  ncbi-blast-2.8.1+-src.tar.gz
+d550ce121b7fd056228625c985a981a884b6e0ee8c28fdf426059a3cef09797f4fa41247e2252de8312d5bec8d0a1bc36be08b9065b2cd3eb94db23de4f03935  musl-compat.patch"
