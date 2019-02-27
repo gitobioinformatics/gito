@@ -1,0 +1,48 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=perl-set-scalar
+_pkgreal=Set-Scalar
+pkgver=1.29
+pkgrel=0
+pkgdesc="Basic set operations"
+url="https://metacpan.org/release/Set-Scalar/"
+arch="noarch"
+license="GPL PerlArtistic"
+cpandepends="perl"
+cpanmakedepends=""
+cpancheckdepends="perl-test-weaken"
+depends="$cpandepends"
+makedepends="perl-dev $cpanmakedepends"
+checkdepends="$cpancheckdepends"
+subpackages="$pkgname-doc"
+source="https://cpan.metacpan.org/authors/id/D/DA/DAVIDO/Set-Scalar-1.29.tar.gz"
+builddir="$srcdir/$_pkgreal-$pkgver"
+
+prepare() {
+	default_prepare
+
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	PERL_MM_USE_DEFAULT=1 perl -I. Makefile.PL INSTALLDIRS=vendor
+}
+
+build() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make
+}
+
+package() {
+	cd "$builddir"
+	make DESTDIR="$pkgdir" install
+	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
+}
+
+check() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make test
+}
+
+sha512sums="ee77f72a237ed7d3f0467395009b00163c33e095fe5e8bdc971c8cd0eee8dbc825c83ab486e6f54ed6c1aedf1539cde9d9b1a54b8be703d5dc01ee48017ce45c  Set-Scalar-1.29.tar.gz"

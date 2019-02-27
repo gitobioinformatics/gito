@@ -1,0 +1,48 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=perl-padwalker
+_pkgreal=PadWalker
+pkgver=2.3
+pkgrel=0
+pkgdesc="Play with other peoples' lexical variables"
+url="https://metacpan.org/release/PadWalker/"
+arch="all"
+license="GPL PerlArtistic"
+cpandepends="perl"
+cpanmakedepends=""
+cpancheckdepends="perl-test-weaken"
+depends="$cpandepends"
+makedepends="perl-dev $cpanmakedepends"
+checkdepends="$cpancheckdepends"
+subpackages="$pkgname-doc"
+source="https://cpan.metacpan.org/authors/id/R/RO/ROBIN/PadWalker-$pkgver.tar.gz"
+builddir="$srcdir/$_pkgreal-$pkgver"
+
+prepare() {
+	default_prepare
+
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	PERL_MM_USE_DEFAULT=1 perl -I. Makefile.PL INSTALLDIRS=vendor
+}
+
+build() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make
+}
+
+package() {
+	cd "$builddir"
+	make DESTDIR="$pkgdir" install
+	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
+}
+
+check() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make test
+}
+
+sha512sums="0a222dc2ed26825bc031b0e4b4b78660fe9d1a5a5d98552f30e730aa4c8e5c38577da9a960669258a11cfd712f6e3827bafa23162aa1101f01b47b08e303b4b0  PadWalker-2.3.tar.gz"

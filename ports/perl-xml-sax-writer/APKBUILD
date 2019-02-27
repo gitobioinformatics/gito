@@ -1,0 +1,48 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=perl-xml-sax-writer
+_pkgreal=XML-SAX-Writer
+pkgver=0.57
+pkgrel=0
+pkgdesc="SAX2 XML Writer"
+url="https://metacpan.org/release/XML-SAX-Writer/"
+arch="noarch"
+license="GPL PerlArtistic"
+cpandepends="perl-encode perl-xml-filter-buffertext perl-xml-namespacesupport perl-xml-sax-base"
+cpanmakedepends=""
+cpancheckdepends="perl-test-weaken"
+depends="perl $cpandepends"
+makedepends="perl-dev $cpanmakedepends"
+checkdepends="$cpancheckdepends"
+subpackages="$pkgname-doc"
+source="https://cpan.metacpan.org/authors/id/P/PE/PERIGRIN/XML-SAX-Writer-$pkgver.tar.gz"
+builddir="$srcdir/$_pkgreal-$pkgver"
+
+prepare() {
+	default_prepare
+
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	PERL_MM_USE_DEFAULT=1 perl -I. Makefile.PL INSTALLDIRS=vendor
+}
+
+build() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make
+}
+
+package() {
+	cd "$builddir"
+	make DESTDIR="$pkgdir" install
+	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
+}
+
+check() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make test
+}
+
+sha512sums="8a6e8befdd91278b6e1dbce8ef62a630675f43e2debfb5833809fc46707d449c779d792e7aff44089f0509f9c3f8f10d576570ab0b8255f9f793802be92ad94f  XML-SAX-Writer-0.57.tar.gz"

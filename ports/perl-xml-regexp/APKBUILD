@@ -1,0 +1,48 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=perl-xml-regexp
+_pkgreal=XML-RegExp
+pkgver=0.04
+pkgrel=0
+pkgdesc="Regular expressions for XML tokens"
+url="https://metacpan.org/release/XML-RegExp/"
+arch="noarch"
+license="GPL PerlArtistic"
+cpandepends=""
+cpanmakedepends=""
+cpancheckdepends="perl-test-weaken"
+depends="perl $cpandepends"
+makedepends="perl-dev $cpanmakedepends"
+checkdepends="$cpancheckdepends"
+subpackages="$pkgname-doc"
+source="https://cpan.metacpan.org/authors/id/T/TJ/TJMATHER/XML-RegExp-$pkgver.tar.gz"
+builddir="$srcdir/$_pkgreal-$pkgver"
+
+prepare() {
+	default_prepare
+
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	PERL_MM_USE_DEFAULT=1 perl -I. Makefile.PL INSTALLDIRS=vendor
+}
+
+build() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make
+}
+
+package() {
+	cd "$builddir"
+	make DESTDIR="$pkgdir" install
+	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
+}
+
+check() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make test
+}
+
+sha512sums="f0ade105a35944b7f91b85fb9e2735d4860eba04402a02e8531b546d8ea49990d9c2a56f113b4a291050fc8aa51eeee9675d49b4d9a69aa5da25fa7f3e3c9802  XML-RegExp-0.04.tar.gz"

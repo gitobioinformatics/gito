@@ -1,0 +1,52 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=perl-xml-dom-xpath
+_pkgreal=XML-DOM-XPath
+pkgver=0.14
+pkgrel=0
+pkgdesc="Perl extension to add XPath support to XML::DOM, using XML::XPath engine"
+url="https://metacpan.org/release/XML-DOM-XPath/"
+arch="noarch"
+license="GPL PerlArtistic"
+cpandepends="perl-xml-dom perl-xml-xpathengine"
+cpanmakedepends=""
+cpancheckdepends="perl-test-weaken perl-test-pod-coverage"
+depends="perl $cpandepends"
+makedepends="perl-dev $cpanmakedepends"
+checkdepends="$cpancheckdepends"
+subpackages="$pkgname-doc"
+source="
+	https://cpan.metacpan.org/authors/id/M/MI/MIROD/XML-DOM-XPath-$pkgver.tar.gz
+	fix-test-utf8.patch
+	"
+builddir="$srcdir/$_pkgreal-$pkgver"
+
+prepare() {
+	default_prepare
+
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	PERL_MM_USE_DEFAULT=1 perl -I. Makefile.PL INSTALLDIRS=vendor
+}
+
+build() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make
+}
+
+package() {
+	cd "$builddir"
+	make DESTDIR="$pkgdir" install
+	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
+}
+
+check() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make test
+}
+
+sha512sums="7a2abfac00b260cef3be78999fea3083a798babdd80559f8053a6517606b3b5ed1ad5ad56c8762d5b03b3cea081edf1d6adfebbe01fc7ef4b7d90967400e1a9c  XML-DOM-XPath-0.14.tar.gz
+2d1a14bdceed59d4bb62d32dbc831aadfe0c4a6fbba0dcf4f0f7a55f08bb40e0b6632c0c27626a8e55aac1c50879ba20ba12cc5a083c28f35f51eef1698e0b5a  fix-test-utf8.patch"
