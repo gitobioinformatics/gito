@@ -1,0 +1,48 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=perl-test-memory-cycle
+_pkgreal=Test-Memory-Cycle
+pkgver=1.06
+pkgrel=0
+pkgdesc="Check for memory leaks and circular memory references"
+url="https://metacpan.org/release/Test-Memory-Cycle/"
+arch="noarch"
+license="GPL PerlArtistic"
+cpandepends="perl perl-devel-cycle perl-getopt-long perl-padwalker"
+cpanmakedepends=""
+cpancheckdepends="perl-test-weaken perl-test-simple perl-test-pod perl-test-pod-coverage"
+depends="perl $cpandepends"
+makedepends="perl-dev $cpanmakedepends"
+checkdepends="$cpancheckdepends"
+subpackages="$pkgname-doc"
+source="https://cpan.metacpan.org/authors/id/P/PE/PETDANCE/Test-Memory-Cycle-$pkgver.tar.gz"
+builddir="$srcdir/$_pkgreal-$pkgver"
+
+prepare() {
+	default_prepare
+
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	PERL_MM_USE_DEFAULT=1 perl -I. Makefile.PL INSTALLDIRS=vendor
+}
+
+build() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make
+}
+
+package() {
+	cd "$builddir"
+	make DESTDIR="$pkgdir" install
+	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
+}
+
+check() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make test
+}
+
+sha512sums="d25ffd0439e47e0b57f136489ae200ca24c8434a19473d23f70d0f8a2c8d18a93fe453e9b1b844b5edbd9c788bfe3c83f5413441389dd9b53c780f734afeb804  Test-Memory-Cycle-1.06.tar.gz"
