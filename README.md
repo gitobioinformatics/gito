@@ -120,7 +120,7 @@ To build Gito images from source, you can use the following process:
 
 ## Security and vulnerabilities
 
-Due to the extremely small size, the GITO has a smaller attack surface compared to the containers that are based on larger images. To assess safety, we used [Quay Security Scanner](https://quay.io) to assess vulnerabilities in Gito. Quay identifies insecure packages by matching the metadata against Common Vulnerabilities and Exposures (CVE) database. The results of the analysis were published in the Quay portal, and the scanning of each tool can be accessed below:
+Due to the extremely small size, Gito has a smaller attack surface compared to the containers that are based on larger images. To assess safety, we used [Quay Security Scanner](https://quay.io) to assess vulnerabilities in Gito. Quay identifies insecure packages by matching the metadata against Common Vulnerabilities and Exposures (CVE) database. The results of the analysis were published in the Quay portal, and the scanning of each tool can be accessed below:
 
 | Image | Scanning Result |
 | --- | --- |
@@ -139,9 +139,7 @@ MIT License. See [LICENSE](LICENSE) for more information
 
 ## Contributions
 
-Gito is open-source (see [LICENSE](LICENSE)), and we welcome contributions from anyone who is interested in contributing. To contribute, please make a pull request on GitHub. The issue tracker for Gito is also available on GitHub.
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
+Gito is open-source (see [LICENSE](LICENSE)), and we welcome contributions from anyone who is interested in contributing. To contribute, please make a pull request. The issue tracker for Gito is also available on GitHub.
 
 ## Inspirations
 
@@ -150,7 +148,7 @@ The logo of the project was inspired by the tucuxi (*Sotalia fluviatilis*), whic
 
 ## Acknowledgements
 
-We thank the following institutions, which contributed to ensuring the success of our work:<br>
+We thank the following institutions, which contributed to ensuring the success of our work:
 
 Ministério da Ciência, Tecnologia, Inovação e Comunicação (MCTIC)
     
@@ -160,7 +158,7 @@ Centro Universitário do Estado do Pará (CESUPA)
 
 ## Funding
 
-This work has been supported by Conselho Nacional de Desenvolvimento Científico e Tecnológico - CNPq (grants 149985/2018-5; 129954/2018-7)
+This work has been supported by Conselho Nacional de Desenvolvimento Científico e Tecnológico - CNPq (grants 149985/2018-5; 129954/2018-7).
 
 ## Authors
 
@@ -171,7 +169,7 @@ This work has been supported by Conselho Nacional de Desenvolvimento Científico
  
  ## Contact
  
- Dr. Marcos Paulo Alves de Sousa (Project leader)<br>
+ Dr. Marcos Paulo Alves de Sousa (Project leader)
  
  <i><b>Email:</b> msousa@museu-goeldi.br<br>
  Laboratório de Biologia Molecular<br>
