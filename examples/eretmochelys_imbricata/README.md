@@ -1,6 +1,6 @@
-# *De novo* transcriptome assembly of *Eretmochelys Imbricata*
+# *De novo* transcriptome assembly of *Eretmochelys Imbricate*
 
-Gito was used to reproduce the pipeline present in the work of [Hernández-Fernández (2017)](https://doi.org/10.1016/j.dib.2017.10.015), which is the first *de novo* transcriptome assembly of *Eretmochelys Imbricata* published.
+Gito was used to reproduce the pipeline present in the work of [Hernández-Fernández (2017)](https://doi.org/10.1016/j.dib.2017.10.015), which is the first *de novo* transcriptome assembly of *Eretmochelys Imbricate* published.
 
 ## Prerequisites
 
