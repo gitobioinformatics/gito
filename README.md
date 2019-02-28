@@ -111,11 +111,11 @@ To build Gito images from source, you can use the following process:
 
 | Directory | Description                                                                            |
 |-----------|----------------------------------------------------------------------------------------|
-| base      | Contains Dockerfile used to build GITO base image.                                     |
-| build     | Utilities to create Docker images using GITO as base.                                  |
-| examples  | Contains examples of bioinformatics pipelines using GITO images.                       |
+| base      | Contains Dockerfile used to build Gito base image.                                     |
+| build     | Utilities to create Docker images using Gito as base.                                  |
+| examples  | Contains examples of bioinformatics pipelines using Gito images.                       |
 | images    | Contains images used by this README.                                                   |
-| library   | Dockerfiles used to build several tools, using Alpine packages from `ports` directory. |
+| library   | Dockerfiles used to build several tools using Alpine packages from `ports` directory. |
 | ports     | Contains APKBUILD files for bioinformatic tools.                                       |
 
 ## Security and vulnerabilities
