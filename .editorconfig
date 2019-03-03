@@ -5,10 +5,15 @@ root = true
 end_of_line = lf
 insert_final_newline = true
 
-[{*.sh,gitobld*,APKBUILD,build/abuild/apk*}]
+[{*.sh,gitobld*,build/abuild/apk*}]
 charset=utf-8
 indent_style=tab
 tab_width=4
+
+[APKBUILD]
+charset=utf-8
+indent_style=tab
+tab_width=8
 
 [Dockerfile]
 charset=utf-8
