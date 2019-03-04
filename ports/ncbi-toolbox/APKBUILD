@@ -1,0 +1,48 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=ncbi-toolbox
+pkgver=6.1
+_pkgdate="20170106"
+pkgrel=0
+pkgdesc="NCBI ToolBox for biology applications"
+url="https://www.ncbi.nlm.nih.gov/IEB/ToolBox/index.cgi"
+arch="x86_64"
+license="Public Domain"
+depends=""
+makedepends="tcsh gnutls-dev libunistring-dev"
+source="
+    ftp://ftp.ncbi.nih.gov/toolbox/ncbi_tools/old/$_pkgdate/ncbi.tar.gz
+    use-tcsh.patch
+    "
+
+_programs="
+    idfetch asn2gb tbl2asn gene2xml asn2xml
+    "
+
+builddir="$srcdir"/ncbi
+
+build() {
+	cd "$srcdir"
+        MAKEFLAGS= ./ncbi/make/makedis.csh
+}
+
+package() {
+	cd "$builddir"
+
+        _bindir="$pkgdir"/usr/bin
+        mkdir -p "$_bindir"
+
+        for prog in $_programs; do
+            if [ -f build/"$prog" ]; then
+                cp build/"$prog" "$_bindir"
+            fi
+        done
+}
+
+check() {
+    :
+}
+
+sha512sums="beb0c530da15518acaeda3187cef255a09eba8860ef60b4632a75b93c32ebc1cc6a88daa5565e5a43c67919bea51474ad8fdab5659431b2036f7ac3b7151d8ec  ncbi.tar.gz
+b296f959cb22796aab4a0046d83e9d8df4ba0e20782c053f9281b344ec53647d8ebfa0ec813d79c684c4c827a6113da752679915ab37a923eec000880b61b882  use-tcsh.patch"

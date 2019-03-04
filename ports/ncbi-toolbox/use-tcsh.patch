@@ -1,0 +1,20 @@
+diff --git a/a/ncbi/make/ln-if-absent b/b/ncbi/make/ln-if-absent
+index 953119d..ebb6f72 100755
+--- a/make/ln-if-absent
++++ b/make/ln-if-absent
+@@ -1,4 +1,4 @@
+-#!/bin/csh -f
++#!/bin/tcsh -f
+ # NOTE:  use "/bin/tcsh" above if "/bin/csh" is absent (e.g. on QNX OS)
+ #        use a "ln-if-absent.beos" on the BeOS platform (rename it to ln-if-absent)
+ #
+diff --git a/a/ncbi/make/makedis.csh b/b/ncbi/make/makedis.csh
+index 9820ea6..8eead3e 100755
+--- a/make/makedis.csh
++++ b/make/makedis.csh
+@@ -1,4 +1,4 @@
+-#!/bin/csh -f
++#!/bin/tcsh -f
+ #
+ # $Id: makedis.csh 512803 2016-09-02 19:57:21Z ucko $
+ #
