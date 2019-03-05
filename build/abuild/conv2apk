@@ -35,7 +35,7 @@ do_convert() {
 	fi
 
 	if [ -z "$description" ]; then
-		description="Package for '$name', generated using apk-convert"
+		description="Package for '$name', generated using conv2apk"
 	fi
 
 	if [ -z "$url" ]; then
@@ -128,7 +128,7 @@ do_convert() {
 
 usage() {
 	cat <<-EOF
-		Usage: apk-convert [OPTIONS] file
+		Usage: conv2apk [OPTIONS] file
 
 		Convert a tar package into Alpine Linux package
 
@@ -176,7 +176,7 @@ cli_options() {
 		-l url: \
 		-l version: \
 		-l exclude: \
-		-n 'apk-convert' -- "$@"
+		-n 'conv2apk' -- "$@"
 }
 
 opts=$(cli_options "$@")

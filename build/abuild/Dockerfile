@@ -19,7 +19,7 @@ RUN DISTFILES=/var/chache/distfiles \
 RUN apk update \
     && apk add alpine-sdk su-exec
 
-COPY apk-build apk-convert docker-entrypoint.sh /usr/local/bin/
+COPY apk-build conv2apk docker-entrypoint.sh /usr/local/bin/
 
 WORKDIR "$ABUILD_HOME"
 ENTRYPOINT ["docker-entrypoint.sh"]
