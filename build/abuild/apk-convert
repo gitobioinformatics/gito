@@ -14,8 +14,12 @@ do_convert() {
 	fi
 
 	if [ -z "$name" ]; then
-		echo 'Missing package name'
-		return 1
+		if [ "$archive" != '-' ]; then
+			name=${archive%%.*}
+		else
+			echo 'Missing package name'
+			return 1
+		fi
 	fi
 
 	if [ -z "$repository_name" ]; then
@@ -23,8 +27,7 @@ do_convert() {
 	fi
 
 	if [ -z "$version" ]; then
-		echo 'Missing package version'
-		return 1
+		version=$(date +%Y.%m.%d)
 	fi
 
 	if [ -z "$release" ]; then
@@ -32,37 +35,74 @@ do_convert() {
 	fi
 
 	if [ -z "$description" ]; then
-		echo 'Missing package description'
-		exit 1
+		description="Package for '$name', generated using apk-convert"
 	fi
 
 	if [ -z "$url" ]; then
-		echo 'Missing package url'
-		exit 1
+		if [ -n "$APK_DEFAULT_URL" ]; then
+			url=$(echo "$APK_DEFAULT_URL" \
+				| sed -e 's/%%NAME%%/'"$name"'/')
+		else
+			echo 'Missing package url'
+			exit 1
+		fi
 	fi
 
 	if [ -z "$arch" ]; then
-		arch='noarch'
+		if [ -n "$APK_DEFAULT_ARCH" ]; then
+			arch="$APK_DEFAULT_ARCH"
+		else
+			arch='noarch'
+		fi
 	fi
 
 	if [ -z "$license" ]; then
 		license='Unknown'
 	fi
 
+	# Prepend the package name to subpackages
+	subpackages=$(echo "$subpackages" | sed -e '/^$/!s/[^ ]* */'"$name"'-&/g')
+
 	local tmpdir=$(mktemp -d)
-	local workdir="$tmpdir"/"$repository_name"/"$name"
-	local srcdir="$workdir"/src
+	local startdir="$tmpdir"/"$repository_name"/"$name"
+	local srcdir="$startdir"/src
 
-	mkdir -p "$workdir" "$srcdir"
-	cp "$archive" "$srcdir"/$(basename $archive)
+	mkdir -p "$startdir" "$srcdir"
 
+	if [ "$archive" = '-' ]; then
+		local ext
+		case "$compress" in
+			z | gzip) ext='tar.gz' ;;
+			j | bzip2) ext='tar.bz2' ;;
+			J | xz) ext='tar.xz' ;;
+		esac
+
+		filename="$name.$ext"
+		cat > "$srcdir/$filename"
+	else
+		filename="$(basename $archive)"
+		cp "$archive" "$srcdir/$filename"
+	fi
+
+	local tarflags
 	local exclude_opt
+
+	if [ -n "$compress" ]; then
+		case "$compress" in
+			z | j | J)
+				tarflags="$tarflags -$compress";;
+			gzip | bzip2 | xz)
+				tarflags="$tarflags --$compress";;
+		esac
+	fi
 
 	for pattern in $exclude; do
 		exclude_opt='--exclude '"'$pattern'"' '"$exclude_opt"
 	done
 
-	cat <<-EOF > "$workdir"/APKBUILD
+	tarflags="$tarfile $exclude_opt"
+
+	cat <<-EOF > "$startdir"/APKBUILD
 		pkgname="$name"
 		pkgver="$version"
 		pkgrel="$release"
@@ -72,15 +112,15 @@ do_convert() {
 		license="$license"
 		depends="$depends"
 		subpackages="$subpackages"
-		options="$options"
+		options="!check $options"
 
 		package() {
-		    mkdir -p "\$pkgdir"
-		    tar -C \$pkgdir $exclude_opt -xf \$srcdir/$(basename "$archive")
+			mkdir -p "\$pkgdir"'$prefix'
+			tar -C "\$pkgdir"'$prefix' $tarflags -xf "\$srcdir"'/$filename'
 		}
 	EOF
 
-	cd "$workdir"
+	cd "$startdir"
 	abuild rootpkg index
 
 	rm -rf "$tmpdir"
@@ -88,45 +128,58 @@ do_convert() {
 
 usage() {
 	cat <<-EOF
-		Usage: apk-convert [OPTIONS] tar
+		Usage: apk-convert [OPTIONS] file
+
+		Convert a tar package into Alpine Linux package
 
 		Options:
-		  -a, --arch        Set package machine architecture
-		  -d, --desc        Set package description
-		  -D, --dependency  Add dependency to package
-		  -h, --help        Show this help
-		  -l, --license     Set package license
-		  -n, --name        Set package name
-		  -o, --option      Add option to package
-		  -r, --rel         Set package release
-		  -R, --repository  Set package repository (default: aports)
-		  -s, --subpackage  Add subpackage
-		  -u, --url         Set package url
-		  -v, --version     Set package version
-		  -x, --exclude     Ignore this pattern on archive
+		  -a, --arch          Set package machine architecture
+		  -c, --compress      Set compression method of tarfile
+		                      Useful when reading from stdin
+		  -d, --desc          Set package description
+		  -D, --depends       Add dependency to package
+		      --dev           Add development subpackage
+		      --doc           Add documentation subpackage
+		      --dbg           Add debug subpackage
+		  -h, --help          Show this help
+		  -l, --license       Set package license
+		  -n, --name          Set package name
+		      --no-strip      Don't strip binaries from package
+		      --no-tracedeps  Don't automatically find dependencies
+		      --prefix        Add prefix
+		  -r, --release       Set package release
+		  -R, --repository    Set package repository (default: aports)
+		  -u, --url           Set package url
+		  -v, --version       Set package version
+		  -x, --exclude       Ignore this pattern on archive
 	EOF
 }
 
-options() {
+cli_options() {
 	getopt \
-		-o a:d:D:h:l:n:o:r:R:s:u:v:x: \
+		-o a:c:d:D:h:l:n:r:R:u:v:x: \
 		-l arch: \
 		-l desc: \
-		-l dependency: \
+		-l depends: \
+		-l dev \
+		-l doc \
+		-l dbg \
 		-l help: \
 		-l license: \
 		-l name: \
+		-l no-strip \
+		-l no-tracedeps \
 		-l option: \
 		-l rel: \
 		-l repository: \
-		-l subpackage: \
+                -l prefix: \
 		-l url: \
 		-l version: \
 		-l exclude: \
 		-n 'apk-convert' -- "$@"
 }
 
-opts=$(options "$@")
+opts=$(cli_options "$@")
 
 if [ "$?" -ne 0 ]; then
 	usage
@@ -149,6 +202,7 @@ while true; do
 			depends="$2 $depends"
 			shift
 			;;
+		--dev | --doc | --dbg) subpackages="$2 ${1#--}" ;;
 		-h|--help) usage; exit ;;
 		-l|--license)
 			license="$2"
@@ -158,10 +212,7 @@ while true; do
 			name="$2"
 			shift
 			;;
-		-o|--option)
-			options="$2 $options"
-			shift
-			;;
+		-no-*) options="$options !${1#-no-}" ;;
 		-r|--release)
 			release="$2"
 			shift
@@ -170,10 +221,10 @@ while true; do
 			repository_name=$2
 			shift
 			;;
-		-s|--subpackages)
-			subpackages="$2 $subpackages"
-			shift
-			;;
+                --prefix)
+                        prefix="$2"
+                        shift
+                        ;;
 		-u|--url)
 			url="$2"
 			shift
