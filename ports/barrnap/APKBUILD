@@ -1,0 +1,32 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=barrnap
+pkgver=0.9
+pkgrel=0
+pkgdesc="Bacterial ribosomal RNA predictor"
+url="https://github.com/tseemann/barrnap"
+arch="noarch"
+license="GPLv3"
+depends="perl hmmer bedtools2"
+source="https://github.com/tseemann/barrnap/archive/$pkgver.tar.gz#/$pkgname-$pkgver.tar.gz"
+
+builddir="$srcdir"/$pkgname-$pkgver
+
+package() {
+	cd "$builddir"
+
+        _libdir="/usr/lib/barrnap"
+        _destdir="${pkgdir}${_libdir}"
+
+        mkdir -p "$_destdir" "$pkgdir"/usr/bin
+        cp -a bin db "$_destdir"
+
+        ln -s "$_libdir"/bin/barrnap "$pkgdir"/usr/bin
+}
+
+check() {
+    :
+}
+
+sha512sums="7824a8a5c1c383f2e85210c9d24d6aa7c69e5290d4ebb0fb18090def78719ed30e84179e460a47379a599e4736216f740ee38bfc6ca38259df2efde5cd63235c  barrnap-0.9.tar.gz"

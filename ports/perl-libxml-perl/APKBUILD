@@ -1,0 +1,48 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=perl-libxml-perl
+_pkgreal=libxml-perl
+pkgver=0.08
+pkgrel=0
+pkgdesc="Collection of Perl modules for working with XML"
+url="https://metacpan.org/release/libxml-perl/"
+arch="noarch"
+license="GPL PerlArtistic"
+cpandepends="perl perl-xml-parser"
+cpanmakedepends=""
+cpancheckdepends="perl-test-weaken"
+depends="$cpandepends"
+makedepends="perl-dev $cpanmakedepends"
+checkdepends="$cpancheckdepends"
+subpackages="$pkgname-doc"
+source="https://cpan.metacpan.org/authors/id/K/KM/KMACLEOD/libxml-perl-$pkgver.tar.gz"
+builddir="$srcdir/$_pkgreal-$pkgver"
+
+prepare() {
+	default_prepare
+
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	PERL_MM_USE_DEFAULT=1 perl -I. Makefile.PL INSTALLDIRS=vendor
+}
+
+build() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make
+}
+
+package() {
+	cd "$builddir"
+	make DESTDIR="$pkgdir" install
+	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
+}
+
+check() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make test
+}
+
+sha512sums="66c1874a04b746334d4324ab37ee057c6da7fa7191dffae2900e0832dab3b2ededc5cbdc5e838c0d57c22161c9cf196ab40b62f61338d4c994bda9fa7b1a7702  libxml-perl-0.08.tar.gz"

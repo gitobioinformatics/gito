@@ -1,0 +1,48 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=perl-xml-dom
+_pkgreal=XML-DOM
+pkgver=1.46
+pkgrel=0
+pkgdesc="A perl module for building DOM Level 1 compliant document structures"
+url="https://metacpan.org/release/XML-DOM/"
+arch="noarch"
+license="GPL PerlArtistic"
+cpandepends="perl-libwww perl-xml-parser perl-libxml-perl perl-xml-regexp"
+cpanmakedepends=""
+cpancheckdepends="perl-test-weaken"
+depends="$cpandepends"
+makedepends="perl-dev $cpanmakedepends"
+checkdepends="$cpancheckdepends"
+subpackages="$pkgname-doc"
+source="https://cpan.metacpan.org/authors/id/T/TJ/TJMATHER/XML-DOM-$pkgver.tar.gz"
+builddir="$srcdir/$_pkgreal-$pkgver"
+
+prepare() {
+	default_prepare
+
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	PERL_MM_USE_DEFAULT=1 perl -I. Makefile.PL INSTALLDIRS=vendor
+}
+
+build() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make
+}
+
+package() {
+	cd "$builddir"
+	make DESTDIR="$pkgdir" install
+	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
+}
+
+check() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make test
+}
+
+sha512sums="0fc96571996262bb0a99bd5f85e5d9e0f9c71c604c46c74129f0f560aa2749f7b945c591bfc13b9178d2b8d83826d5306f4ac71db33b51c55ce4d76398bab13d  XML-DOM-1.46.tar.gz"

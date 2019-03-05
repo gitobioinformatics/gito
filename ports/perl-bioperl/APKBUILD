@@ -1,0 +1,49 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=perl-bioperl
+_pkgreal=BioPerl
+pkgver=1.7.5
+pkgrel=0
+pkgdesc="Perl modules for biology"
+url="https://metacpan.org/release/BioPerl/"
+arch="noarch"
+license="GPL PerlArtistic"
+cpandepends="perl-data-stag perl-libwww perl-gd perl-xml-twig perl-list-moreutils perl-io-stringy perl-io-string perl-error perl-uri perl-yaml perl-set-scalar perl-xml-libxml perl-xml-sax perl-xml-dom perl-xml-dom-xpath perl-libxml-perl perl-xml-sax-writer perl-xml-writer perl-graph perl-test-most perl-ipc-run perl-http-message perl-dbi perl-db_file perl-module-build"
+cpanmakedepends=""
+cpancheckdepends="perl-test-weaken perl-test-memory-cycle perl-test-requiresinternet"
+depends="perl $cpandepends"
+makedepends="perl-dev $cpanmakedepends"
+checkdepends="$cpancheckdepends"
+subpackages="$pkgname-doc"
+source="https://cpan.metacpan.org/authors/id/C/CD/CDRAUG/BioPerl-$pkgver.tar.gz"
+builddir="$srcdir/$_pkgreal-$pkgver"
+
+prepare() {
+	default_prepare
+
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	PERL_MM_USE_DEFAULT=1 perl -I. Makefile.PL INSTALLDIRS=vendor
+}
+
+build() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make
+}
+
+package() {
+	cd "$builddir"
+	make DESTDIR="$pkgdir" install
+	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
+}
+
+check() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make test
+}
+
+sha512sums="7c191383850dd664b05a2a5645a8143dc3ce4ce293e3e02945acc0614cb67011eb48076756545c08005b5c72258aa16044c8f265d81f4755a372abfb98ab8b7e  BioPerl-1.7.5.tar.gz"
+

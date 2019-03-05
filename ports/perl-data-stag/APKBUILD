@@ -1,0 +1,48 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=perl-data-stag
+_pkgreal=Data-Stag
+pkgver=0.14
+pkgrel=0
+pkgdesc="Emulate file interface for in-core strings"
+url="https://metacpan.org/release/Data-Stag/"
+arch="noarch"
+license="GPL PerlArtistic"
+cpandepends="perl perl-io-string"
+cpanmakedepends=""
+cpancheckdepends=""
+depends="$cpandepends"
+makedepends="perl-dev $cpanmakedepends"
+checkdepends="$cpancheckdepends"
+subpackages="$pkgname-doc"
+source="https://cpan.metacpan.org/authors/id/C/CM/CMUNGALL/Data-Stag-$pkgver.tar.gz"
+builddir="$srcdir/$_pkgreal-$pkgver"
+
+prepare() {
+	default_prepare
+
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	PERL_MM_USE_DEFAULT=1 perl -I. Makefile.PL INSTALLDIRS=vendor
+}
+
+build() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make
+}
+
+package() {
+	cd "$builddir"
+	make DESTDIR="$pkgdir" install
+	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
+}
+
+check() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make test
+}
+
+sha512sums="72b0b5995795d593a844356e1955bd15e5c1cfc31934e55b748badcc21a29b7862475e7304bd56bd22086fcd31657a37f83acd8aee9343767c31dbfe8aba8e99  Data-Stag-0.14.tar.gz"

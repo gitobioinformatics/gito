@@ -1,0 +1,30 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=prodigal
+_pkgname=Prodigal
+pkgver=2.6.3
+pkgrel=0
+pkgdesc="Fast, reliable protein-coding gene prediction for prokaryotic genomes"
+url="http://compbio.ornl.gov/prodigal/"
+arch="x86_64"
+license="GPL-3.0"
+source="https://github.com/hyattpd/Prodigal/archive/v$pkgver.tar.gz#/$pkgname-$pkgver.tar.gz"
+
+builddir="$srcdir"/$_pkgname-$pkgver
+
+build() {
+	cd "$builddir"
+	make
+}
+
+package() {
+	cd "$builddir"
+	make INSTALLDIR="$pkgdir"/usr/bin install
+}
+
+check() {
+	:
+}
+
+sha512sums="6d6ec310143c50c0d65dbdbd26d6d271839bb23b1da376ecef20059731a9e643d631613eccaac2eb548b295264b9fe58c21b083f1511a6554912cb7d5351d541  prodigal-2.6.3.tar.gz"
