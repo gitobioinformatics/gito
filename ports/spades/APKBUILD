@@ -50,6 +50,7 @@ package() {
 	make DESTDIR="$pkgdir" install
 
 	ln -s /usr/bin/bwa "$pkgdir"/usr/bin/spades-bwa
+	ln -s /usr/bin/spades.py "$pkgdir"/usr/bin/spades
 }
 
 check() {
