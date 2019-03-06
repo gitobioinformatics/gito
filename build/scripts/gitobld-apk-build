@@ -34,19 +34,23 @@ abuild_run() {
 		run_args="$run_args --mount src=$GITOBLD_VOLUME,dst=$repodest"
 	fi
 
+	aports_mount="type=bind,src=$PORTS_DIRECTORY,dst=$aportsdir"
+	[ -z "$update_checksum_opt" ] && aports_mount="$aports_mount"',readonly'
+
 	run_args="
 		$run_args
-		--mount type=bind,src=$PORTS_DIRECTORY,dst=$aportsdir,readonly
+		--mount $aports_mount
 		--mount type=bind,src=$PRIVKEY_PATH,dst=$packager_privkey,readonly
 		--mount type=bind,src=$PUBKEY_PATH,dst=/etc/apk/keys/${PUBKEY_PATH##*/},readonly
 		"
 
-	if [ "$#" -eq 0 ]; then
-		set -- tail -f /dev/null
+	if [ "$#" -gt 0 ]; then
+		msg "Building packages..."
+		gitobld-docker -xe "$ABUILD_CONTAINER_NAME" $run_args "$ABUILD_IMAGE" $@
+	else
+		run_args="$run_args --workdir $aportsdir"
+		gitobld-docker -xe "$ABUILD_CONTAINER_NAME" $run_args "$ABUILD_IMAGE" sh
 	fi
-
-	msg "Building packages..."
-	gitobld-docker -xe "$ABUILD_CONTAINER_NAME" $run_args "$ABUILD_IMAGE" $@
 }
 
 usage() {
@@ -57,8 +61,10 @@ usage() {
 
 		Options:
 		    -b  Rebuild 'abuild' image
+		    -C  Update checksums
 		    -d  Search for apks on this directory
 		    -h  Show this help
+		    -i  Interactive mode
 		    -k  Set path to packager private key
 		    -o  Set output directory
 		    -p  Set path to packager public key
@@ -69,11 +75,13 @@ usage() {
 	exit 0
 }
 
-while getopts "bd:hk:o:p:rU:" opt; do
+while getopts "bCd:hik:o:p:rU:" opt; do
 	case $opt in
 		b) rebuild_image_opt='-f' ;;
+		C) update_checksum_opt='-C' ;;
 		d) PORTS_DIRECTORY=$OPTARG ;;
 		h) usage ;;
+		i) interactive_mode=1 ;;
 		k) PRIVKEY_PATH=$OPTARG ;;
 		o) build_output=$OPTARG ;;
 		p) PUBKEY_PATH=$OPTARG ;;
@@ -86,7 +94,7 @@ shift $((OPTIND-1))
 
 export PORTS_DIRECTORY
 
-if [ "$#" -eq 0 ]; then
+if [ "$#" -eq 0 ] && [ -z "$interactive_mode" ]; then
 	die "No packages passed to '$program' command."
 fi
 
@@ -110,5 +118,9 @@ fi
 
 export RUN_AS_USER
 
-abuild_run apk-build -t $build_deps_opt $@
+if [ -n "$interactive_mode" ]; then
+	abuild_run
+else
+	abuild_run apk-build -t $update_checksum_opt $build_deps_opt $@
+fi
 
