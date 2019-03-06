@@ -1,0 +1,37 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=bedtools2
+pkgver=2.27.1
+pkgrel=0
+pkgdesc="A powerful toolset for genome arithmetic"
+url="http://bedtools.readthedocs.io"
+arch="x86_64"
+license="GPLv2"
+depends="zlib"
+makedepends="zlib-dev bash python"
+checkdepends="samtools"
+source="
+    https://github.com/arq5x/bedtools2/archive/v$pkgver.tar.gz#/$pkgname-$pkgver.tar.gz
+    fix-test-bed12tobed6.patch
+    "
+
+builddir="$srcdir"/$pkgname-$pkgver
+
+build() {
+	cd "$builddir"
+	make
+}
+
+package() {
+	cd "$builddir"
+	make prefix="/usr" DESTDIR="$pkgdir" install
+}
+
+check() {
+    cd "$builddir"
+    make test
+}
+
+sha512sums="65d58b5d9e00581ed73f2d5a58be56c888adbc4045396e62fe39abc27a2abcd974721c7fe25533d76613788e43529b5df427ad19acce7ff6e7133018cdd35f40  bedtools2-2.27.1.tar.gz
+c11ccda338e4e3f220f6a07c4d2191f8df4392f7e6122e917addda7943696d0566c2fd3c7594e8d3a329f8fd384dd2f120588530f8c1ff39e0816648c4bd5a8f  fix-test-bed12tobed6.patch"

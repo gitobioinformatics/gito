@@ -21,6 +21,11 @@ build_pkg() {
 		cd $_pkgdir
 	fi
 
+	if [ -n "$UPDATE_CHECKSUM" ]; then
+		abuild checksum
+		[ -n "$USE_TEMP_DIR" ] && cp APKBUILD "$_pkgdir"
+	fi
+
 	if [ -n "$BUILD_DEPS" ]; then
 		abuild -R
 	else
@@ -29,8 +34,9 @@ build_pkg() {
 }
 
 main() {
-	while getopts "p:Rt" opt; do
+	while getopts "Cp:Rt" opt; do
 		case $opt in
+			C) UPDATE_CHECKSUM=1 ;;
 			p) APORTSDIR=$OPTARG;;
 			R) BUILD_DEPS=1 ;;
 			t) USE_TEMP_DIR=1 ;;
@@ -49,7 +55,9 @@ main() {
 		build_pkg $pkg
 	done
 
-	[ -n "$USE_TEMP_DIR" ] && rm -rf $TEMP_DIR
+	if [ -n "$USE_TEMP_DIR" ]; then
+		rm -rf $TEMP_DIR
+	fi
 }
 
 main $@

@@ -1,0 +1,48 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=perl-xml-xpathengine
+_pkgreal=XML-XPathEngine
+pkgver=0.14
+pkgrel=0
+pkgdesc="A re-usable XPath engine for DOM-like trees"
+url="https://metacpan.org/release/XML-XPathEngine/"
+arch="noarch"
+license="GPL PerlArtistic"
+cpandepends=""
+cpanmakedepends=""
+cpancheckdepends="perl-test-weaken perl-test-simple"
+depends="perl $cpandepends"
+makedepends="perl-dev $cpanmakedepends"
+checkdepends="$cpancheckdepends"
+subpackages="$pkgname-doc"
+source="https://cpan.metacpan.org/authors/id/M/MI/MIROD/XML-XPathEngine-$pkgver.tar.gz"
+builddir="$srcdir/$_pkgreal-$pkgver"
+
+prepare() {
+	default_prepare
+
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	PERL_MM_USE_DEFAULT=1 perl -I. Makefile.PL INSTALLDIRS=vendor
+}
+
+build() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make
+}
+
+package() {
+	cd "$builddir"
+	make DESTDIR="$pkgdir" install
+	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
+}
+
+check() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make test
+}
+
+sha512sums="2af1733ab3c7601543558b363109385b8fff93da2ac7c502966fee9df5d6c7dd7efe34cc671fa56e68dc2804365229731abd1880812f6f7064b28a9096842ec9  XML-XPathEngine-0.14.tar.gz"

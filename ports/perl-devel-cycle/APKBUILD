@@ -1,0 +1,48 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=perl-devel-cycle
+_pkgreal=Devel-Cycle
+pkgver=1.12
+pkgrel=0
+pkgdesc="Find memory cycles in objects"
+url="https://metacpan.org/release/Devel-Cycle/"
+arch="noarch"
+license="GPL PerlArtistic"
+cpandepends="perl perl-scalar-list-utils"
+cpanmakedepends=""
+cpancheckdepends="perl-test-weaken perl-test-simple"
+depends="$cpandepends"
+makedepends="perl-dev $cpanmakedepends"
+checkdepends="$cpancheckdepends"
+subpackages="$pkgname-doc"
+source="https://cpan.metacpan.org/authors/id/L/LD/LDS/Devel-Cycle-$pkgver.tar.gz"
+builddir="$srcdir/$_pkgreal-$pkgver"
+
+prepare() {
+	default_prepare
+
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	PERL_MM_USE_DEFAULT=1 perl -I. Makefile.PL INSTALLDIRS=vendor
+}
+
+build() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make
+}
+
+package() {
+	cd "$builddir"
+	make DESTDIR="$pkgdir" install
+	find "$pkgdir" \( -name perllocal.pod -o -name .packlist \) -delete
+}
+
+check() {
+	cd "$builddir"
+	export CFLAGS=$(perl -MConfig -E 'say $Config{ccflags}')
+	make test
+}
+
+sha512sums="e2c83829905449d13c86233ad5bfce28e7b4eca61a8ac1e2f73e3c906a2d8580f66ae84d865ef876c38c2d25f0a5a8adeb05f6e94594274d8a5fa1739842d08d  Devel-Cycle-1.12.tar.gz"

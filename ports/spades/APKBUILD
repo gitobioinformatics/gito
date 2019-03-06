@@ -1,0 +1,66 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=spades
+_pkgname=SPAdes
+pkgver=3.13.0
+pkgrel=0
+pkgdesc="SPAdes – St. Petersburg genome assembler – is an assembly toolkit containing various assembly pipelines"
+url="http://cab.spbu.ru/software/spades"
+arch="x86_64"
+license="GPLv2"
+depends="python bwa fmt libexecinfo zlib libbz2"
+makedepends="cmake bwa-dev fmt-dev libexecinfo-dev zlib-dev bzip2-dev"
+source="
+	http://cab.spbu.ru/files/release$pkgver/$_pkgname-$pkgver.tar.gz
+	remove-unused-bundled-libraries.patch
+	add-stdint-include-bamtools.patch
+	fix-uint64.patch
+	fix-make.patch
+	FindFmt.cmake
+	FindBwa.cmake
+	"
+
+builddir="$srcdir"/$_pkgname-$pkgver
+
+prepare() {
+	cd "$builddir"
+	default_prepare
+
+	cp "$srcdir"/FindBwa.cmake "$builddir"/src/cmake/Modules
+	cp "$srcdir"/FindFmt.cmake "$builddir"/src/cmake/Modules
+}
+
+build() {
+	cd "$builddir"
+
+	mkdir build
+	cd build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DSPADES_USE_JEMALLOC=Off \
+		../src
+	make
+}
+
+package() {
+	cd "$builddir"
+
+	cd build
+	make DESTDIR="$pkgdir" install
+
+	ln -s /usr/bin/bwa "$pkgdir"/usr/bin/spades-bwa
+	ln -s /usr/bin/spades.py "$pkgdir"/usr/bin/spades
+}
+
+check() {
+	:
+}
+
+sha512sums="2df8173debad0edb845302dc8e1fed0b459d247c4cb2d92d711ed05e5a1a2bfbb19f97aeec3aab4e991593bc90ba445347cf7e7d528147f76044a5e7f564af10  SPAdes-3.13.0.tar.gz
+40e4cf3e6e2843c79aa4b2d712481002ed4cfbb8bfdaef5037742db505ed55836a7326cf83ba57601e20841cdd6e5e0971a9ff767146736931b4273012f643eb  remove-unused-bundled-libraries.patch
+0c0f0cd4dfe3deb94ecb105fcd7e3f4d3a8c3b15f8769e433d13880a1374eb54153b5eb766c561b3e149a2e66f6682de6854a443c6abe52a37fe794ad22f7201  add-stdint-include-bamtools.patch
+67ea59d3343d87b81d3c8afe670e6edfbb4842165044a4f344659cd53b43810dbc5a6d9e10a1409d98a2145cdeb749f4522f7d38df21422616b0d06be7807237  fix-uint64.patch
+fe7a9c399fc892c55424faa194325b4672d77f16989c8f61907aa57b9d1a998693b79496c2bbbb5f20032ea33cff78b643b6b83571a525bfa3539e9e97312a41  fix-make.patch
+a783f45ff15f9e3adcb99656ea3f1382c21198f2e9d411dc480af0b1b0cc8ec85ad8106fc735070f4a0c9a7dc3b04714a1c660fa6c01a89be9daced0404b5746  FindFmt.cmake
+bf144f91d92d4a011dba11edf110d4fd577638d46e34bc3bf4941096ebc4c089e2f038e13688a4d46fc193974b29bed471a2bfae5dbb6497d64c63cbc2c7f073  FindBwa.cmake"

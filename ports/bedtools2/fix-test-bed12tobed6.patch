@@ -1,0 +1,13 @@
+diff --git a/test/bed12tobed6/test-bed12tobed6.sh b/test/bed12tobed6/test-bed12tobed6.sh
+index 1354b885..df59e7ee 100644
+--- a/test/bed12tobed6/test-bed12tobed6.sh
++++ b/test/bed12tobed6/test-bed12tobed6.sh
+@@ -70,7 +70,7 @@ echo \
+ "chr1	0	10	three_blocks_match	3	-
+ chr1	20	30	three_blocks_match	2	-
+ chr1	40	50	three_blocks_match	1	-" > exp
+-sed -e 's/\+/\-/' three_blocks.bed | $BT bed12tobed6 -n > obs
++sed -e 's/+/-/' three_blocks.bed | $BT bed12tobed6 -n > obs
+ check obs exp
+ rm obs exp
+ [[ $FAILURES -eq 0 ]] || exit 1;

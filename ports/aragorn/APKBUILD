@@ -1,0 +1,43 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=aragorn
+pkgver=2.38
+pkgrel=0
+pkgdesc="tRNA and tmRNA detection"
+url="http://mbio-serv2.mbioekol.lu.se/ARAGORN/"
+arch="x86_64"
+license="GPL-3.0"
+subpackages="$pkgname-doc"
+source="http://mbio-serv2.mbioekol.lu.se/ARAGORN/Downloads/aragorn1.$pkgver.tgz"
+
+builddir="$srcdir"/${pkgname}1.${pkgver}
+
+build() {
+	cd "$builddir"
+
+    _cflags="$CFLAGS -ffast-math -finline-functions"
+    gcc $_cflags -o aragorn *.c
+}
+
+package() {
+	cd "$builddir"
+
+	mkdir -p "$pkgdir"/usr/bin
+    install -m0755 aragorn "$pkgdir"/usr/bin
+}
+
+doc() {
+	cd "$builddir"
+
+    gzip aragorn.1
+
+    mkdir -p "$subpkgdir"/usr/share/man
+    install -m0644 aragorn.1.gz "$subpkgdir"/usr/share/man
+}
+
+check() {
+	:
+}
+
+sha512sums="4d683053455fae48405ac035386a0503d9bfb680332ff05c1a833899af9a9885e105e5d46a60c01c07ac4b6dc846b06b90c5cccadacf9f5b9fa3f202bc93b178  aragorn1.2.38.tgz"

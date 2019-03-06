@@ -1,0 +1,44 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=fmt
+pkgver=5.3.0
+pkgrel=0
+pkgdesc="{fmt} is an open-source formatting library for C++."
+url="http://fmtlib.net/latest/"
+arch="x86_64"
+license="BSD-2-Clause"
+depends=""
+makedepends="cmake"
+subpackages="$pkgname-dev"
+source="https://github.com/fmtlib/fmt/archive/$pkgver.tar.gz#/$pkgname-$pkgver.tar.gz"
+
+builddir="$srcdir"/$pkgname-$pkgver
+
+build() {
+	cd "$builddir"
+
+	mkdir build
+	cd build
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DBUILD_SHARED_LIBS=True \
+		..
+	make
+}
+
+package() {
+	cd "$builddir"
+
+	cd build
+	make DESTDIR="$pkgdir" install
+
+	rm -rf "$pkgdir"/usr/lib/cmake
+}
+
+check() {
+	:
+}
+
+sha512sums="9ef0f3d328681253c1e1776576d54d67dec49c19fd7fc422ae63c3610b01a3f05f6e83cdf5e913dfd09bac42e52fe35c38ebe1ea91f4207d226a32aaf69eb4a8  fmt-5.3.0.tar.gz"

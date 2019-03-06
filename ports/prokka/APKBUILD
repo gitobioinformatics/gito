@@ -1,0 +1,33 @@
+# Contributor: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+# Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
+
+pkgname=prokka
+pkgver=1.13
+pkgrel=0
+pkgdesc="Rapid prokaryotic genome annotation"
+url="http://vicbioinformatics.com/software.prokka.shtml"
+arch="x86_64"
+license="GPLv3"
+depends="perl-bioperl perl-xml-simple parallel blast prodigal ncbi-toolbox aragorn barrnap hmmer minced infernal"
+install="$pkgname.post-install $pkgname.post-upgrade $pkgname.pre-deinstall"
+source="https://github.com/tseemann/prokka/archive/v$pkgver.tar.gz#/$pkgname-$pkgver.tar.gz"
+
+builddir="$srcdir"/$pkgname-$pkgver
+
+package() {
+	cd "$builddir"
+
+        _libdir="/usr/lib/prokka"
+        _destdir="${pkgdir}${_libdir}"
+
+        mkdir -p "$_destdir" "$pkgdir"/usr/bin
+        cp -a bin db "$_destdir"
+
+        ln -s "$_libdir"/bin/prokka "$pkgdir"/usr/bin
+}
+
+check() {
+        :
+}
+
+sha512sums="3fe892758d88550d71dba2aefd92cf46e31406cea37425251f0678e90d32444dfe53d46d8d76582dcc7e4521d79309c732bd26bf200d82fed3f69c5a5c1ad553  prokka-1.13.tar.gz"

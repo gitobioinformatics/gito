@@ -6,6 +6,8 @@
 - Added jellyfish.
 - Added salmon.
 - Added samtools.
+- Added spades.
+- Added prokka.
 ### Changed
 - Added 'docker-entrypoint.sh' for all images.
 
