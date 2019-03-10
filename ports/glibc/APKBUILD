@@ -9,18 +9,27 @@ url="https://www.gnu.org/software/libc/"
 arch="all"
 license="LGPL"
 makedepends="linux-headers texinfo bash coreutils gawk sed bison perl python3 py3-pexpect"
-options="!tracedeps"
-subpackages="$pkgname-dev $pkgname-doc $pkgname-dbg"
-source="http://ftpmirror.gnu.org/libc/glibc-$pkgver.tar.xz"
+options="!tracedeps !checkroot"
+subpackages="
+	$pkgname-dev
+	$pkgname-doc
+	$pkgname-lang-minimal:lang_minimal:noarch
+	$pkgname-locale-src:locale_src:noarch
+	"
+source="
+	http://ftpmirror.gnu.org/libc/glibc-$pkgver.tar.xz
+	glibc-c-utf8-locale.patch
+	glibc-locale-gen
+	"
 
 builddir="$srcdir"/$pkgname-$pkgver
 
 build() {
 	cd "$builddir"
 
-	mkdir glibc-build/
-	cd glibc-build/
+	mkdir glibc-build/ glibc-locale/
 
+	cd "$builddir"/glibc-build
 	"$builddir"/configure \
 		--build=$CBUILD \
 		--host=$CHOST \
@@ -40,12 +49,28 @@ build() {
 		--disable-profile \
 		--disable-werror
 	make
+
+	# Generate locale data on build() as localedef won't work
+	# on package(), because of fakeroot
+
+	cd "$builddir"
+
+	# Generate locale-archive for C.UTF-8 locale
+	mv localedata/SUPPORTED localedata/SUPPORTED.old
+	cat <<-EOF > localedata/SUPPORTED
+		SUPPORTED-LOCALES=C.UTF-8/UTF-8
+	EOF
+	make DESTDIR="$builddir"/glibc-locale \
+		objdir="$builddir"/glibc-build install-locales -C localedata/
+	mv localedata/SUPPORTED.old localedata/SUPPORTED
 }
 
 package() {
 	cd "$builddir"
 
 	make DESTDIR="$pkgdir" install -C glibc-build/
+
+	cp "$srcdir"/glibc-locale-gen "$pkgdir"/compat/bin
 
 	case "$CARCH" in
 		aarch64)	_ld="lib/ld-linux-aarch64.so.1" ;;
@@ -66,6 +91,8 @@ package() {
 
 	mkdir -p "$pkgdir"/${_ld%/*}
 	ln -sf "/compat/lib/${_ld#*/}" "$pkgdir/$_ld"
+
+	rm "$pkgdir"/compat/etc/ld.so.cache
 }
 
 dev() {
@@ -78,13 +105,25 @@ dev() {
 	done
 }
 
+lang_minimal() {
+	description="GNU libc: Precompiled locale data for C.UTF-8"
+	cp -r "$builddir"/glibc-locale "$subpkgdir"
+}
+
+locale_src() {
+	mkdir -p "$subpkgdir"/compat/share
+	mv "$pkgdir"/compat/share/i18n "$subpkgdir"/compat/share
+}
+
 check() {
 	cd "$builddir"/glibc-build
 
 	echo "CFLAGS=" >> configparms
 	echo "CPPFLAGS-config=" >> configparms
 
-	make check || true
+	make check
 }
 
-sha512sums="146bc0769fe853d9edbf93cea7f74c5b3d84d69cb7614c62588e7acdecd1ec789a9d8949f3e8b99f8f36f2ccac740a003bed94f32b07817baf780b06cfeb6ed0  glibc-2.29.tar.xz"
+sha512sums="146bc0769fe853d9edbf93cea7f74c5b3d84d69cb7614c62588e7acdecd1ec789a9d8949f3e8b99f8f36f2ccac740a003bed94f32b07817baf780b06cfeb6ed0  glibc-2.29.tar.xz
+9ea1eeea7a9c1b35453b571aef91ae82329190d2d77372282ea0f3837e5e5a0e1b3c2a0a79c122c8884956b795c37d71d3e3c931fd62dc6fca5582186f618746  glibc-c-utf8-locale.patch
+d856f3ad7024119ef2070984202a62d2392e42cde30fbe93bddf7e01fecda8cab0e3a386700450819928b7ae1dfd7c80f93689a8c6ac4f327945b8e4f780a7cf  glibc-locale-gen"

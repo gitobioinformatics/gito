@@ -1,0 +1,54 @@
+#!/bin/sh
+
+set -e
+
+GLIBC_LOCALES=/etc/glibc-locales
+GLIBC_LOCALEDEF=/compat/bin/localedef
+
+LOCALES=/compat/share/i18n/locales
+LOCALE_ARCHIVE=/compat/lib/locale/locale-archive
+LOCALE_ALIAS=/compat/share/locale/locale.alias
+
+if [ -n "$POSIXLY_CORRECT" ]; then
+	unset POSIXLY_CORRECT
+fi
+
+
+if [ ! -f $GLIBC_LOCALES ]; then
+	exit 0
+fi
+
+if [ -f $LOCALE_ARCHIVE ]; then
+	rm -f $LOCALE_ARCHIVE
+else
+	mkdir -p $(dirname $LOCALE_ARCHIVE)
+fi
+
+umask 022
+
+echo "Generating GNU libc locales..."
+while read locale charset; do
+	case $locale in 
+		\#*) continue ;; 
+		"") continue ;; 
+	esac;
+
+	if [ -z "$locale" ] || [ -z "$charset" ] ; then
+		echo "error: Bad entry '$locale $charset'"
+		continue
+	fi
+
+	echo -n "  $(echo $locale | sed 's/\([^.\@]*\).*/\1/')"
+	echo -n ".$charset"
+	echo -n "$(echo $locale | sed 's/\([^\@]*\)\(\@.*\)*/\2/')"
+	echo -n '...'
+	if [ -f "$LOCALES/$locale" ]; then 
+		input="$locale"
+	else
+		input=$(echo "$locale" | sed 's/\([^.]*\)[^@]*\(.*\)/\1\2/')
+	fi
+	$GLIBC_LOCALEDEF --force --input "$input" --charmap "$charset" \
+		--alias-file $LOCALE_ALIAS "$locale"
+	echo ' done'
+done < $GLIBC_LOCALES
+echo "Generation complete."
