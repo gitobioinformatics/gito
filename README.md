@@ -176,4 +176,4 @@ This work has been supported by Conselho Nacional de Desenvolvimento Científico
  <i><b>Email:</b> msousa@museu-goeldi.br<br>
  Laboratório de Biologia Molecular<br>
  Museu Paraense Emílio Goeldi<br>
- Av. Perimetral 1901. CEP 66077- 530. Belém, Pará, Brasil.</i>
+ Av. Perimetral 1901. CEP 66077- 530. Belém, Pará, Brazil.</i>
