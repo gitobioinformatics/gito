@@ -1,5 +1,19 @@
 #!/bin/sh
 
+gen_split() {
+	cat <<-EOF
+		$1() {
+		    pkgdir="\$pkgdir/$prefix" default_${1}
+
+		    cd "\$subpkgdir"
+		    for i in */; do
+		        mkdir -p "\$subpkgdir"'$prefix'
+		        mv "\$i" "\$subpkgdir"'$prefix/'"\$i"
+		    done
+		}
+	EOF
+}
+
 do_convert() {
 	if [ -z "$1" ]; then
 		echo 'Missing archive path'
@@ -61,7 +75,8 @@ do_convert() {
 	fi
 
 	# Prepend the package name to subpackages
-	subpackages=$(echo "$subpackages" | sed -e '/^$/!s/[^ ]* */'"$name"'-&/g')
+	subpackages=$(echo "$splits" | xargs \
+		| sed -e '/^$/!s/[^ ]* */'"$name"'-&/g')
 
 	local tmpdir=$(mktemp -d)
 	local startdir="$tmpdir"/"$repository_name"/"$name"
@@ -114,11 +129,15 @@ do_convert() {
 		subpackages="$subpackages"
 		options="!check $options"
 
+		$(for sub in $splits; do gen_split ${sub}; done)
+
 		package() {
-			mkdir -p "\$pkgdir"'$prefix'
-			tar -C "\$pkgdir"'$prefix' $tarflags -xf "\$srcdir"'/$filename'
+		    mkdir -p "\$pkgdir"'$prefix'
+		    tar -C "\$pkgdir"'$prefix' $tarflags -xf "\$srcdir"'/$filename'
 		}
 	EOF
+
+	cat "$startdir"/APKBUILD
 
 	cd "$startdir"
 	abuild rootpkg index
@@ -138,20 +157,19 @@ usage() {
 		                      Useful when reading from stdin
 		  -d, --desc          Set package description
 		  -D, --depends       Add dependency to package
-		      --dev           Add development subpackage
-		      --doc           Add documentation subpackage
-		      --dbg           Add debug subpackage
+		  --dev               Add development subpackage
+		  --doc               Add documentation subpackage
 		  -h, --help          Show this help
 		  -l, --license       Set package license
 		  -n, --name          Set package name
-		      --no-strip      Don't strip binaries from package
-		      --no-tracedeps  Don't automatically find dependencies
-		      --prefix        Add prefix
-		  -r, --release       Set package release
+		  --no-strip          Don't strip binaries from package
+		  --no-tracedeps      Don't automatically find dependencies
+		  --prefix            Add prefix
+		  -r, --release	      Set package release
 		  -R, --repository    Set package repository (default: aports)
 		  -u, --url           Set package url
 		  -v, --version       Set package version
-		  -x, --exclude       Ignore this pattern on archive
+		  -x, --exclude	      Ignore this pattern on archive
 	EOF
 }
 
@@ -163,7 +181,6 @@ cli_options() {
 		-l depends: \
 		-l dev \
 		-l doc \
-		-l dbg \
 		-l help: \
 		-l license: \
 		-l name: \
@@ -172,7 +189,7 @@ cli_options() {
 		-l option: \
 		-l rel: \
 		-l repository: \
-                -l prefix: \
+		-l prefix: \
 		-l url: \
 		-l version: \
 		-l exclude: \
@@ -188,6 +205,19 @@ fi
 
 eval set -- "$opts"
 
+arch=
+description=
+depends=
+splits=
+license=
+name=
+options=
+repository_name=
+prefix=
+url=
+version=
+exclude=
+
 while true; do
 	case $1 in
 		-a|--arch)
@@ -202,7 +232,7 @@ while true; do
 			depends="$2 $depends"
 			shift
 			;;
-		--dev | --doc | --dbg) subpackages="$2 ${1#--}" ;;
+		--dev | --doc) splits="$splits ${1#--}" ;;
 		-h|--help) usage; exit ;;
 		-l|--license)
 			license="$2"
@@ -212,7 +242,7 @@ while true; do
 			name="$2"
 			shift
 			;;
-		-no-*) options="$options !${1#-no-}" ;;
+		--no-*) options="$options !${1#--no-}" ;;
 		-r|--release)
 			release="$2"
 			shift
@@ -221,10 +251,10 @@ while true; do
 			repository_name=$2
 			shift
 			;;
-                --prefix)
-                        prefix="$2"
-                        shift
-                        ;;
+		--prefix)
+			prefix="$2"
+			shift
+			;;
 		-u|--url)
 			url="$2"
 			shift
