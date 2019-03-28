@@ -1,15 +1,19 @@
 #!/bin/sh
 
 gen_split() {
+	if [ -z "$prefix" ]; then
+		return
+	fi
+
 	cat <<-EOF
 		$1() {
-		    pkgdir="\$pkgdir/$prefix" default_${1}
+			pkgdir="\$pkgdir/$prefix" default_${1}
 
-		    cd "\$subpkgdir"
-		    for i in */; do
-		        mkdir -p "\$subpkgdir"'$prefix'
-		        mv "\$i" "\$subpkgdir"'$prefix/'"\$i"
-		    done
+			cd "\$subpkgdir"
+			for i in */; do
+				mkdir -p "\$subpkgdir"'$prefix'
+				mv "\$i" "\$subpkgdir"'$prefix/'"\$i"
+			done
 		}
 	EOF
 }
@@ -29,7 +33,7 @@ do_convert() {
 
 	if [ -z "$name" ]; then
 		if [ "$archive" != '-' ]; then
-			name=${archive%%.*}
+			name=${archive%.*}
 		else
 			echo 'Missing package name'
 			return 1
@@ -53,13 +57,8 @@ do_convert() {
 	fi
 
 	if [ -z "$url" ]; then
-		if [ -n "$APK_DEFAULT_URL" ]; then
-			url=$(echo "$APK_DEFAULT_URL" \
-				| sed -e 's/%%NAME%%/'"$name"'/')
-		else
-			echo 'Missing package url'
-			exit 1
-		fi
+		echo 'Missing package url'
+		exit 1
 	fi
 
 	if [ -z "$arch" ]; then
@@ -74,6 +73,17 @@ do_convert() {
 		license='Unknown'
 	fi
 
+	if [ -z "$type" ] || [ "$type" = 'auto' ]; then
+		if [ -d "$archive" ]; then
+			type=dir
+		else
+			case "$archive" in
+				*.tar | *.tar.*) type='tar' ;;
+				*.zip) type='zip' ;;
+			esac
+		fi
+	fi
+
 	# Prepend the package name to subpackages
 	subpackages=$(echo "$splits" | xargs \
 		| sed -e '/^$/!s/[^ ]* */'"$name"'-&/g')
@@ -81,41 +91,53 @@ do_convert() {
 	local tmpdir=$(mktemp -d)
 	local startdir="$tmpdir"/"$repository_name"/"$name"
 	local srcdir="$startdir"/src
+	local builddir="$srcdir/$name-$version"
 
-	mkdir -p "$startdir" "$srcdir"
+	mkdir -p "$startdir" "$srcdir" "${builddir}$prefix"
 
-	if [ "$archive" = '-' ]; then
-		local ext
-		case "$compress" in
-			z | gzip) ext='tar.gz' ;;
-			j | bzip2) ext='tar.bz2' ;;
-			J | xz) ext='tar.xz' ;;
-		esac
+	case "$type" in
+		dir)
+			if [ "$archive" = '-' ]; then
+				echo 'Cannot read directory from standard input!' >&2
+				exit 1
+			fi
 
-		filename="$name.$ext"
-		cat > "$srcdir/$filename"
-	else
-		filename="$(basename $archive)"
-		cp "$archive" "$srcdir/$filename"
-	fi
+			cp -r "$archive" ${builddir}$prefix
+			;;
+		tar)
+			if [ "$archive" = '-' ]; then
+				archive="/dev/stdin"
+			fi
 
-	local tarflags
-	local exclude_opt
+			local compress_opt
 
-	if [ -n "$compress" ]; then
-		case "$compress" in
-			z | j | J)
-				tarflags="$tarflags -$compress";;
-			gzip | bzip2 | xz)
-				tarflags="$tarflags --$compress";;
-		esac
-	fi
+			if [ -n "$compress" ]; then
+				case "$compress" in
+					z | j | J)
+						compress_opt="-$compress";;
+					gzip | bzip2 | xz)
+						compress_opt="--$compress";;
+				esac
+			fi
+
+			tar xf "$archive" -C "${builddir}$prefix" "$compress_opt"
+			;;
+		zip)
+			if [ "$archive" = '-' ]; then
+				archive="/dev/stdin"
+			fi
+
+			unzip -d "${builddir}$prefix" "$archive" $exclude_opt
+			;;
+	esac
+
+	cd "${builddir}$prefix"
 
 	for pattern in $exclude; do
-		exclude_opt='--exclude '"'$pattern'"' '"$exclude_opt"
+		find * -path "$pattern"
 	done
 
-	tarflags="$tarfile $exclude_opt"
+	cd -
 
 	cat <<-EOF > "$startdir"/APKBUILD
 		pkgname="$name"
@@ -129,11 +151,13 @@ do_convert() {
 		subpackages="$subpackages"
 		options="!check $options"
 
+		builddir="\$srcdir/\$pkgname-\$pkgver"
+
 		$(for sub in $splits; do gen_split ${sub}; done)
 
 		package() {
-		    mkdir -p "\$pkgdir"'$prefix'
-		    tar -C "\$pkgdir"'$prefix' $tarflags -xf "\$srcdir"'/$filename'
+			mkdir -p "\$pkgdir"
+			mv "\$builddir"/* "\$pkgdir"
 		}
 	EOF
 
@@ -149,7 +173,7 @@ usage() {
 	cat <<-EOF
 		Usage: conv2apk [OPTIONS] file
 
-		Convert a tar package into Alpine Linux package
+		Convert a tar, zip or directory into Alpine Linux package
 
 		Options:
 		  -a, --arch          Set package machine architecture
@@ -167,6 +191,8 @@ usage() {
 		  --prefix            Add prefix
 		  -r, --release	      Set package release
 		  -R, --repository    Set package repository (default: aports)
+		  -t, --type  {auto,dir,tar,zip}
+		                      Set source type (default: auto).
 		  -u, --url           Set package url
 		  -v, --version       Set package version
 		  -x, --exclude	      Ignore this pattern on archive
@@ -174,9 +200,9 @@ usage() {
 }
 
 cli_options() {
-	getopt \
-		-o a:c:d:D:h:l:n:r:R:u:v:x: \
+	getopt -o a:c:d:D:h:l:n:r:R:t:u:v:x: \
 		-l arch: \
+		-l compress \
 		-l desc: \
 		-l depends: \
 		-l dev \
@@ -186,10 +212,10 @@ cli_options() {
 		-l name: \
 		-l no-strip \
 		-l no-tracedeps \
-		-l option: \
 		-l rel: \
 		-l repository: \
 		-l prefix: \
+		-l type: \
 		-l url: \
 		-l version: \
 		-l exclude: \
