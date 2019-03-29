@@ -19,17 +19,7 @@ gen_split() {
 }
 
 do_convert() {
-	if [ -z "$1" ]; then
-		echo 'Missing archive path'
-		return 1
-	fi
-
 	local archive="$1"
-
-	if [ ! -f "$archive" ]; then
-		echo "Archive don't exists: $archive"
-		return 1
-	fi
 
 	if [ -z "$name" ]; then
 		if [ "$archive" != '-' ]; then
@@ -73,13 +63,13 @@ do_convert() {
 		license='Unknown'
 	fi
 
-	if [ -z "$type" ] || [ "$type" = 'auto' ]; then
+	if [ -z "$src_type" ] || [ "$src_type" = 'auto' ]; then
 		if [ -d "$archive" ]; then
-			type=dir
+			src_type=dir
 		else
 			case "$archive" in
-				*.tar | *.tar.*) type='tar' ;;
-				*.zip) type='zip' ;;
+				*.tar | *.tar.*) src_type='tar' ;;
+				*.zip) src_type='zip' ;;
 			esac
 		fi
 	fi
@@ -95,18 +85,26 @@ do_convert() {
 
 	mkdir -p "$startdir" "$srcdir" "${builddir}$prefix"
 
-	case "$type" in
+	case "$src_type" in
 		dir)
-			if [ "$archive" = '-' ]; then
+			if [ -z "$archive" ]; then
+                archive=$PWD
+            elif [ "$archive" = '-' ]; then
 				echo 'Cannot read directory from standard input!' >&2
 				exit 1
-			fi
+            elif [ ! -d "$archive" ]; then
+                echo "Directory don't exists: $archive"
+                return 1
+            fi
 
-			cp -r "$archive" ${builddir}$prefix
+			cp -r "$archive"/* ${builddir}$prefix
 			;;
 		tar)
-			if [ "$archive" = '-' ]; then
+			if [ -z "$archive" ] || [ "$archive" = '-' ]; then
 				archive="/dev/stdin"
+            elif [ ! -f "$archive" ]; then
+                echo "Archive don't exists: $archive"
+                return 1
 			fi
 
 			local compress_opt
@@ -123,21 +121,31 @@ do_convert() {
 			tar xf "$archive" -C "${builddir}$prefix" "$compress_opt"
 			;;
 		zip)
-			if [ "$archive" = '-' ]; then
+			if [ -z "$archive" ] || [ "$archive" = '-' ]; then
 				archive="/dev/stdin"
-			fi
+            elif [ ! -f "$archive" ]; then
+                echo "Archive don't exists: $archive"
+                return 1
+            fi
 
-			unzip -d "${builddir}$prefix" "$archive" $exclude_opt
+			unzip -q -d "${builddir}$prefix" "$archive" $exclude_opt
 			;;
+        *)
+            echo "Invalid type for source pacakge: $src_type" >&2
+            exit 1
+            ;;
 	esac
 
 	cd "${builddir}$prefix"
+    set -f -o noglob
 
+    # Use ls instead of '*' as glob is disabled
 	for pattern in $exclude; do
-		find * -path "$pattern"
+        find $(ls) -path "$pattern" -exec rm -rf {} \; > /dev/null 2>&1
 	done
 
-	cd -
+    set -f +o noglob
+	cd $OLDPWD
 
 	cat <<-EOF > "$startdir"/APKBUILD
 		pkgname="$name"
@@ -202,7 +210,7 @@ usage() {
 cli_options() {
 	getopt -o a:c:d:D:h:l:n:r:R:t:u:v:x: \
 		-l arch: \
-		-l compress \
+		-l compress: \
 		-l desc: \
 		-l depends: \
 		-l dev \
@@ -232,6 +240,7 @@ fi
 eval set -- "$opts"
 
 arch=
+compress=
 description=
 depends=
 splits=
@@ -240,6 +249,7 @@ name=
 options=
 repository_name=
 prefix=
+src_type=
 url=
 version=
 exclude=
@@ -250,6 +260,10 @@ while true; do
 			arch="$2"
 			shift
 			;;
+        -c | --compress)
+            compress="$2"
+            shift
+            ;;
 		-d|--description)
 			description="$2"
 			shift
@@ -281,6 +295,10 @@ while true; do
 			prefix="$2"
 			shift
 			;;
+        -t|--type)
+            src_type="$2"
+            shift
+            ;;
 		-u|--url)
 			url="$2"
 			shift
