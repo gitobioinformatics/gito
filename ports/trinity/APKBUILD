@@ -11,7 +11,6 @@ license="BSD-3-Clause"
 depends="bash coreutils perl python2 py2-numpy openjdk8-jre bowtie2 jellyfish salmon samtools"
 makedepends="cmake zlib-dev libgff-dev cereal-dev"
 install=""
-subpackages="$pkgname-dbg"
 source="
 	https://github.com/trinityrnaseq/trinityrnaseq/archive/Trinity-v$pkgver.tar.gz#/$pkgname-$pkgver.tar.gz
 	000-installer-dest-patch.patch
@@ -54,6 +53,25 @@ package() {
 
 check() {
 	cd "$builddir"
+
+	_testdir="$builddir"/sample_data/test_Trinity_Assembly
+
+	_lsample="$_testdir"/reads.left.fq.gz
+	_rsample="$_testdir"/reads.right.fq.gz
+
+	./Trinity --seqType fq --max_memory 1G --SS_lib_type RF --CPU 1 \
+		--left "$_lsample" --right "$_rsample"
+	
+	# ./util/misc/illustrate_ref_comparison.pl \
+	# 	"$_testdir"/__indiv_ex_sample_derived/refSeqs.fa \
+	# 	"$_testdir"/trinity_out_dir/Trinity.fasta 90
+	#	
+	# ./Analysis/FL_reconstruction_analysis/FL_trans_analysis_pipeline.pl \
+	# 	--query "$_testdir"/trinity_out_dir/Trinity.fasta \
+	# 	--target "$_testdir"/__indiv_ex_sample_derived/refSeqs.fa \
+	# 	--no_reuse
+
+	rm -rf trinity_out_dir
 }
 
 sha512sums="952c7d91dfe6770ab18bda11897f6c19ea0511c3d3875ee0e3024411988f7a5c36698261e890c76d0075579f616b3d3a1d4225234141a9bb828ef5e13eeb1236  trinity-2.8.4.tar.gz
