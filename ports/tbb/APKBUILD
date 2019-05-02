@@ -13,15 +13,15 @@ depends=""
 makedepends=""
 subpackages="$pkgname-dev"
 source="
-    https://github.com/01org/tbb/archive/$_pkgver.tar.gz#/$pkgname-$_pkgver.tar.gz
-    fix-mallinfo.patch
-    "
+	https://github.com/01org/tbb/archive/$_pkgver.tar.gz#/$pkgname-$_pkgver.tar.gz
+	fix-mallinfo.patch
+	"
 
 builddir="$srcdir/$pkgname-$_pkgver"
 _buildprefix="$builddir/build/tbb"
 
 prepare() {
-    default_prepare
+	default_prepare
 	cd "$builddir"
 }
 
@@ -30,22 +30,24 @@ build() {
 
 	make \
 		compiler=${CC:-gcc} \
-	        tbb_build_prefix=tbb \
+		tbb_build_prefix=tbb \
 		tbb \
-	        tbbmalloc
+		tbbmalloc
 }
 
 package() {
-    cd "$builddir"
+	cd "$builddir"
 
-    mkdir -p "$pkgdir"/usr/lib
+	mkdir -p "$pkgdir"/usr/lib
 
-    find "$_buildprefix"_release -name '*.so*' -exec mv {} "$pkgdir"/usr/lib \;
-    mv include "$pkgdir"/usr
+	find "$_buildprefix"_release -name '*.so*' -exec mv {} "$pkgdir"/usr/lib \;
+	mv include "$pkgdir"/usr
 }
 
 check() {
-    :
+	cd "$builddir"
+
+	make test
 }
 
 sha512sums="f89d6849858367c065bd29db0b829ee08f54b382e52f9ba96d6cb589763ed4f9b8960924d145fa7e1b8167ecddf23e0c341190aa280b9609b3e154ca69da57ee  tbb-2019.tar.gz
