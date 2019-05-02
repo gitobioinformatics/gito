@@ -12,14 +12,18 @@ license="Public Domain"
 _vdb_pkgname=ncbi-vdb
 _vdb_pkgver=2.9.3
 _vdb_source="
-    https://github.com/ncbi/ncbi-vdb/archive/${_vdb_pkgver}.tar.gz#/${_vdb_pkgname}-${_vdb_pkgver}.tar.gz
-    vdb-fix-makefile.patch
-    vdb-musl-compat.patch
-    "
+	https://github.com/ncbi/ncbi-vdb/archive/${_vdb_pkgver}.tar.gz#/${_vdb_pkgname}-${_vdb_pkgver}.tar.gz
+	vdb-fix-makefile.patch
+	vdb-musl-compat.patch
+	"
 
 makedepends="perl bash ngs-dev ncbi-vdb-dev libxml2-dev"
+checkdepends="iputils"
 
-_sra_tools_source="https://github.com/ncbi/sra-tools/archive/${pkgver}.tar.gz#/${pkgname}-${pkgver}.tar.gz"
+_sra_tools_source="
+	https://github.com/ncbi/sra-tools/archive/${pkgver}.tar.gz#/${pkgname}-${pkgver}.tar.gz
+	sra-tools-fix-tests.patch
+	"
 source="$_sra_tools_source $_vdb_source"
 
 _builddir_sra_tools="$srcdir"/$pkgname-$pkgver
@@ -28,55 +32,58 @@ _builddir_vdb="$srcdir"/$_vdb_pkgname-$_vdb_pkgver
 builddir=$_builddir_sra_tools
 
 prepare() {
-    source="$_vdb_source"
-    builddir="$_builddir_vdb"
-    default_prepare
+	source="$_vdb_source"
+	builddir="$_builddir_vdb"
+	default_prepare
 
-    source="$_sra_tools_source"
-    builddir="$_builddir_sra_tools"
-    default_prepare
+	source="$_sra_tools_source"
+	builddir="$_builddir_sra_tools"
+	default_prepare
 
-    source="$_sra_tools_source $_vdb_source"
+	source="$_sra_tools_source $_vdb_source"
 
 	cd "$builddir"
 }
 
 _build_vdb() {
-    cd "$_builddir_vdb"
+	cd "$_builddir_vdb"
 	./configure \
-        --prefix=/usr \
-        --build-prefix="$builddir"/sra-tools-build \
-        --with-ngs-sdk-prefix=/usr
+		--prefix=/usr \
+		--build-prefix="$builddir"/sra-tools-build \
+		--with-ngs-sdk-prefix=/usr
 	make
 }
 
 build() {
-    _build_vdb
+	_build_vdb
 
 	cd "$builddir"
 	./configure \
-        --prefix=/usr \
-        --build-prefix="$builddir"/sra-tools-build \
-        --with-ngs-sdk-prefix=/usr \
-        --with-ncbi-vdb-sources="$_builddir_vdb"
+		--prefix=/usr \
+		--build-prefix="$builddir"/sra-tools-build \
+		--with-ngs-sdk-prefix=/usr \
+		--with-ncbi-vdb-sources="$_builddir_vdb"
 	make
 }
 
 package() {
 	cd "$builddir"
 	make \
-        ROOT="$pkgdir" \
-        INST_BINDIR="$pkgdir"/usr/bin \
-        INST_LIBDIR="$pkgdir"/usr/lib \
-        INST_INCDIR="$pkgdir"/usr/include \
-        install
+		ROOT="$pkgdir" \
+		INST_BINDIR="$pkgdir"/usr/bin \
+		INST_LIBDIR="$pkgdir"/usr/lib \
+		INST_INCDIR="$pkgdir"/usr/include \
+		install
 }
 
 check() {
 	cd "$builddir"
+
+	make test
 }
 
 sha512sums="e72f389f9c2fafe93d01a7e6bb7245f38f847ddc6d4c78a26ee81e40600e35cbfe5c4343ba9e0e35f2e6e4737163f46ce553aebf3bc7ca29550507efb11731a9  sra-tools-2.9.3.tar.gz
+19a9d5959e282e6ff6eb8b3175c1c36f65494abe0f06e95ba9d20c34853b11d4a184f15f3a68e3ea00a6ae14f6731ecfccae6195bc821e33f1eaf81dcd701db6  sra-tools-fix-tests.patch
 d271ce38649abcb0976db4d8d6a2264ab1e78fe347f0be3e43a67358643ae96168c1b178ac50934583a33e5ea983001e35aa4c209fe1d6ce741def18d97e333d  ncbi-vdb-2.9.3.tar.gz
 6e5af9f739049b44e2b0a7a1d4c7f2e00c52a2bfedef35c3e70c97689ab59babc4db67efba28d4bef9caf9bdcf3d13871aa10a82d0875190d10fdfd3202b6efa  vdb-fix-makefile.patch
 90cd0989de6bc32d10c6d9c7b588e1f6292f4f8f8a2aed635fe586238af523b5da8093fdcc522de1ae6b31c57df20f191c8095c4fc78c2fa143f1198648bda32  vdb-musl-compat.patch"
