@@ -49,6 +49,8 @@ package() {
 
 check() {
 	cd "$builddir"
+
+	java -jar "$builddir"/dist/jar/trimmomatic-"$pkgver".jar -version
 }
 
 sha512sums="79e25bd83d2cdb145fbefe3a23cfcf6de758c2ec0565bd03a7af2deb2f62deb24ac7f8a169507ba1e219bb36b70e814c081232e62a31c8200ceecbb2bdcd9d8a  Trimmomatic-Src-0.38.zip"
