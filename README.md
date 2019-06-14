@@ -160,6 +160,8 @@ Universidade Federal do Pará (UFPA)
     
 Centro Universitário do Estado do Pará (CESUPA)
 
+We would like to thank Igor Schneider  (Laboratory for Development and Evolution-UFPA)
+
 ## Funding
 
 This work has been supported by Conselho Nacional de Desenvolvimento Científico e Tecnológico - CNPq (grants 149985/2018-5; 129954/2018-7).
