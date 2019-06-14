@@ -155,6 +155,8 @@ We thank the following institutions, which contributed to ensuring the success o
 Ministério da Ciência, Tecnologia, Inovação e Comunicação (MCTIC)
     
 Museu Paraense Emílio Goeldi (MPEG)
+
+Universidade Federal do Pará (UFPA)
     
 Centro Universitário do Estado do Pará (CESUPA)
 
@@ -173,7 +175,5 @@ This work has been supported by Conselho Nacional de Desenvolvimento Científico
  
  Dr. Marcos Paulo Alves de Sousa (Project leader)
  
- <i><b>Email:</b> msousa@museu-goeldi.br<br>
- Laboratório de Biologia Molecular<br>
- Museu Paraense Emílio Goeldi<br>
- Av. Perimetral 1901. CEP 66077- 530. Belém, Pará, Brazil.</i>
+ <i><b>Email:</b> marcosp.belem@gmail.com<br>
+ Centro Universitário do Estado do Pará.</i>
