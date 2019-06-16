@@ -160,7 +160,7 @@ Universidade Federal do Pará (UFPA)
     
 Centro Universitário do Estado do Pará (CESUPA)
 
-We would like to thank Dr. Igor Schneider  (Laboratory for Development and Evolution-UFPA)
+We thank Dr. Igor Schneider  (Laboratory for Development and Evolution-UFPA)
 
 ## Funding
 
