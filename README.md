@@ -175,7 +175,9 @@ This work has been supported by Conselho Nacional de Desenvolvimento Científico
  
  ## Contact
  
- Dr. Marcos Paulo Alves de Sousa (Project leader)
- 
- <i><b>Email:</b> marcosp.belem@gmail.com<br>
- Centro Universitário do Estado do Pará.</i>
+Dr. Marcos Paulo Alves de Sousa (Project leader)
+
+_Email: **msousa@museu-goeldi.br**_<br>
+_Laboratório de Biologia Molecular_<br>
+_Museu Paraense Emílio Goeldi_<br>
+_Av. Perimetral 1901. CEP 66077- 530. Belém, Pará, Brazil._
