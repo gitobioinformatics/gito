@@ -8,8 +8,14 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
+          apk add --no-cache openssl
+      - run:
+          name: Setup private and public keys
+          command: |
+              mkdir -p keys
+              openssl genrsa -out keys/packager_key.rsa 2048
+              openssl rsa -in keys/packager_key.rsa -pubout -out keys/packager_key.rsa.pub
+      - run:
           name: Build application Docker image
           command: |
-              ls
               ./gitobld build -rS all
-              # docker build --cache-from=app -t app .
