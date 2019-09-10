@@ -35,7 +35,10 @@ abuild_run() {
 	fi
 
 	aports_mount="type=bind,src=$PORTS_DIRECTORY,dst=$aportsdir"
-	[ -z "$update_checksum_opt" ] && aports_mount="$aports_mount"',readonly'
+
+	if [ -z "$interactive_mode" ] && [ -z "$update_checksum_opt" ]; then
+		aports_mount="$aports_mount"',readonly'
+	fi
 
 	run_args="
 		$run_args
