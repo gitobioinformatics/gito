@@ -114,7 +114,7 @@ while getopts "hs:w:j:m:u:g:" opt; do
 	esac
 done
 
-NCBI_SRA=${WORKDIR:-SRR5357800}
+NCBI_SRA=${NCBI_SRA:-SRR5357800}
 
 WORKDIR=${WORKDIR:-$PWD}
 
