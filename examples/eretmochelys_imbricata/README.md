@@ -18,13 +18,13 @@ $ mkdir bin/ work/                                          // Create bin and wo
 
 ```sh
 $ wget https://raw.githubusercontent.com/gitobioinformatics/gito/master/examples/eretmochelys_imbricata/run_pipeline.sh -O bin/   
-$ chmod +x bin/run_pipeline.sh					// Download script and change permissions
+$ chmod +x bin/run_pipeline.sh				     // Download script and change permissions
 ```
 
 ## Run the pipeline
 
 ```sh
-$ ./bin/run_pipeline.sh -w work/                             // Running the pipeline
+$ ./bin/run_pipeline.sh -w work/                            // Running the pipeline
 ```
 
 ## The mean pipeline execution time
