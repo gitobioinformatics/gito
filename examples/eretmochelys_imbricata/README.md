@@ -9,22 +9,22 @@ Gito was used to reproduce the pipeline present in the work of [Hernández-Fern�
 ## Preparing execution environment
 
 ```sh
-$ mkdir -p ~/pipeline/eretmochelys_imbricata
-$ cd ~/pipeline/eretmochelys_imbricata
-$ mkdir bin/ work/
+$ mkdir -p ~/pipeline/eretmochelys_imbricata                // Criando diretório eretmochelys_imbricata e pipeline
+$ cd ~/pipeline/eretmochelys_imbricata                      // Mudando de diretório atual
+$ mkdir bin/ work/                                          // Criando diretórios bin e work
 ```
 
 ## Download 
 
 ```sh
-$ wget https://raw.githubusercontent.com/gitobioinformatics/gito/master/examples/eretmochelys_imbricata/run_pipeline.sh -O bin/
-$ chmod +x bin/run_pipeline.sh
+$ wget https://raw.githubusercontent.com/gitobioinformatics/gito/master/examples/eretmochelys_imbricata/run_pipeline.sh -O bin/   
+$ chmod +x bin/run_pipeline.sh                               // Alterar permissôes de execução
 ```
 
 ## Run the pipeline
 
 ```sh
-$ ./bin/run_pipeline.sh -w work/
+$ ./bin/run_pipeline.sh -w work/                             // Executar pipeline
 ```
 
 ## The mean pipeline execution time
@@ -39,3 +39,4 @@ Containers were created with the Gito image in the DigitalOcean cloud with a vir
 | Bowtie2 | 51m 26s |
 | Complete pipeline | 10h 59m 54s |
 
+## Assembly-Stats
