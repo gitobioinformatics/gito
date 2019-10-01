@@ -9,16 +9,16 @@ Gito was used to reproduce the pipeline present in the work of [Hernández-Fern�
 ## Preparing execution environment
 
 ```sh
-$ mkdir -p ~/pipeline/eretmochelys_imbricata                // Criando diretório eretmochelys_imbricata e pipeline
-$ cd ~/pipeline/eretmochelys_imbricata                      // Mudando de diretório atual
-$ mkdir bin/ work/                                          // Criando diretórios bin e work
+$ mkdir -p ~/pipeline/eretmochelys_imbricata                // Criar diretório eretmochelys_imbricata e pipeline
+$ cd ~/pipeline/eretmochelys_imbricata                      // Mudar de diretório atual
+$ mkdir bin/ work/                                          // Criar diretórios bin e work
 ```
 
 ## Download 
 
 ```sh
 $ wget https://raw.githubusercontent.com/gitobioinformatics/gito/master/examples/eretmochelys_imbricata/run_pipeline.sh -O bin/   
-$ chmod +x bin/run_pipeline.sh                               // Alterar permissôes de execução
+$ chmod +x bin/run_pipeline.sh					// Alterar permissôes de execução
 ```
 
 ## Run the pipeline
@@ -40,3 +40,5 @@ Containers were created with the Gito image in the DigitalOcean cloud with a vir
 | Complete pipeline | 10h 59m 54s |
 
 ## Assembly-Stats
+
+![assembly-stats](https://raw.githubusercontent.com/rubensmk/gito/master/images/assembly-stats-.png)
