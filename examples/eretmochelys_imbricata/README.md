@@ -39,6 +39,3 @@ Containers were created with the Gito image in the DigitalOcean cloud with a vir
 | Bowtie2 | 51m 26s |
 | Complete pipeline | 10h 59m 54s |
 
-## Assembly-Stats
-
-![assembly-stats](https://raw.githubusercontent.com/rubensmk/gito/master/images/assembly-stats-.png)
