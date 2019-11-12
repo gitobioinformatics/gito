@@ -1,0 +1,277 @@
+#!/bin/sh
+
+gen_split() {
+	cat <<-EOF
+		$1() {
+		    pkgdir="\$pkgdir/$prefix" default_${1}
+
+		    cd "\$subpkgdir"
+		    for i in */; do
+		        mkdir -p "\$subpkgdir"'$prefix'
+		        mv "\$i" "\$subpkgdir"'$prefix/'"\$i"
+		    done
+		}
+	EOF
+}
+
+do_convert() {
+	if [ -z "$1" ]; then
+		echo 'Missing archive path'
+		return 1
+	fi
+
+	local archive="$1"
+
+	if [ ! -f "$archive" ]; then
+		echo "Archive don't exists: $archive"
+		return 1
+	fi
+
+	if [ -z "$name" ]; then
+		if [ "$archive" != '-' ]; then
+			name=${archive%%.*}
+		else
+			echo 'Missing package name'
+			return 1
+		fi
+	fi
+
+	if [ -z "$repository_name" ]; then
+		repository_name='aports'
+	fi
+
+	if [ -z "$version" ]; then
+		version=$(date +%Y.%m.%d)
+	fi
+
+	if [ -z "$release" ]; then
+		release=0
+	fi
+
+	if [ -z "$description" ]; then
+		description="Package for '$name', generated using conv2apk"
+	fi
+
+	if [ -z "$url" ]; then
+		if [ -n "$APK_DEFAULT_URL" ]; then
+			url=$(echo "$APK_DEFAULT_URL" \
+				| sed -e 's/%%NAME%%/'"$name"'/')
+		else
+			echo 'Missing package url'
+			exit 1
+		fi
+	fi
+
+	if [ -z "$arch" ]; then
+		if [ -n "$APK_DEFAULT_ARCH" ]; then
+			arch="$APK_DEFAULT_ARCH"
+		else
+			arch='noarch'
+		fi
+	fi
+
+	if [ -z "$license" ]; then
+		license='Unknown'
+	fi
+
+	# Prepend the package name to subpackages
+	subpackages=$(echo "$splits" | xargs \
+		| sed -e '/^$/!s/[^ ]* */'"$name"'-&/g')
+
+	local tmpdir=$(mktemp -d)
+	local startdir="$tmpdir"/"$repository_name"/"$name"
+	local srcdir="$startdir"/src
+
+	mkdir -p "$startdir" "$srcdir"
+
+	if [ "$archive" = '-' ]; then
+		local ext
+		case "$compress" in
+			z | gzip) ext='tar.gz' ;;
+			j | bzip2) ext='tar.bz2' ;;
+			J | xz) ext='tar.xz' ;;
+		esac
+
+		filename="$name.$ext"
+		cat > "$srcdir/$filename"
+	else
+		filename="$(basename $archive)"
+		cp "$archive" "$srcdir/$filename"
+	fi
+
+	local tarflags
+	local exclude_opt
+
+	if [ -n "$compress" ]; then
+		case "$compress" in
+			z | j | J)
+				tarflags="$tarflags -$compress";;
+			gzip | bzip2 | xz)
+				tarflags="$tarflags --$compress";;
+		esac
+	fi
+
+	for pattern in $exclude; do
+		exclude_opt='--exclude '"'$pattern'"' '"$exclude_opt"
+	done
+
+	tarflags="$tarfile $exclude_opt"
+
+	cat <<-EOF > "$startdir"/APKBUILD
+		pkgname="$name"
+		pkgver="$version"
+		pkgrel="$release"
+		pkgdesc="$description"
+		url="$url"
+		arch="$arch"
+		license="$license"
+		depends="$depends"
+		subpackages="$subpackages"
+		options="!check $options"
+
+		$(for sub in $splits; do gen_split ${sub}; done)
+
+		package() {
+		    mkdir -p "\$pkgdir"'$prefix'
+		    tar -C "\$pkgdir"'$prefix' $tarflags -xf "\$srcdir"'/$filename'
+		}
+	EOF
+
+	cat "$startdir"/APKBUILD
+
+	cd "$startdir"
+	abuild rootpkg index
+
+	rm -rf "$tmpdir"
+}
+
+usage() {
+	cat <<-EOF
+		Usage: conv2apk [OPTIONS] file
+
+		Convert a tar package into Alpine Linux package
+
+		Options:
+		  -a, --arch          Set package machine architecture
+		  -c, --compress      Set compression method of tarfile
+		                      Useful when reading from stdin
+		  -d, --desc          Set package description
+		  -D, --depends       Add dependency to package
+		  --dev               Add development subpackage
+		  --doc               Add documentation subpackage
+		  -h, --help          Show this help
+		  -l, --license       Set package license
+		  -n, --name          Set package name
+		  --no-strip          Don't strip binaries from package
+		  --no-tracedeps      Don't automatically find dependencies
+		  --prefix            Add prefix
+		  -r, --release	      Set package release
+		  -R, --repository    Set package repository (default: aports)
+		  -u, --url           Set package url
+		  -v, --version       Set package version
+		  -x, --exclude	      Ignore this pattern on archive
+	EOF
+}
+
+cli_options() {
+	getopt \
+		-o a:c:d:D:h:l:n:r:R:u:v:x: \
+		-l arch: \
+		-l desc: \
+		-l depends: \
+		-l dev \
+		-l doc \
+		-l help: \
+		-l license: \
+		-l name: \
+		-l no-strip \
+		-l no-tracedeps \
+		-l option: \
+		-l rel: \
+		-l repository: \
+		-l prefix: \
+		-l url: \
+		-l version: \
+		-l exclude: \
+		-n 'conv2apk' -- "$@"
+}
+
+opts=$(cli_options "$@")
+
+if [ "$?" -ne 0 ]; then
+	usage
+	exit 1
+fi
+
+eval set -- "$opts"
+
+arch=
+description=
+depends=
+splits=
+license=
+name=
+options=
+repository_name=
+prefix=
+url=
+version=
+exclude=
+
+while true; do
+	case $1 in
+		-a|--arch)
+			arch="$2"
+			shift
+			;;
+		-d|--description)
+			description="$2"
+			shift
+			;;
+		-D|--depends)
+			depends="$2 $depends"
+			shift
+			;;
+		--dev | --doc) splits="$splits ${1#--}" ;;
+		-h|--help) usage; exit ;;
+		-l|--license)
+			license="$2"
+			shift
+			;;
+		-n|--name)
+			name="$2"
+			shift
+			;;
+		--no-*) options="$options !${1#--no-}" ;;
+		-r|--release)
+			release="$2"
+			shift
+			;;
+		-R|--repository-name)
+			repository_name=$2
+			shift
+			;;
+		--prefix)
+			prefix="$2"
+			shift
+			;;
+		-u|--url)
+			url="$2"
+			shift
+			;;
+		-v|--version)
+			version="$2"
+			shift
+			;;
+		-x|--exclude)
+			exclude="$exclude $2"
+			shift
+			;;
+		--) shift; break ;;
+		*) exit 1 ;;
+	esac
+
+	shift
+done
+
+do_convert "$1"
