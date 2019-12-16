@@ -2,7 +2,7 @@
 # Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
 
 pkgname=jellyfish
-pkgver=2.2.10
+pkgver=2.3.0
 pkgrel=0
 pkgdesc="A fast multi-threaded k-mer counter"
 url="http://www.genome.umd.edu/jellyfish.html"
@@ -32,5 +32,5 @@ check() {
         cd "$builddir"
 }
 
-sha512sums="241f151981c840f8c68b39465d19db2c2199183908e7de337ccb1bf0fb107a088c2ea116f8a023ca6eab338a6a63c46d6b7915ce508577d8a5bc1d5537f8de19  jellyfish-2.2.10.tar.gz"
+sha512sums="29634e4ba3be92a53c41a50421c857d985f389f5b9db770298904c1a301c0f16b61a3414cd4cb3a62a0f83fb223945eb5d55554268e3f9a35c31e1a52143d966  jellyfish-2.3.0.tar.gz"
 
