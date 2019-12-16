@@ -2,7 +2,7 @@
 # Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
 
 pkgname=bowtie2
-pkgver=2.3.4.3
+pkgver=2.3.5.1
 pkgrel=0
 pkgdesc="Bowtie, an ultrafast, memory-efficient short read aligner for short DNA sequences (reads) from next-gen sequencers"
 url="http://bowtie-bio.sourceforge.net/bowtie2/index.shtml"
@@ -43,5 +43,5 @@ check() {
 	cd "$builddir"
 }
 
-sha512sums="6cb17cfa11d7691173cedf97b25b965de099bb9f5ce39fe0919f6b44c5bd34b90ffee865fd9a8ee954105a4aa5f24e2930c8dc071fe4b695d31df838ed3041a9  bowtie2-2.3.4.3.tar.gz"
+sha512sums="65a3c77ca4d68e73fac464d3c60caeeab7c842c9ecd1d91ef005a15e911f7c1f51afe16a1eee5cba86bf880c157998b1200e49fb0e49b9b1b82959cfeb18fea8  bowtie2-2.3.5.1.tar.gz"
 
