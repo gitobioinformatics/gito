@@ -9,22 +9,22 @@ Gito was used to reproduce the pipeline present in the work of [Hern√°ndez-Fern√
 ## Preparing execution environment
 
 ```sh
-$ mkdir -p ~/pipeline/eretmochelys_imbricata
-$ cd ~/pipeline/eretmochelys_imbricata
-$ mkdir bin/ work/
+$ mkdir -p ~/pipeline/eretmochelys_imbricata                // Create eretmochelys_imbricata and pipeline directory
+$ cd ~/pipeline/eretmochelys_imbricata                      // Change directory
+$ mkdir bin/ work/                                          // Create bin and work directory
 ```
 
 ## Download 
 
 ```sh
-$ wget https://raw.githubusercontent.com/gitobioinformatics/gito/master/examples/eretmochelys_imbricata/run_pipeline.sh -O bin/
-$ chmod +x bin/run_pipeline.sh
+$ wget https://raw.githubusercontent.com/gitobioinformatics/gito/master/examples/eretmochelys_imbricata/run_pipeline.sh -O bin/   
+$ chmod +x bin/run_pipeline.sh				     // Download script and change permissions
 ```
 
 ## Run the pipeline
 
 ```sh
-$ ./bin/run_pipeline.sh -w work/
+$ ./bin/run_pipeline.sh -w work/                            // Running the pipeline
 ```
 
 ## The mean pipeline execution time

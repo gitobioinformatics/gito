@@ -2,7 +2,7 @@
 # Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
 
 pkgname=sra-tools
-pkgver=2.9.3
+pkgver=2.10.0
 pkgrel=0
 pkgdesc="The SRA Toolkit and SDK from NCBI is a collection of tools and libraries for using data in the INSDC Sequence Read Archives"
 url="https://github.com/ncbi/sra-tools"
@@ -10,7 +10,7 @@ arch="x86_64"
 license="Public Domain"
 
 _vdb_pkgname=ncbi-vdb
-_vdb_pkgver=2.9.3
+_vdb_pkgver=2.10.0
 _vdb_source="
     https://github.com/ncbi/ncbi-vdb/archive/${_vdb_pkgver}.tar.gz#/${_vdb_pkgname}-${_vdb_pkgver}.tar.gz
     vdb-fix-makefile.patch
@@ -76,8 +76,7 @@ check() {
 	cd "$builddir"
 }
 
-sha512sums="e72f389f9c2fafe93d01a7e6bb7245f38f847ddc6d4c78a26ee81e40600e35cbfe5c4343ba9e0e35f2e6e4737163f46ce553aebf3bc7ca29550507efb11731a9  sra-tools-2.9.3.tar.gz
-d271ce38649abcb0976db4d8d6a2264ab1e78fe347f0be3e43a67358643ae96168c1b178ac50934583a33e5ea983001e35aa4c209fe1d6ce741def18d97e333d  ncbi-vdb-2.9.3.tar.gz
+sha512sums=""d5d3d08ca27dd5af582cc8ee8502a4adefb6b4da986d2d8881829eb233c6ee005e5f3f975109d69241101954d229b26eb440024ad48da201f412619e1d496a04  sra-tools-2.10.0.tar.gz
+5b5cad603c2cf3265d97c27298cfd716f3e32c833b2c307eb927a2bb17bb96b14a017d09a0ed2d96846234a739428e280c0d19137ed6f0bea633e454ec51f75a  ncbi-vdb-2.10.0.tar.gz
 6e5af9f739049b44e2b0a7a1d4c7f2e00c52a2bfedef35c3e70c97689ab59babc4db67efba28d4bef9caf9bdcf3d13871aa10a82d0875190d10fdfd3202b6efa  vdb-fix-makefile.patch
 90cd0989de6bc32d10c6d9c7b588e1f6292f4f8f8a2aed635fe586238af523b5da8093fdcc522de1ae6b31c57df20f191c8095c4fc78c2fa143f1198648bda32  vdb-musl-compat.patch"
-

@@ -2,7 +2,7 @@
 # Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
 
 pkgname=fastqc
-pkgver=0.11.7
+pkgver=0.11.8
 pkgrel=0
 pkgdesc="A quality control analysis tool for high throughput sequencing data"
 url="http://www.bioinformatics.babraham.ac.uk/projects/fastqc"
@@ -12,7 +12,7 @@ depends="perl openjdk8-jre fontconfig ttf-dejavu"
 makedepends="openjdk8 apache-ant"
 install=""
 subpackages=""
-source="https://github.com/s-andrews/FastQC/archive/v0.11.7.tar.gz#/$pkgname-$pkgver.tar.gz"
+source="https://github.com/s-andrews/FastQC/archive/v0.11.8.tar.gz#/$pkgname-$pkgver.tar.gz"
 
 builddir="$srcdir/FastQC-$pkgver"
 
@@ -45,5 +45,5 @@ check() {
     cd "$builddir"
 }
 
-sha512sums="65b5a729562eb135abfe0d7af7c2f74095143dd4852c9841498f0c4ef1481811213c6af8b823b7082d3e5ecdaa98a996a1960bef027638c9a0bf0b561e5f6062  fastqc-0.11.7.tar.gz"
+sha512sums="62aab991cdc894b3ecb9cb5b8656eecd8a4690bcf57d2394eb068cc2d27d27dd0900e3dbcac34f5d23fee4dae4f02414534e3b104f91db16825894a47ae01cdf  fastqc-0.11.8.tar.gz"
 

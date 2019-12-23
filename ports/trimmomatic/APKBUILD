@@ -2,7 +2,7 @@
 # Maintainer: Franklin Sobrinho <franklin.g.sobrinho@gmail.com>
 
 pkgname=trimmomatic
-pkgver=0.38
+pkgver=0.39
 pkgrel=0
 pkgdesc="Trimmomatic is a flexible trimmer for Illumina Sequence Data"
 url="http://www.usadellab.org/cms/?page=trimmomatic"
@@ -51,4 +51,4 @@ check() {
 	cd "$builddir"
 }
 
-sha512sums="79e25bd83d2cdb145fbefe3a23cfcf6de758c2ec0565bd03a7af2deb2f62deb24ac7f8a169507ba1e219bb36b70e814c081232e62a31c8200ceecbb2bdcd9d8a  Trimmomatic-Src-0.38.zip"
+sha512sums="ded529706b9bdbfc5c1c6b3ab02afa841e4aabb68ff924b0b153d0cff6c576fc27db057a3e08999ae8596fae9e275e41525bc5796edc3fa52e489973fa547fae  Trimmomatic-Src-0.39.zip"
