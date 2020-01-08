@@ -3,7 +3,7 @@
 
 ![Gito](https://raw.githubusercontent.com/gitobioinformatics/gito/master/images/gito.png)
 
-# Gito - A Docker image focused on reproducibility for building lightweight containers of bioinformatics tools
+# Gito - A Docker image based on research software good practices for building containers of bioinformatics software
 
 Gito is a lightweight and safe [Docker](https://www.docker.com) image based on [Alpine](https://alpinelinux.org) containing bioinformatics tools ready to be used. It's an open source project that provides an easy and modular method for building, distributing and replicating pipelines, those of which hava a base image that forms the foundation layer on which each container is built. The base image is only 4.41 MB in size and contains only the OS libraries and language dependencies required to run the tools, but robust enough to run bioinformatics pipelines with security.
 
